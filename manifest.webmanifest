@@ -1,0 +1,10 @@
+{
+  "name": "Games · Παιχνίδια",
+  "short_name": "Games",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#071426",
+  "background_color": "#071426",
+  "lang": "el"
+}
