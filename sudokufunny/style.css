@@ -135,3 +135,16 @@ input[type=radio],input[type=checkbox]{accent-color:#49a9ff;width:17px;height:17
 
 /* Same desktop hero height as the other Applications banners. */
 @media(min-width:761px){.hero{height:150px}}
+
+/* Fit the desktop control deck and Sudoku board within short monitors. */
+@media (min-width:960px) and (max-height:850px){
+ .hero{height:64px!important;margin-bottom:4px!important}
+ .app-shell{padding-top:5px;padding-bottom:4px}
+ .board-wrap{width:min(100%,960px,calc(100dvh - 125px))}
+ .game-panel{row-gap:7px}
+ .status-block,.status-action{min-height:54px}
+ .number-pad button{min-height:48px}
+ .tool-btn{min-height:53px}
+ .secondary-row .btn{min-height:43px}
+ .fullscreen-btn{min-height:43px}
+}
