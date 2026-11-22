@@ -1,5 +1,5 @@
 (()=>{const {el,btn,shuffle,card}=G;let s;const P=G.progress(start);const suits=["♠","♥","♦","♣"],name=n=>n===1?"A":n===11?"J":n===12?"Q":n===13?"K":String(n);
-const deck=()=>shuffle(Array.from({length:52},(_,i)=>({v:i%13+1,s:suits[Math.floor(i/13)],gone:false})));
+const deck=(stage=P.stage,difficulty=P.difficulty)=>G.shuffleStage(Array.from({length:52},(_,i)=>({v:i%13+1,s:suits[Math.floor(i/13)],gone:false})),"pyramid",stage,difficulty);window.PyramidLevels={deck};
 const idx=(r,c)=>r*(r+1)/2+c;function available(i){if(s.pyramid[i].gone)return false;let r=0;while(idx(r+1,0)<=i&&r<6)r++;let c=i-idx(r,0);return r===6||(s.pyramid[idx(r+1,c)].gone&&s.pyramid[idx(r+1,c+1)].gone);}
 function start(){const d=deck();s={pyramid:d.slice(0,28),stock:d.slice(28),waste:[],selected:null,moves:0,won:false,recycles:0};render();save();}
 function save(){G.store("round",s)}
