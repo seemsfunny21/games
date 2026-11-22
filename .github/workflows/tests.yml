@@ -32,3 +32,5 @@ jobs:
         run: node tests/smoke.cjs
       - name: Check other ten games on mobile and desktop including offline
         run: node tests/migrated.cjs
+      - name: Audit unique 20-level layouts across all difficulties
+        run: node tests/levels.cjs
