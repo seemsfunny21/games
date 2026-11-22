@@ -17,3 +17,7 @@ window.G={
  mount:()=>{window.addEventListener("pagehide",()=>{window.dispatchEvent(new Event("game-paused"))});}
 };
 G.mount();
+// Each game can initialize the common offline cache even when opened directly.
+if("serviceWorker" in navigator&&location.protocol==="https:"){
+  window.addEventListener("load",()=>navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(e=>console.warn("Games offline cache:",e)));
+}
