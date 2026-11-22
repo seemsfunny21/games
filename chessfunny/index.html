@@ -1,0 +1,202 @@
+<!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071426"><meta name="color-scheme" content="dark"><title>ChessFunny — Σκάκι</title><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="manifest" href="./manifest.webmanifest"><style>
+:root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#071426;color:#edf9ff}
+body{background:radial-gradient(ellipse at top,#17477a,#071426 65%)}
+button,select{font:inherit}button{cursor:pointer;touch-action:manipulation}button:focus-visible{outline:3px solid #9cf2ff;outline-offset:1px}
+[hidden]{display:none!important}
+.shell{width:min(100%,820px);margin:0 auto;padding:8px 8px 16px;min-height:100dvh}
+.hero{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0 0 9px;padding:9px 12px;background:linear-gradient(130deg,#164d7b,#092d50);border:1px solid #5aaede99;border-radius:15px;box-shadow:0 6px 22px #0005}
+.hero-title{display:flex;align-items:center;gap:9px}.hero .knight{font-size:36px;color:white;text-shadow:0 0 14px #4fd7ff}
+h1{margin:0;font-size:clamp(24px,6vw,35px);letter-spacing:-1px}h1 em{font-style:normal;color:#53d7ff}
+.gear{height:38px;width:38px;border:1px solid #65b3df;border-radius:10px;background:#124e77;color:white;font-size:22px}
+.board-card{background:linear-gradient(145deg,#0c3659,#071f37);border:1px solid #44abe2;border-radius:16px;padding:7px;box-shadow:0 0 21px #009def27}
+.top-score{display:flex;justify-content:space-between;align-items:center;padding:2px 6px 7px;font-size:12px;color:#bfdcf1}
+.board-grid{display:grid;grid-template-columns:18px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 19px}
+.ranks{grid-row:1;grid-column:1;display:grid;grid-template-rows:repeat(8,1fr);font-size:11px;color:#a8d6f7;text-align:center}.ranks span{display:grid;place-items:center}
+.files{grid-column:2;grid-row:2;display:grid;grid-template-columns:repeat(8,1fr);text-align:center;font-size:11px;color:#a8d6f7}
+.board{grid-column:2;grid-row:1;width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));overflow:hidden;border:1px solid #85d5ff90}
+.sq{position:relative;display:grid;place-items:center;padding:0;border:0;border-radius:0;min-width:0;min-height:0}
+.sq.light{background:linear-gradient(145deg,#43a4da,#2379b4)}.sq.dark{background:linear-gradient(145deg,#175281,#073458)}
+.sq.last{box-shadow:inset 0 0 0 100px #e2d86c50}
+.sq.selected{outline:3px solid #67fff0;outline-offset:-4px;z-index:2;box-shadow:inset 0 0 16px #51ffdfa0}
+.sq.hint{outline:3px solid #ffe88d;outline-offset:-4px}
+.sq.target::before{content:"";position:absolute;z-index:1;width:22%;aspect-ratio:1;border-radius:50%;background:#74efa3;box-shadow:0 0 10px #7dfcb7}
+.sq.capture::before{content:"";position:absolute;z-index:1;inset:4px;border-radius:50%;border:4px solid #6cfdcead}
+.sq.check{background:radial-gradient(circle,#9b3155,#562747 80%)}
+.piece{pointer-events:none;z-index:1;line-height:1;font-family:"DejaVu Sans","Segoe UI Symbol","Noto Sans Symbols 2",serif;font-size:clamp(29px,8.4vw,68px);user-select:none;-webkit-user-select:none}
+.piece.white{color:#fff;-webkit-text-stroke:.4px #7a9cb4;text-shadow:0 2px 2px #3a648c,0 3px 5px #001528}
+.piece.black{color:#071a2b;-webkit-text-stroke:1.1px #74cbed;text-shadow:0 -1px 0 #c0f5ff,0 3px 4px #001428}
+.status{min-height:27px;padding:6px 4px 1px;font-size:12px;font-weight:700;text-align:center;color:#d8f4ff}
+.controls{display:grid;gap:9px;margin-top:9px;padding:11px;border:1px solid #4890bd8c;border-radius:15px;background:linear-gradient(145deg,#113d65,#0b2844)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:7px}.pill{display:grid;place-items:center;min-height:38px;padding:5px;border:1px solid #568ebc;border-radius:11px;background:#10375a;text-align:center;font-size:12px;font-weight:780}
+.pill.turn{background:linear-gradient(140deg,#136556,#0d3c51);border-color:#58e3b2;color:#eafff4}
+.buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 1.8fr;gap:6px}
+.buttons button{min-height:40px;border:1px solid #5595c5;border-radius:11px;background:linear-gradient(145deg,#195685,#0b3658);color:white;font-size:21px}
+.buttons .primary{background:linear-gradient(145deg,#1eb4f6,#1163b5);border-color:#87e5ff;font-size:13px;font-weight:800;box-shadow:0 0 13px #1da6fb70}
+.buttons button:disabled{opacity:.36}
+.foot{font-size:10px;color:#9ab8d5;text-align:center;margin:9px 0}
+.overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:12px;background:#031525cf;backdrop-filter:blur(4px)}
+.dialog{width:min(100%,370px);max-height:85dvh;overflow:auto;padding:16px;border:1px solid #73c9f5;border-radius:16px;background:linear-gradient(155deg,#16466d,#082641);box-shadow:0 16px 40px #000c}
+.dialog h2{margin:0 0 12px;font-size:18px}.dialog p{font-size:12px;color:#c0d9ef;line-height:1.6}.dialog label{display:block;font-size:12px;margin:9px 0 5px}.dialog select,.dialog .wide{width:100%;min-height:40px;border:1px solid #68b9e2;border-radius:10px;background:#14466e;color:white;padding:8px;font-weight:750}
+.dialog .wide{margin-top:9px}.promotion{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.promotion button{min-height:62px;border:1px solid #8dcfe8;border-radius:10px;background:#185381;color:white;font-size:42px}
+@media(max-width:360px){.shell{padding:4px}.hero{padding:6px 8px;margin-bottom:5px}.board-card{padding:4px}.board-grid{grid-template-columns:14px 1fr}.piece{font-size:clamp(27px,8vw,44px)}.controls{padding:7px;margin-top:5px;gap:5px}.buttons button{min-height:35px}}
+@media(min-width:900px){.shell{max-width:1200px}.layout{display:grid;grid-template-columns:minmax(0,760px) minmax(290px,1fr);align-items:start;gap:16px}.controls{margin:0;position:sticky;top:12px}.stats{grid-template-columns:1fr}.buttons{grid-template-columns:repeat(3,1fr)}.buttons .primary{grid-column:1/-1}.piece{font-size:clamp(45px,5vw,77px)}}
+
+/* Board-first interface: only the chessboard stays on the game surface.
+   Every command, score and difficulty choice is available in the top gear. */
+@media(min-width:900px){
+ .shell{max-width:1180px}
+ .layout{display:flex;align-items:flex-start;justify-content:center;gap:0}
+ .board-card{width:min(100%,calc(100dvh - 240px),980px)}
+ .piece{font-size:clamp(45px,5vw,92px)}
+}
+.menu-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin-bottom:8px}
+.menu-status{min-height:26px;margin:4px 0 7px;padding:2px 3px;font-size:12px;color:#d9f6ff!important}
+.menu-ai{margin:3px 0 9px!important;text-align:center;color:#d5e9ff!important;font-size:12px}
+.settings-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:9px}
+.dialog .settings-actions .wide{margin:0;min-width:0}
+.dialog #undo:disabled,.dialog #hint:disabled{opacity:.4;cursor:default}
+.dialog #new{background:linear-gradient(145deg,#2195d1,#1360a1);border-color:#8be7ff}
+.menu-note{text-align:center;margin:9px 0 2px!important;font-size:11px!important}
+</style><style id="game-dialog-theme">
+.game-dialog-cover{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;background:#021426d9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.game-dialog-cover[hidden]{display:none!important}
+.game-dialog-box{box-sizing:border-box;width:min(370px,100%);max-height:min(82dvh,440px);overflow:auto;padding:15px 14px;border:1px solid #7ccef3;border-radius:16px;background:linear-gradient(145deg,#194f77,#0a2945 83%);box-shadow:0 16px 40px #000b,0 0 20px #36aff83b;color:#e8f8ff;font:inherit;text-align:center}
+.game-dialog-box h2{font-size:clamp(15px,2.5vw,19px);margin:0 0 7px;line-height:1.2;color:#f0fbff}
+.game-dialog-box p{font-size:clamp(12px,1.8vw,14px);line-height:1.45;color:#c7e1f6;margin:0 0 12px}
+.game-dialog-actions{display:flex;gap:8px;justify-content:center;align-items:stretch}
+.game-dialog-btn{flex:1 1 0;min-width:0;min-height:37px;border-radius:10px;border:1px solid #659ec9;background:linear-gradient(145deg,#22577f,#123856);color:#f3fbff;padding:7px 8px;font:700 12px system-ui,sans-serif;cursor:pointer}
+.game-dialog-btn.primary{border-color:#8de0ff;background:linear-gradient(145deg,#259bdc,#1460a2);box-shadow:0 0 12px #2cb9f653}
+.game-dialog-btn:focus-visible{outline:2px solid #90f3fc;outline-offset:2px}
+.game-dialog-choices{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:10px 0 13px}
+.game-dialog-choices button{min-width:0;min-height:36px;border:1px solid #63a6cc;border-radius:8px;background:linear-gradient(145deg,#246b97,#114466);color:white;font:800 13px system-ui,sans-serif;padding:4px 0;cursor:pointer}
+.game-dialog-choices button:focus-visible{outline:2px solid #abfddc;outline-offset:1px}
+.game-dialog-copy{display:block;width:100%;margin:8px 0 12px;padding:8px;border:1px solid #6ab5d9;border-radius:8px;background:#0b2c45;color:#d8f4ff;font:12px system-ui,sans-serif}
+@media(max-width:380px){.game-dialog-cover{padding:7px}.game-dialog-box{padding:10px}.game-dialog-choices{gap:4px}.game-dialog-choices button{min-height:31px;font-size:12px}}
+</style>
+<script id="game-dialog-controller">
+(function(){
+ 'use strict';
+ let current=null;
+ function mount(){
+  let el=document.getElementById('gameDialogCover');
+  if(el)return el;
+  el=document.createElement('div');el.id='gameDialogCover';el.className='game-dialog-cover';el.hidden=true;
+  el.setAttribute('role','presentation');
+  const root=document.querySelector('main.app')||document.querySelector('.app-shell')&&document.body||document.body;
+  root.appendChild(el);
+  return el;
+ }
+ function open(title,message,choices,opts){
+  if(current)return Promise.resolve(null);
+  const layer=mount();layer.replaceChildren();layer.hidden=false;
+  const box=document.createElement('section');box.className='game-dialog-box';
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);
+  const heading=document.createElement('h2');heading.textContent=title;box.appendChild(heading);
+  const paragraph=document.createElement('p');paragraph.textContent=message;box.appendChild(paragraph);
+  const zone=document.createElement('div');zone.className=opts&&opts.grid?'game-dialog-choices':'game-dialog-actions';
+  box.appendChild(zone);layer.appendChild(box);
+  let resolvePromise;
+  const promise=new Promise(resolve=>{resolvePromise=resolve;});
+  const close=value=>{
+   if(!current)return;
+   document.removeEventListener('keydown',keyHandler,true);layer.hidden=true;layer.replaceChildren();
+   current=null;resolvePromise(value);
+  };
+  const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);}};
+  current={close};document.addEventListener('keydown',keyHandler,true);
+  if(opts&&opts.input){
+   const input=document.createElement('input');input.className='game-dialog-copy';input.readOnly=true;input.value=opts.input;input.setAttribute('aria-label','Σύνδεσμος πρόσκλησης');box.insertBefore(input,zone);
+   input.addEventListener('focus',()=>input.select());
+  }
+  for(const option of choices){
+   const button=document.createElement('button');button.type='button';
+   button.className=opts&&opts.grid?'':'game-dialog-btn'+(option.primary?' primary':'');
+   button.textContent=option.label;button.addEventListener('click',()=>close(option.value));
+   zone.appendChild(button);
+  }
+  const first=zone.querySelector('button');if(first)first.focus();
+  return promise;
+ }
+ const confirm=message=>open('Επιβεβαίωση',message,[{label:'Ακύρωση',value:false},{label:'Συνέχεια',value:true,primary:true}]).then(x=>x===true);
+ const wish=()=>open('🀄 Ευχή Mahjong','Ποιο φύλλο ζητάς από τους επόμενους παίκτες;',[...Array(13)].map((_,i)=>{const n=i+2;return{label:n===11?'J':n===12?'Q':n===13?'K':n===14?'A':String(n),value:n};}).concat([{label:'Ακύρωση',value:null}]),{grid:true});
+ const copy=url=>open('🔗 Πρόσκληση φίλου','Αντέγραψε τον σύνδεσμο και στείλε τον φίλο σου.',[{label:'Κλείσιμο',value:true,primary:true}],{input:url});
+ window.GameDialog=Object.freeze({confirm,wish,copy});
+})();
+</script>
+<style id="applications-unified-game-banner">
+.suite-game-banner{box-sizing:border-box;display:block;width:min(100%,720px);height:clamp(74px,12dvh,112px);margin:2px auto 10px;overflow:hidden;border-radius:12px;border:1px solid rgba(111,188,255,.4);background:#102e54;box-shadow:0 10px 25px rgba(0,6,26,.32)}
+body>.suite-game-banner{width:min(calc(100% - 24px),720px);margin:12px auto 10px}
+.suite-game-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(min-width:761px){.suite-game-banner{height:150px}}
+</style>
+</head><body>
+<main class="shell"><div class="suite-game-banner"><img src="./hero-banner.svg" width="900" height="300" alt="" aria-hidden="true" decoding="async"></div>
+<header class="hero"><div class="hero-title"><span class="knight">♘</span><h1>Chess<em>Funny</em></h1></div><button id="gear" class="gear" type="button" aria-controls="settings" aria-expanded="false" aria-label="Ρυθμίσεις">⚙</button></header>
+<div class="layout"><section class="board-card">
+<div class="board-grid"><div class="ranks"><span>8</span><span>7</span><span>6</span><span>5</span><span>4</span><span>3</span><span>2</span><span>1</span></div><div id="board" class="board" role="grid" aria-label="Σκακιέρα 8x8"></div><div class="files"><span>a</span><span>b</span><span>c</span><span>d</span><span>e</span><span>f</span><span>g</span><span>h</span></div></div>
+</section></div></main>
+<div class="overlay" id="settings" hidden><div class="dialog" role="dialog" aria-modal="true" aria-label="Ρυθμίσεις" tabindex="-1">
+<h2>⚙ Ρυθμίσεις ChessFunny</h2>
+<div class="menu-stats"><div class="pill turn" id="turn">♙ Η σειρά σου</div><div class="pill" id="wins">🏆 Νίκες 0–0</div></div>
+<p id="status" class="status menu-status" role="status" aria-live="polite">Παίζεις με τα λευκά.</p>
+<p class="menu-ai">♚ Υπολογιστής · <strong id="aiLevel">AI · Κανονικό</strong></p>
+<label for="difficulty">Δυσκολία υπολογιστή</label><select id="difficulty"><option value="1">Εύκολο</option><option value="2">Κανονικό</option><option value="3">Δύσκολο</option></select>
+<div class="settings-actions"><button id="undo" class="wide" type="button">↶ Αναίρεση</button><button id="hint" class="wide" type="button">💡 Υπόδειξη</button></div>
+<button id="new" class="wide primary" type="button">↻ Νέα παρτίδα</button>
+<button id="clearWins" class="wide" type="button">Μηδενισμός νικών</button>
+<p class="menu-note">Η παρτίδα αποθηκεύεται αυτόματα.</p>
+<button id="closeSettings" class="wide" type="button">Επιστροφή στο παιχνίδι</button>
+</div></div>
+<div class="overlay" id="promotion" hidden><div class="dialog" role="dialog" aria-modal="true"><h2>Προαγωγή πιονιού</h2><div id="promotionButtons" class="promotion"></div></div></div>
+<script src="./engine.js?v=1"></script>
+<script>
+(function(){
+'use strict';
+const E=window.ChessEngine,$=id=>document.getElementById(id),KEY='chessfunny:game:v1',SKEY='chessfunny:score:v1',DKEY='chessfunny:difficulty:v1';
+const symbols={K:'♔',Q:'♕',R:'♖',B:'♗',N:'♘',P:'♙',k:'♚',q:'♛',r:'♜',b:'♝',n:'♞',p:'♟'};
+const pieceNames={K:'βασιλιάς',Q:'βασίλισσα',R:'πύργος',B:'αξιωματικός',N:'ίππος',P:'πιόνι'};
+let game=E.start(),history=[],positions=[],last=null,selected=-1,targets=[],hintFrom=-1,thinking=false,finished=false,notice='',difficulty=2,aiTimer=null,score={w:0,b:0,draw:0};
+function sig(g){return g.b.map(x=>x||'.').join('')+g.turn+g.castle+g.ep;}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({game,history,positions,last,finished}));}catch(e){}}
+function saveScore(){try{localStorage.setItem(SKEY,JSON.stringify(score));}catch(e){}}
+function load(){try{let x=JSON.parse(localStorage.getItem(KEY)||'null');if(x?.game?.b?.length===64&&['w','b'].includes(x.game.turn)){game=x.game;history=x.history||[];positions=x.positions||[sig(game)];last=x.last;finished=!!x.finished;}}catch(e){}
+try{let x=JSON.parse(localStorage.getItem(SKEY)||'null');if(x&&Number.isFinite(x.w)&&Number.isFinite(x.b))score={w:x.w,b:x.b,draw:x.draw||0};}catch(e){}
+try{let x=Number(localStorage.getItem(DKEY));if([1,2,3].includes(x))difficulty=x;}catch(e){}$('difficulty').value=String(difficulty);}
+function state(){let st=E.status(game);if(!st.over&&positions.filter(x=>x===sig(game)).length>=3)st={over:true,reason:'repetition',winner:null};if(st.over&&!finished){finished=true;if(st.winner==='w')score.w++;else if(st.winner==='b')score.b++;else score.draw++;saveScore();}return st;}
+function draw(){
+const st=state(),legal=!st.over?E.legal(game):[],king=st.check?game.b.indexOf(game.turn==='w'?'K':'k'):-1;
+$('board').replaceChildren();
+for(let i=0;i<64;i++){const p=game.b[i],el=document.createElement('button');el.type='button';el.className='sq '+((Math.floor(i/8)+i%8)%2?'dark':'light');el.setAttribute('role','gridcell');el.setAttribute('aria-label',E.name(i)+' '+(p?(E.side(p)==='w'?'λευκό ':'μαύρο ')+pieceNames[p.toUpperCase()]:'κενό'));
+if(last&&(last.from===i||last.to===i))el.classList.add('last');if(selected===i)el.classList.add('selected');if(hintFrom===i)el.classList.add('hint');if(i===king)el.classList.add('check');if(targets.some(m=>m.to===i))el.classList.add(p?'capture':'target');
+if(p){let a=document.createElement('span');a.className='piece '+(E.side(p)==='w'?'white':'black');a.textContent=symbols[p];a.setAttribute('aria-hidden','true');el.appendChild(a);}el.addEventListener('click',()=>tap(i));$('board').appendChild(el);}
+$('status').textContent=st.over?(st.reason==='mate'?(st.winner==='w'?'🏆 Ματ! Κέρδισες.':'Ματ! Κέρδισε ο υπολογιστής.'):'Ισοπαλία · '+({stalemate:'πατ',fifty:'50 κινήσεις',insufficient:'ανεπαρκές υλικό',repetition:'επανάληψη'}[st.reason]||'')):thinking?'Ο υπολογιστής σκέφτεται…':notice||(st.check?'⚠ Σαχ!':game.turn==='w'?'Επίλεξε λευκό κομμάτι.':'Περιμένουμε τον υπολογιστή.');
+$('turn').textContent=st.over?'Τέλος παρτίδας':game.turn==='w'&&!thinking?'♙ Η σειρά σου':'♚ Σειρά AI';$('wins').textContent='🏆 Νίκες '+score.w+'–'+score.b+(score.draw?' · Ισ. '+score.draw:'');$('aiLevel').textContent='AI · '+({1:'Εύκολο',2:'Κανονικό',3:'Δύσκολο'}[difficulty]);
+$('hint').disabled=st.over||game.turn!=='w'||thinking;$('undo').disabled=!history.length;save();}
+function move(m){history.push({game:JSON.parse(JSON.stringify(game)),positions:positions.slice(),last});if(history.length>100)history.shift();game=E.make(game,m);positions.push(sig(game));last={from:m.from,to:m.to};selected=-1;targets=[];hintFrom=-1;notice='';draw();if(!finished&&game.turn==='b')scheduleAI();}
+function tap(i){if(finished||thinking||game.turn!=='w')return;hintFrom=-1;const moves=targets.filter(m=>m.to===i);if(selected>=0&&moves.length){if(moves.some(m=>m.promo)){promote(moves);return;}move(moves[0]);return;}
+if(game.b[i]&&E.side(game.b[i])==='w'){selected=i;targets=E.legal(game).filter(m=>m.from===i);notice=targets.length?'Επίλεξε φωτισμένη θέση.':'Αυτό το κομμάτι δεν μπορεί να κινηθεί.';}else{selected=-1;targets=[];notice='';}draw();}
+function promote(moves){$('promotionButtons').replaceChildren();$('promotion').hidden=false;for(const m of moves){const b=document.createElement('button');b.textContent=symbols[m.promo.toUpperCase()];b.setAttribute('aria-label','Προαγωγή σε '+pieceNames[m.promo.toUpperCase()]);b.addEventListener('click',()=>{$('promotion').hidden=true;move(m);});$('promotionButtons').appendChild(b);}}
+function scheduleAI(){if(aiTimer!==null)clearTimeout(aiTimer);thinking=true;draw();aiTimer=setTimeout(()=>{aiTimer=null;if(finished||game.turn!=='b'){thinking=false;draw();return;}try{const m=E.ai(game,difficulty);thinking=false;if(m)move(m);else draw();}catch(err){thinking=false;notice='Σφάλμα AI, χρησιμοποίησε Αναίρεση.';draw();console.error(err);}},350);}
+function undo(){if(aiTimer!==null)clearTimeout(aiTimer);aiTimer=null;thinking=false;if(!history.length)return;if(finished){const result=E.status(game),winner=result.winner;if(winner==='w'&&score.w>0)score.w--;else if(winner==='b'&&score.b>0)score.b--;else if(!winner&&score.draw>0)score.draw--;saveScore();}let x=history.pop();while(x.game.turn!=='w'&&history.length)x=history.pop();game=x.game;positions=x.positions;last=x.last;finished=false;selected=-1;targets=[];hintFrom=-1;notice='Αναιρέθηκε η κίνηση.';draw();if(game.turn==='b')scheduleAI();}
+function hint(){if(finished||thinking||game.turn!=='w')return;const m=E.ai(game,2);if(!m)return;selected=m.from;hintFrom=m.from;targets=E.legal(game).filter(x=>x.from===m.from);notice='💡 '+E.name(m.from)+' → '+E.name(m.to);draw();}
+function reset(){if(aiTimer!==null)clearTimeout(aiTimer);aiTimer=null;game=E.start();positions=[sig(game)];history=[];last=null;selected=-1;targets=[];hintFrom=-1;notice='';thinking=false;finished=false;draw();}
+function settings(show){$('settings').hidden=!show;$('gear').setAttribute('aria-expanded',String(show));if(show)$('closeSettings').focus();else $('gear').focus();}
+$('gear').addEventListener('click',()=>settings(true));$('closeSettings').addEventListener('click',()=>settings(false));$('settings').addEventListener('click',e=>{if(e.target===$('settings'))settings(false);});
+$('difficulty').addEventListener('change',e=>{difficulty=Number(e.target.value);try{localStorage.setItem(DKEY,String(difficulty));}catch(_){}draw();});
+$('clearWins').addEventListener('click',async()=>{if(await GameDialog.confirm('Να μηδενιστούν οι νίκες;')){score={w:0,b:0,draw:0};saveScore();draw();}});
+$('undo').addEventListener('click',()=>{undo();settings(false)});$('hint').addEventListener('click',()=>{hint();settings(false)});$('new').addEventListener('click',async()=>{if(!history.length||finished||await GameDialog.confirm('Να ξεκινήσει νέα παρτίδα;')){reset();settings(false);}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')settings(false);});
+load();positions.length||(positions=[sig(game)]);draw();if(!finished&&game.turn==='b')scheduleAI();
+})();
+</script>
+<!-- Ενιαίος οδηγός παιχνιδιού μέσα στις ρυθμίσεις -->
+<script>
+(()=>{
+const rules=["Στόχος: κάνε ματ στον αντίπαλο βασιλιά. Ο βασιλιάς δεν επιτρέπεται να μείνει σε σαχ.","Ο πύργος κινείται οριζόντια ή κάθετα, ο αξιωματικός διαγώνια και η βασίλισσα και με τους δύο τρόπους.","Το άλογο κινείται σε σχήμα Γ και μπορεί να πηδά πάνω από κομμάτια. Ο βασιλιάς κινείται ένα τετράγωνο.","Το πιόνι προχωρά μπροστά ένα τετράγωνο (δύο στην πρώτη του κίνηση) και αιχμαλωτίζει διαγώνια. Στην τελευταία γραμμή προάγεται.","Ειδικές κινήσεις: ροκέ, αν παίκτης και πύργος πληρούν τις προϋποθέσεις, και en passant στην κατάλληλη αμέσως επόμενη κίνηση.","Ισοπαλία μπορεί να προκύψει από πατ, επανάληψη θέσης ή άλλους κανόνες."];
+const style=document.createElement('style');style.textContent=`.funny-help-overlay{position:fixed;inset:0;z-index:2147483640;background:#020b19dc;display:flex;align-items:center;justify-content:center;padding:16px}.funny-help-overlay[hidden]{display:none!important}.funny-help-card{width:min(460px,100%);max-height:85dvh;overflow:auto;background:linear-gradient(155deg,#15395b,#091a30);color:#edf8ff;border:1px solid #68b9ed;border-radius:18px;padding:20px;box-shadow:0 15px 50px #0009;font:14px/1.55 system-ui,sans-serif}.funny-help-card h2{font-size:20px;margin:0 0 12px;text-align:center}.funny-help-card ol{padding-left:24px}.funny-help-card li{margin-bottom:10px}.funny-help-btn{background:#17486d;color:#e8f7ff;border:1px solid #67b9e6;border-radius:10px;padding:9px 12px;cursor:pointer;font:600 13px system-ui,sans-serif}.funny-help-close{display:block;width:100%;margin-top:12px}.funny-help-gear{position:absolute;right:12px;top:12px;font-size:22px}.funny-help-host{position:relative}`;document.head.append(style);
+const overlay=document.createElement('div');overlay.className='funny-help-overlay';overlay.hidden=true;overlay.setAttribute('role','presentation');const card=document.createElement('section');card.className='funny-help-card';card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');card.setAttribute('aria-label','Πώς παίζεται');const title=document.createElement('h2');title.textContent='📖 Πώς παίζεται';const list=document.createElement('ol');for(const rule of rules){const li=document.createElement('li');li.textContent=rule;list.append(li)}const close=document.createElement('button');close.type='button';close.className='funny-help-btn funny-help-close';close.textContent='Επιστροφή στο παιχνίδι';card.append(title,list,close);overlay.append(card);document.body.append(overlay);let previous=null;function hide(){overlay.hidden=true;const target=previous;if(target?.isConnected&&target.getClientRects().length)target.focus();else document.querySelector('#settingsButton,#gear,.funny-help-gear')?.focus()}function show(){previous=document.activeElement;const settings=document.getElementById('settingsDialog');if(settings?.open)settings.close();const chess=document.getElementById('settings');if(chess)chess.hidden=true;overlay.hidden=false;close.focus()}close.addEventListener('click',hide);overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});document.addEventListener('keydown',e=>{if(!overlay.hidden&&e.key==='Escape'){e.stopPropagation();hide()}});
+const settings=document.getElementById('settingsDialog')||document.getElementById('settings');const btn=document.createElement('button');btn.type='button';btn.className='funny-help-btn';btn.textContent='📖 Πώς παίζεται';btn.addEventListener('click',show);if(settings){const form=settings.querySelector('form')||settings.querySelector('.dialog')||settings;const last=form.querySelector('button:last-of-type');if(last)last.before(btn);else form.append(btn)}else{const hero=document.querySelector('.hero')||document.querySelector('header')||document.body;hero.classList.add('funny-help-host');const gear=document.createElement('button');gear.type='button';gear.className='funny-help-btn funny-help-gear';gear.textContent='⚙';gear.setAttribute('aria-label','Ρυθμίσεις και οδηγίες');gear.addEventListener('click',show);hero.append(gear)}
+})();
+</script>
+</body></html>
