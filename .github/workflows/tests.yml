@@ -34,3 +34,7 @@ jobs:
         run: node tests/migrated.cjs
       - name: Audit unique 20-level layouts across all difficulties
         run: node tests/levels.cjs
+      - name: Check Sudoku, Reversi and Quiz engines
+        run: node tests/legacy-engines.cjs
+      - name: Check Solitaire manual/automatic foundation behavior
+        run: node tests/solitaire-auto-foundation.cjs
