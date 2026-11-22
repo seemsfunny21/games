@@ -52,6 +52,16 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.equal(await settings.count(),1,'One settings gear on '+game);
     await settings.click();
     assert.ok(await page.getByRole('dialog',{name:'Οδηγίες παιχνιδιού'}).isVisible(),'Help opens for '+game);
+    const campaign=await page.evaluate(()=>({
+      difficulty:window.G.activeProgress?.difficulty,
+      stage:window.G.activeProgress?.stage,
+      total:window.G.activeProgress?.total
+    }));
+    assert.deepEqual(campaign,{difficulty:'normal',stage:1,total:20},'Campaign starts at normal stage one: '+game);
+    assert.equal(await page.locator('.campaign-difficulty button').count(),3,'All three difficulty options: '+game);
+    assert.equal(await page.locator('.campaign-level').count(),20,'Twenty stages visible in gear: '+game);
+    assert.ok(await page.getByRole('button',{name:'Πίστα 2 κλειδωμένη'}).isDisabled(),'Stage two must be locked until victory: '+game);
+
     await page.getByRole('button',{name:'Κλείσιμο'}).click();
     const dimensions=await page.evaluate(()=>({
       pageScroll:document.documentElement.scrollHeight>window.innerHeight+2,
@@ -89,6 +99,22 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
       await page.waitForTimeout(500);
       const after=await page.locator('#play canvas').evaluate(e=>e.toDataURL());
       assert.notEqual(after,before,'Maze Chase continues moving without directional input');
+    }
+    if(game==='puzzle-15'&&mode==='mobile'){
+      // Verify real persistence and automatic progression through the shared campaign API.
+      assert.equal(await page.evaluate(()=>G.activeProgress.win()),true,'Victory unlocks a stage');
+      await page.waitForFunction(()=>G.activeProgress.stage===2,null,{timeout:4000});
+      await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).click();
+      assert.equal(await page.getByRole('button',{name:'Πίστα 2 διαθέσιμη'}).count(),1,'New stage becomes selectable');
+      await page.getByRole('button',{name:'Πίστα 1 ολοκληρωμένη'}).click();
+      assert.equal(await page.evaluate(()=>G.activeProgress.stage),1,'Previously completed stage remains replayable');
+      await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).click();
+      await page.getByRole('button',{name:'Δύσκολο'}).click();
+      assert.ok(await page.getByRole('button',{name:'Πίστα 2 κλειδωμένη'}).isDisabled(),'Hard difficulty unlocks independently');
+      await page.getByRole('button',{name:'Πίστα 1 διαθέσιμη'}).click();
+      assert.equal(await page.evaluate(()=>G.activeProgress.difficulty),'hard','Choosing hard level changes difficulty');
+      await page.reload({waitUntil:'load'});
+      assert.equal(await page.evaluate(()=>G.activeProgress.difficulty),'hard','Difficulty selection survives reload');
     }
     if(game==='memory-match'){
       assert.equal(await page.locator('#play .match-card').count(),32,'Memory Match has eight rows of four cards');
