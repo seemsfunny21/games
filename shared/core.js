@@ -99,8 +99,9 @@ G.progress=(restart,options={})=>{
   stages.replaceChildren();
   for(let n=1;n<=total;n++){
    const unlocked=n<=highest[viewing],done=n<=cleared[viewing];
-   const b=G.btn((done?"✓ ":"")+(n),()=>api.select(viewing,n),unlocked?"":"secondary");
+   const b=G.btn(String(n),()=>api.select(viewing,n),unlocked?"":"secondary");
    b.className="campaign-level"+(viewing===difficulty&&n===stage?" selected":"")+(done?" completed":"");
+   if(viewing===difficulty&&n===stage)b.setAttribute("aria-current","step");
    b.setAttribute("aria-label","Πίστα "+n+(done?" ολοκληρωμένη":unlocked?" διαθέσιμη":" κλειδωμένη"));
    b.disabled=!unlocked;b.title=!unlocked?"Κλειδωμένη πίστα":"Πίστα "+n;
    stages.append(b);
