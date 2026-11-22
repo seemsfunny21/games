@@ -36,7 +36,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    });
    const base='http://127.0.0.1:'+server.address().port;
    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
-   assert.equal(await page.locator('.game-choice').count(),14,'14 selectable games in hub');
+   assert.equal(await page.locator('.game-choice').count(),24,'24 selectable games in hub');
    for(const game of games){
     failures.length=0;
     await page.goto(base+'/'+game+'/',{waitUntil:'load'});
@@ -231,7 +231,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v10-flow-unique20');
+     const cache=await caches.open('games-shell-v11-all24');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
