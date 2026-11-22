@@ -158,7 +158,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v6-touch-controls');
+     const cache=await caches.open('games-shell-v7-maze-facing');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
