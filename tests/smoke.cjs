@@ -69,7 +69,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.equal(failures.length,0,'Runtime exceptions for '+game+': '+failures.join('; '));
     // Exercise an actual input on puzzle/board/card games, then validate state.
     if(game==='battleship')await page.locator('.battleship-board').first().locator('button:not([disabled])').first().click();
-    if(game==='blackjack')await page.getByRole('button',{name:'Σταμάτα'}).click();
+    if(game==='blackjack'&&await page.getByRole('button',{name:'Σταμάτα'}).isEnabled())await page.getByRole('button',{name:'Σταμάτα'}).click();
     if(game==='puzzle-15')await page.locator('#play button:not([disabled])').first().click();
     if(game==='memory-match')await page.locator('#play button:not([disabled])').first().click();
     if(game==='hangman')await page.locator('#play button:not([disabled])').first().click();
@@ -78,6 +78,12 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     if(game==='word-search')await page.locator('#play button').first().click();
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
     await page.waitForTimeout(60);
+    if(game==='maze-chase'){
+      const before=await page.locator('#play canvas').evaluate(e=>e.toDataURL());
+      await page.waitForTimeout(500);
+      const after=await page.locator('#play canvas').evaluate(e=>e.toDataURL());
+      assert.notEqual(after,before,'Maze Chase continues moving without directional input');
+    }
     if(game==='memory-match'){
       assert.equal(await page.locator('#play .match-card').count(),32,'Memory Match has eight rows of four cards');
       const rows=await page.locator('.memory-full-grid').evaluate(e=>getComputedStyle(e).gridTemplateRows.split(' ').length);
@@ -121,7 +127,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v4-compact-gear-edge-controls');
+     const cache=await caches.open('games-shell-v5-gameplay-eight-improvements');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
