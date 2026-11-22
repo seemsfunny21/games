@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071426"><meta name="color-scheme" content="dark"><meta name="apple-mobile-web-app-capable" content="yes">
+<title>SolitaireFunny — Πασιέντζα</title><style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#071426;color:#e9f6ff;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}body{background:radial-gradient(ellipse at 50% -20%,#164675,#071426 65%)}button{font:inherit;cursor:pointer;touch-action:manipulation}
+.shell{max-width:710px;margin:auto;padding:9px 9px 35px}.hero{text-align:center;background:linear-gradient(145deg,#16466d,#0b223b);border:1px solid #2b567c;border-radius:18px;padding:13px 7px;margin-bottom:9px}.hero-icon{font-size:25px;color:#9ad0ff;letter-spacing:9px;text-shadow:0 0 15px #2b9cf8}h1{font-size:clamp(21px,5vw,27px);margin:2px 0}.sub{color:#a1bbd6;margin:0;font-size:12px}.panel{border:1px solid #274a6d;border-radius:18px;background:#0c233bdc;padding:10px 6px 18px;box-shadow:0 10px 25px #0005}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:0 3px 9px}.metric{background:#102c4a;border:1px solid #326189;padding:7px;text-align:center;border-radius:10px}.metric small{color:#99b9d4;font-size:10px;display:block}.metric strong{display:block;font-variant-numeric:tabular-nums;font-size:18px}.tools{display:flex;justify-content:center;gap:5px;flex-wrap:wrap;margin:10px 2px}.btn{background:linear-gradient(135deg,#183f67,#102b46);border:1px solid #32638a;border-radius:10px;color:#e9f6ff;min-height:37px;padding:7px 11px}.btn.primary{background:linear-gradient(140deg,#227dbe,#134a7c);border-color:#7bc5ff}.btn:disabled{opacity:.38}.btn:focus-visible,.slot:focus-visible,.card:focus-visible{outline:2px solid #7de2ff;outline-offset:2px}.msg{min-height:24px;margin:5px;text-align:center;color:#b7d6ec;font-size:12px}.game{--w:calc((100% - 42px)/7);--h:calc(var(--w)*1.4);background:radial-gradient(ellipse at top,#16436b7d,#0a2037);border:1px solid #2e5979;border-radius:12px;padding:9px 4px 15px;min-height:570px;overflow:hidden}.top,.columns{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.top{margin-bottom:16px}.slot{position:relative;aspect-ratio:5/7;border:1px dashed #5280a07a;border-radius:6px;min-width:0;text-align:center;color:#6e9ebc}.slot.foundation:empty:before{content:attr(data-suit);position:absolute;inset:0;display:grid;place-items:center;font-size:22px;opacity:.5}.slot.placeholder{border-color:transparent}.slot[role=button]{cursor:pointer}.stock{border:0}.stock button{width:100%;height:100%;border:1px solid #376d97;border-radius:6px;background:repeating-linear-gradient(145deg,#114473 0 7px,#2576ad 7px 10px,#114473 10px 17px);box-shadow:inset 0 0 0 3px #0a304f;color:#effbff;font-size:21px}.stock button.empty{background:#102c44;border:1px dashed #507c9a;box-shadow:none;color:#80aac7}.column{position:relative;min-height:420px;border-radius:6px;min-width:0}.column.empty{border:1px dashed #4b7a9a55}.card{position:absolute;left:0;top:0;width:100%;aspect-ratio:5/7;border:1px solid #bcc9d2;border-radius:6px;background:linear-gradient(145deg,#fff,#e0e8ec);color:#172a43;box-shadow:0 2px 6px #0007;text-align:left;display:flex;flex-direction:column;justify-content:space-between;padding:3px 2px;overflow:hidden;user-select:none;-webkit-user-select:none}.card.red{color:#ce3150}.card.back{border:1px solid #4e9ad3;background:repeating-linear-gradient(145deg,#124777 0 7px,#2273a5 7px 11px,#124777 11px 18px);box-shadow:inset 0 0 0 3px #082d4c,0 2px 5px #0008;pointer-events:none}.card .rank{font-weight:900;font-size:clamp(11px,2.7vw,18px)}.card .suit{font-size:clamp(11px,2.6vw,17px)}.card .big{align-self:center;font-size:clamp(16px,4.2vw,30px)}.card.selected{outline:3px solid #54ccff;outline-offset:1px;filter:drop-shadow(0 0 4px #43bdff)}.slot .card{height:100%}.column .card{height:auto;min-height:0}.foot{text-align:center;font-size:12px;color:#87a8c3;line-height:1.6;margin:14px 7px 0}@media(max-width:390px){.shell{padding-inline:5px}.game{padding-inline:3px}.top,.columns{gap:3px}.card{padding:2px}.btn{font-size:12px;padding:6px 8px}}@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Compact the chrome around the seven card columns on mobile.
+   JS dynamically positions the tableau; leave its card geometry intact. */
+@media(max-width:600px){
+ .shell{padding:6px 5px 13px}
+ .hero{padding:6px 5px;margin-bottom:5px;border-radius:12px}
+ .hero-icon{font-size:17px;letter-spacing:5px;line-height:1.05}
+ .hero h1{font-size:19px;margin:2px 0}
+ .hero .sub{display:none}
+ .panel{padding:6px 4px 11px;border-radius:13px}
+ .stats{gap:5px;margin:0 1px 5px}
+ .metric{padding:4px 3px;border-radius:8px}
+ .metric small{font-size:9px}
+ .metric strong{font-size:16px}
+ .tools{margin:5px 1px;gap:4px;flex-wrap:nowrap}
+ .tools .btn{flex:1 1 0;min-width:0;min-height:34px;padding:5px 2px;font-size:clamp(10px,2.8vw,12px);white-space:nowrap}
+ .msg{min-height:19px;margin:3px 2px;font-size:11px;line-height:1.3}
+ .game{min-height:505px;padding:7px 3px 10px}
+ .top{margin-bottom:11px}
+ .top,.columns{gap:3px}
+ .foot{margin:7px 3px 0;font-size:11px}
+}
+
+</style><style id="game-dialog-theme">
+.game-dialog-cover{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;background:#021426d9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.game-dialog-cover[hidden]{display:none!important}
+.game-dialog-box{box-sizing:border-box;width:min(370px,100%);max-height:min(82dvh,440px);overflow:auto;padding:15px 14px;border:1px solid #7ccef3;border-radius:16px;background:linear-gradient(145deg,#194f77,#0a2945 83%);box-shadow:0 16px 40px #000b,0 0 20px #36aff83b;color:#e8f8ff;font:inherit;text-align:center}
+.game-dialog-box h2{font-size:clamp(15px,2.5vw,19px);margin:0 0 7px;line-height:1.2;color:#f0fbff}
+.game-dialog-box p{font-size:clamp(12px,1.8vw,14px);line-height:1.45;color:#c7e1f6;margin:0 0 12px}
+.game-dialog-actions{display:flex;gap:8px;justify-content:center;align-items:stretch}
+.game-dialog-btn{flex:1 1 0;min-width:0;min-height:37px;border-radius:10px;border:1px solid #659ec9;background:linear-gradient(145deg,#22577f,#123856);color:#f3fbff;padding:7px 8px;font:700 12px system-ui,sans-serif;cursor:pointer}
+.game-dialog-btn.primary{border-color:#8de0ff;background:linear-gradient(145deg,#259bdc,#1460a2);box-shadow:0 0 12px #2cb9f653}
+.game-dialog-btn:focus-visible{outline:2px solid #90f3fc;outline-offset:2px}
+.game-dialog-choices{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:10px 0 13px}
+.game-dialog-choices button{min-width:0;min-height:36px;border:1px solid #63a6cc;border-radius:8px;background:linear-gradient(145deg,#246b97,#114466);color:white;font:800 13px system-ui,sans-serif;padding:4px 0;cursor:pointer}
+.game-dialog-choices button:focus-visible{outline:2px solid #abfddc;outline-offset:1px}
+.game-dialog-copy{display:block;width:100%;margin:8px 0 12px;padding:8px;border:1px solid #6ab5d9;border-radius:8px;background:#0b2c45;color:#d8f4ff;font:12px system-ui,sans-serif}
+@media(max-width:380px){.game-dialog-cover{padding:7px}.game-dialog-box{padding:10px}.game-dialog-choices{gap:4px}.game-dialog-choices button{min-height:31px;font-size:12px}}
+</style>
+<script id="game-dialog-controller">
+(function(){
+ 'use strict';
+ let current=null;
+ function mount(){
+  let el=document.getElementById('gameDialogCover');
+  if(el)return el;
+  el=document.createElement('div');el.id='gameDialogCover';el.className='game-dialog-cover';el.hidden=true;
+  el.setAttribute('role','presentation');
+  const root=document.querySelector('main.app')||document.querySelector('.app-shell')&&document.body||document.body;
+  root.appendChild(el);
+  return el;
+ }
+ function open(title,message,choices,opts){
+  if(current)return Promise.resolve(null);
+  const layer=mount();layer.replaceChildren();layer.hidden=false;
+  const box=document.createElement('section');box.className='game-dialog-box';
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);
+  const heading=document.createElement('h2');heading.textContent=title;box.appendChild(heading);
+  const paragraph=document.createElement('p');paragraph.textContent=message;box.appendChild(paragraph);
+  const zone=document.createElement('div');zone.className=opts&&opts.grid?'game-dialog-choices':'game-dialog-actions';
+  box.appendChild(zone);layer.appendChild(box);
+  let resolvePromise;
+  const promise=new Promise(resolve=>{resolvePromise=resolve;});
+  const close=value=>{
+   if(!current)return;
+   document.removeEventListener('keydown',keyHandler,true);layer.hidden=true;layer.replaceChildren();
+   current=null;resolvePromise(value);
+  };
+  const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);}};
+  current={close};document.addEventListener('keydown',keyHandler,true);
+  if(opts&&opts.input){
+   const input=document.createElement('input');input.className='game-dialog-copy';input.readOnly=true;input.value=opts.input;input.setAttribute('aria-label','Σύνδεσμος πρόσκλησης');box.insertBefore(input,zone);
+   input.addEventListener('focus',()=>input.select());
+  }
+  for(const option of choices){
+   const button=document.createElement('button');button.type='button';
+   button.className=opts&&opts.grid?'':'game-dialog-btn'+(option.primary?' primary':'');
+   button.textContent=option.label;button.addEventListener('click',()=>close(option.value));
+   zone.appendChild(button);
+  }
+  const first=zone.querySelector('button');if(first)first.focus();
+  return promise;
+ }
+ const confirm=message=>open('Επιβεβαίωση',message,[{label:'Ακύρωση',value:false},{label:'Συνέχεια',value:true,primary:true}]).then(x=>x===true);
+ const wish=()=>open('🀄 Ευχή Mahjong','Ποιο φύλλο ζητάς από τους επόμενους παίκτες;',[...Array(13)].map((_,i)=>{const n=i+2;return{label:n===11?'J':n===12?'Q':n===13?'K':n===14?'A':String(n),value:n};}).concat([{label:'Ακύρωση',value:null}]),{grid:true});
+ const copy=url=>open('🔗 Πρόσκληση φίλου','Αντέγραψε τον σύνδεσμο και στείλε τον φίλο σου.',[{label:'Κλείσιμο',value:true,primary:true}],{input:url});
+ window.GameDialog=Object.freeze({confirm,wish,copy});
+})();
+</script>
+<style id="applications-unified-game-banner">
+.suite-game-banner{box-sizing:border-box;display:block;width:min(100%,720px);height:clamp(74px,12dvh,112px);margin:2px auto 10px;overflow:hidden;border-radius:12px;border:1px solid rgba(111,188,255,.4);background:#102e54;box-shadow:0 10px 25px rgba(0,6,26,.32)}
+body>.suite-game-banner{width:min(calc(100% - 24px),720px);margin:12px auto 10px}
+.suite-game-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(min-width:761px){.suite-game-banner{height:150px}}
+
+/* Portrait phones: rotate ONLY the Solitaire playfield 90deg, not the
+   device screen. Match Tavli's landscape-in-portrait behaviour. */
+@media(orientation:portrait) and (max-width:650px){
+ html,body{width:100%;height:100%;min-height:0;overflow:hidden!important;overscroll-behavior:none}
+ .suite-game-banner{display:none!important}
+ .shell{position:fixed;top:0;left:100vw;width:100dvh;height:100vw;
+   max-width:none!important;min-height:0;margin:0;padding:3px 5px;
+   transform-origin:top left;transform:rotate(90deg);
+   display:flex;flex-direction:column;gap:3px;overflow:hidden}
+ .hero{flex:0 0 auto;margin:0;padding:2px 7px;min-height:25px;height:25px;
+   display:flex;align-items:center;justify-content:center;gap:8px;border-radius:9px}
+ .hero-icon{font-size:16px;letter-spacing:3px;line-height:1}
+ .hero h1{font-size:16px;margin:0;line-height:1}
+ .hero .sub{display:none}
+ .panel{display:flex;flex-direction:column;flex:1 1 0;min-height:0;
+   padding:3px 5px 4px;border-radius:10px;overflow:hidden}
+ .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+   gap:5px;margin:0 1px 3px;flex:0 0 auto}
+ .metric{display:flex;gap:5px;justify-content:center;align-items:center;
+   padding:2px 5px;min-height:24px;border-radius:7px}
+ .metric small{display:inline;font-size:10px}
+ .metric strong{display:inline;font-size:13px}
+ .tools{flex:0 0 auto;display:flex;justify-content:center;flex-wrap:nowrap;
+   gap:5px;margin:2px 1px}
+ .tools .btn{flex:0 1 auto;min-width:78px;min-height:28px;
+   padding:4px 8px;font-size:11px;white-space:nowrap}
+ .msg{flex:0 0 auto;min-height:15px;max-height:19px;margin:1px 2px 3px;
+   font-size:10px;line-height:1.3;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ .game{display:flex;flex-direction:column;flex:1 1 0;min-height:0;
+   padding:4px 5px 3px;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;
+   scrollbar-width:thin;border-radius:9px}
+ .top,.columns{width:100%;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+ .top{flex:0 0 auto;margin-bottom:6px;height:73px}
+ .top .slot{aspect-ratio:auto;height:73px}
+ .top .slot .card{height:100%;aspect-ratio:auto}
+ .columns{flex:0 0 auto;min-height:196px}
+ .column{min-height:196px!important}
+ .column .card{aspect-ratio:5/6;max-height:110px}
+ .card .rank{font-size:15px}
+ .card .suit{font-size:14px}
+ .card .big{font-size:23px}
+ /* Clearer tableau in the short edge of portrait phones: reveal each
+    card's rank and suit and keep individual cards visually distinct. */
+ .columns{gap:7px}
+ .column .card{left:3%;width:94%;max-height:96px;
+   border-radius:8px;box-shadow:0 2px 6px #0009}
+ .top .slot{border-radius:8px}
+ .top .slot .card{left:3%;width:94%;border-radius:8px}
+ .game{padding-inline:7px}
+
+
+ /* Mobile compact cards v5: physically ~60x84 CSS pixels, rather than
+    cards nearly as wide as each column (~100x96). Remain centered. */
+ .column .card{
+   left:50%!important;width:min(68%,60px)!important;
+   height:84px!important;max-height:84px!important;
+   aspect-ratio:auto!important;
+   transform:translateX(-50%);padding:3px 3px!important;
+ }
+ .top{height:64px!important}
+ .top .slot{height:64px!important}
+ .top .slot .card{
+   left:50%!important;width:min(70%,60px)!important;
+   height:64px!important;max-height:64px!important;
+   aspect-ratio:auto!important;transform:translateX(-50%);
+ }
+ .column .card .rank,.top .card .rank{font-size:14px!important}
+ .column .card .suit,.top .card .suit{font-size:13px!important}
+ .column .card .big,.top .card .big{font-size:19px!important}
+ .column .card.selected{transform:translateX(-50%)}
+ /* Phone landscape felt: seven compact card columns stay together on the
+    left. Preserve 60x84 cards, leave the remaining width empty on the right. */
+ .top,.columns{
+   width:min(100%,460px)!important;max-width:460px!important;
+   grid-template-columns:repeat(7,minmax(0,64px))!important;
+   gap:2px!important;align-self:flex-start!important;
+ }
+ .column .card{
+   width:min(60px,calc(100% - 4px))!important;
+ }
+ .top .slot .card{
+   width:min(60px,calc(100% - 4px))!important;
+ }
+
+  /* Three-card Klondike visibly fans the waste cards on portrait phones. */
+  #waste .card.waste-fan{left:50%!important;width:min(48px,calc(100% - 16px))!important;
+   transform:translateX(calc(-50% + var(--waste-shift,0px)))!important;padding:2px!important}
+  #waste .card.waste-fan .big{font-size:17px!important}
+ .game-dialog-cover{position:fixed;top:0;left:100vw;right:auto;bottom:auto;
+   width:100dvh;height:100vw;transform-origin:top left;transform:rotate(90deg)}
+}
+@media(orientation:portrait) and (max-width:360px){
+ .shell{padding:2px}
+ .hero{height:22px;min-height:22px}
+ .top{height:62px}
+ .top .slot{height:62px}
+ .tools .btn{min-width:65px;min-height:25px;padding:3px 5px;font-size:10px}
+ .metric{min-height:21px}
+ .columns,.column{min-height:160px!important}
+}
+
+
+/* Landscape-in-portrait control deck, occupying only the unused right side
+   of the compact seven-column card field. */
+.game{position:relative}
+.solitaire-deck{display:none}
+.draw-mode-toolbar{display:inline-flex;align-items:center;gap:5px}
+.draw-mode-toolbar .btn[aria-pressed="true"]{background:#267fb6;border-color:#8bdfff}
+@media(orientation:portrait) and (max-width:650px){
+ .draw-mode-toolbar{display:none}
+ .solitaire-deck{
+   display:flex;position:absolute;left:475px;top:9px;
+   width:calc(100% - 485px);max-width:320px;min-width:0;
+   flex-direction:column;align-items:stretch;gap:9px;
+   color:#e6f4ff;z-index:1;
+ }
+ .solitaire-deck h2{margin:0;font-size:15px;text-align:center}
+ .solitaire-deck .progress-caption{font-size:11px;color:#b5d6ed}
+ .solitaire-deck .mode-buttons{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+ .solitaire-deck button{padding:9px 5px;min-height:43px;border:1px solid #4a89bd;
+  border-radius:9px;background:#15395b;color:#edf9ff;font:700 14px system-ui,sans-serif}
+ .solitaire-deck button[aria-pressed="true"]{
+   background:linear-gradient(130deg,#2276ae,#155486);border-color:#8adaff;
+   box-shadow:0 0 0 1px #8adaff4d
+ }
+ .solitaire-deck .track{height:8px;background:#071b30;border-radius:9px;overflow:hidden}
+ .solitaire-deck .track>span{display:block;height:100%;width:0%;
+   border-radius:9px;background:#46afe7;transition:width .15s}
+ .solitaire-deck .progress-row{display:flex;align-items:center;justify-content:space-between;
+   gap:5px;font-size:12px}
+ .solitaire-deck .progress-row strong{font-size:14px;color:#fff}
+ .solitaire-deck .suits{display:flex;justify-content:center;gap:15px;font-size:22px}
+ .solitaire-deck .suits .red{color:#f187a4}
+ .solitaire-deck .info{font-size:10px;line-height:1.4;color:#afcde1;text-align:center}
+ .solitaire-deck .side-new-game{width:100%;min-height:43px;
+  background:linear-gradient(130deg,#278bd2,#1761a3);border-color:#92ddff;
+  box-shadow:0 3px 9px #0005}
+}
+@media(orientation:portrait) and (max-width:650px) and (max-height:720px){
+ .solitaire-deck{gap:5px}
+ .solitaire-deck button{min-height:35px;padding:5px}
+ .solitaire-deck h2{font-size:13px}
+}
+#waste .card.waste-fan{left:8px;width:calc(100% - 16px);transform:translateX(var(--waste-shift,0px))}
+#waste .card.waste-fan:not(.waste-front){pointer-events:none;filter:brightness(.88)}
+#waste .card.waste-front{z-index:3}
+</style>
+</head><body><main class="shell">
+<div class="suite-game-banner"><img src="./hero-banner.svg" width="900" height="300" alt="" aria-hidden="true" decoding="async"></div>
+<header class="hero"><div class="hero-icon">♠ ♥ ♣ ♦</div><h1>SolitaireFunny</h1><p class="sub" id="modeSummary">Πασιέντζα Klondike · Τράβηγμα 1 κάρτας</p></header>
+<section class="panel">
+<div class="stats"><div class="metric"><small>Χρόνος</small><strong id="clock">00:00</strong></div><div class="metric"><small>Κινήσεις</small><strong id="moves">0</strong></div><div class="metric"><small>Νίκες</small><strong id="wins">0</strong></div></div>
+<div class="tools"><button class="btn primary" id="new">↻ Νέο</button><button class="btn" id="undo">↶ Αναίρεση</button><button class="btn" id="hint">💡 Υπόδειξη</button><button class="btn" id="auto">⇧ Βάσεις</button><span class="draw-mode-toolbar"><button type="button" class="btn" data-draw="1" aria-pressed="true">1 φύλλο</button><button type="button" class="btn" data-draw="3" aria-pressed="false">3 φύλλα</button></span></div>
+<p id="msg" class="msg" role="status" aria-live="polite">Διάλεξε κάρτα και μετά τη θέση που θέλεις να τη βάλεις.</p>
+<div class="game" id="game">
+<div class="top">
+<div class="slot stock" id="stock"><button id="draw" aria-label="Τράβηξε κάρτα">✦</button></div>
+<div class="slot" id="waste" data-zone="waste" role="button" tabindex="0" aria-label="Ανοιγμένες κάρτες"></div>
+<div class="slot placeholder"></div>
+<div class="slot foundation" id="f0" data-zone="f" data-col="0" role="button" tabindex="0" data-suit="♥" aria-label="Βάση κούπες"></div>
+<div class="slot foundation" id="f1" data-zone="f" data-col="1" role="button" tabindex="0" data-suit="♦" aria-label="Βάση καρό"></div>
+<div class="slot foundation" id="f2" data-zone="f" data-col="2" role="button" tabindex="0" data-suit="♣" aria-label="Βάση σπαθιά"></div>
+<div class="slot foundation" id="f3" data-zone="f" data-col="3" role="button" tabindex="0" data-suit="♠" aria-label="Βάση μπαστούνια"></div>
+</div><div class="columns" id="tableau"></div><aside class="solitaire-deck" aria-label="Πρόοδος και τράβηγμα φύλλων">
+<h2>♠ Πρόοδος παρτίδας</h2>
+<div class="progress-row"><span>Κάρτες στις βάσεις</span><strong class="foundation-count">0/52</strong></div>
+<div class="track" aria-hidden="true"><span class="foundation-progress"></span></div>
+<div class="progress-row"><span>Στην τράπουλα</span><strong class="stock-count">24</strong></div>
+<div class="suits" aria-hidden="true"><span class="red">♥ ♦</span><span>♣ ♠</span></div>
+<h2>Τράβηγμα φύλλων</h2>
+<div class="mode-buttons"><button type="button" data-draw="1" aria-pressed="true">1 φύλλο</button><button type="button" data-draw="3" aria-pressed="false">3 φύλλα</button></div>
+<button id="newSide" class="side-new-game" type="button">↻ Νέα παρτίδα</button>
+<div class="info">Η επιλογή αποθηκεύεται μαζί με την παρτίδα.</div>
+</aside></div>
+
+</section></main>
+<script>
+(function(){
+'use strict';
+const S=['♥','♦','♣','♠'],KEY='solitairefunny:v1',STATS='solitairefunny:stats',$=id=>document.getElementById(id);
+const clone=x=>JSON.parse(JSON.stringify(x)),color=c=>c.s<2?0:1,lab=c=>(c.v===1?'A':c.v===11?'J':c.v===12?'Q':c.v===13?'K':String(c.v))+S[c.s];
+const DRAW_SETTING='solitairefunny:nextDrawCount';
+let drawMode=1;
+try{drawMode=Number(localStorage.getItem(DRAW_SETTING))===3?3:1;}catch(_){}
+let state,undo=[],pick=null,lastCardTap=null,elapsed=0,since=0,active=true,stats={wins:0,best:null};
+try{stats=JSON.parse(localStorage.getItem(STATS)||'null')||stats;}catch(_){}
+function format(ms){let n=Math.floor(ms/1000);return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function now(){return elapsed+(since&&active&&!state.done?Date.now()-since:0)}
+function pause(){if(since){elapsed+=Date.now()-since;since=0;}save()}
+function resume(){if(active&&state&&!state.done&&!since)since=Date.now()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({state,elapsed:now()}))}catch(_){}}
+function say(v){$('msg').textContent=v}
+function snapshot(){undo.push({state:clone(state),elapsed:now()});if(undo.length>120)undo.shift()}
+function cardKey(c){return c.s+':'+c.v}
+function blockedFromAuto(c){return (state.manualFoundationCards||[]).includes(cardKey(c))}
+function autoToFoundation(){
+ // Only exposed top cards in the tableau or waste are eligible.
+ // Respect cards the player deliberately retrieved from a foundation.
+ if(state.done)return 0;
+ let count=0;
+ for(let tries=0;tries<52;tries++){
+   let found=false;
+   for(const zone of ['w','t']){
+     for(let col=0;col<(zone==='w'?1:7);col++){
+       const pile=zone==='w'?state.waste:state.t[col],index=pile.length-1,c=pile[index];
+       if(!c||!c.up||blockedFromAuto(c))continue;
+       if(!validMove({zone,col,index},'f',c.s))continue;
+       pile.pop();
+       state.f[c.s].push(c);
+       if(zone==='t'&&pile.length)pile[pile.length-1].up=true;
+       state.moves++;count++;found=true;
+       break;
+     }
+     if(found)break;
+   }
+   if(!found)break;
+ }
+ return count;
+}
+function finishAction(){
+ pick=null;lastCardTap=null;
+ autoToFoundation();
+ winIfComplete();draw();save();
+}
+function newGame(){
+const cards=Array.from({length:52},(_,i)=>({s:Math.floor(i/13),v:i%13+1,up:false}));
+for(let i=51;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];}
+state={t:Array.from({length:7},()=>[]),f:[[],[],[],[]],stock:[],waste:[],moves:0,done:false,drawCount:drawMode,manualFoundationCards:[]};
+for(let col=0;col<7;col++)for(let row=0;row<=col;row++){const c=cards.pop();c.up=row===col;state.t[col].push(c);}
+state.stock=cards;undo=[];elapsed=0;since=0;pick=null;lastCardTap=null;say('Νέα παρτίδα! Τα διαθέσιμα φύλλα ανεβαίνουν αυτόματα στις βάσεις.');resume();finishAction();
+}
+function source(p){return p.zone==='t'?state.t[p.col]:p.zone==='w'?state.waste:state.f[p.col]}
+function pickedCards(p){return source(p).slice(p.index)}
+function validSequence(arr){return arr.every((c,i)=>c.up&&(i===0||(arr[i-1].v===c.v+1&&color(arr[i-1])!==color(c))))}
+function validMove(p,dest,col){const arr=pickedCards(p);if(!arr.length||!validSequence(arr))return false;if(p.zone===dest&&p.col===col)return false;
+if(dest==='t'){const a=state.t[col],last=a[a.length-1];return !last?arr[0].v===13: last.up&&last.v===arr[0].v+1&&color(last)!==color(arr[0]);}
+if(dest==='f'){return arr.length===1&&arr[0].s===col&&arr[0].v===(state.f[col].length+1)}
+return false;}
+function winIfComplete(){if(!state.done&&state.f.every(a=>a.length===13)){state.done=true;pause();stats.wins=(stats.wins||0)+1;stats.best=stats.best==null?elapsed:Math.min(stats.best,elapsed);try{localStorage.setItem(STATS,JSON.stringify(stats))}catch(_){}say('🏆 Συγχαρητήρια! Ολοκλήρωσες την πασιέντζα.');}}
+function move(p,dest,col){if(!validMove(p,dest,col))return false;
+ snapshot();
+ const src=source(p),taking=src.splice(p.index),target=dest==='t'?state.t[col]:state.f[col];
+ target.push(...taking);
+ if(p.zone==='t'&&src.length)src[src.length-1].up=true;
+ if(p.zone==='f'&&dest==='t'){
+   // Do not immediately return a card that the player pulled down manually.
+   for(const c of taking)if(!blockedFromAuto(c))state.manualFoundationCards.push(cardKey(c));
+ }else{
+   // After a subsequent deliberate move, allow automatic foundation moves again.
+   for(const c of taking)state.manualFoundationCards=state.manualFoundationCards.filter(key=>key!==cardKey(c));
+ }
+ state.moves++;finishAction();return true;}
+function choose(zone,col,index){const p={zone,col,index};const c=source(p)[index];if(!c||!c.up)return;pick=p;say('Επιλέχθηκε '+lab(c)+'. Διάλεξε προορισμό.');draw();}
+function select(zone,col,index){if(state.done)return;
+if(pick&&(['t','f'].includes(zone))&&move(pick,zone,col))return;
+if(zone==='w'){if(state.waste.length)choose('w',0,state.waste.length-1);return;}
+if(zone==='f'){if(state.f[col].length)choose('f',col,state.f[col].length-1);return;}
+if(zone==='t'&&state.t[col].length){const i=index??state.t[col].length-1;if(state.t[col][i].up)choose('t',col,i);return;}
+pick=null;draw();}
+function toFoundation(zone,col,index){
+ const p={zone,col,index},cards=pickedCards(p);
+ if(cards.length!==1)return false;
+ // A player's explicit double tap overrides manual auto-hold.
+ return move(p,'f',cards[0].s);
+}
+function tapCard(zone,col,index){
+ if(state.done)return;
+ const pile=zone==='w'?state.waste:state.t[col],c=pile[index];
+ if(!c||!c.up)return;
+ const timestamp=Date.now(),identity=cardKey(c),previous=lastCardTap;
+ if(previous&&previous.identity===identity&&timestamp-previous.time<=460){
+   lastCardTap=null;
+   if(toFoundation(zone,col,index))return;
+ }
+ lastCardTap={identity,time:timestamp};
+ select(zone,col,index);
+}
+function drawStock(){if(state.done||!state.stock.length&&!state.waste.length)return;snapshot();
+if(state.stock.length){
+ const count=state.drawCount===3?3:1;
+ for(let i=0;i<count&&state.stock.length;i++){
+  const c=state.stock.pop();c.up=true;state.waste.push(c);
+ }
+}else {state.stock=state.waste.reverse().map(c=>({...c,up:false}));state.waste=[];}
+state.moves++;finishAction();}
+function suitClass(c){return color(c)===0?' red':''}
+function cardElement(c,onClick,top,selected,down=false){
+const el=document.createElement('button');el.type='button';el.className='card'+(c.up?'':' back')+suitClass(c)+(selected?' selected':'');el.style.top=top+'px';
+el.setAttribute('aria-label',c.up?lab(c):'Κρυφή κάρτα');el.innerHTML=c.up?'<span class="rank">'+(c.v===1?'A':c.v===11?'J':c.v===12?'Q':c.v===13?'K':c.v)+'</span><span class="suit">'+S[c.s]+'</span><span class="big">'+S[c.s]+'</span>':'';
+el.addEventListener('click',e=>{e.stopPropagation();onClick()});if(down)el.style.pointerEvents='none';return el;}
+function draw(){
+for(const b of document.querySelectorAll('[data-draw]')){
+ b.setAttribute('aria-pressed',String(Number(b.dataset.draw)===drawMode));
+ b.title='Επιλογή για την επόμενη νέα παρτίδα';
+}
+for(const info of document.querySelectorAll('.solitaire-deck .info')){
+ info.textContent='Τώρα: '+(state.drawCount===3?'3 φύλλα':'1 φύλλο')+' · Επόμενη παρτίδα: '+drawMode+(drawMode===1?' φύλλο':' φύλλα');
+}
+const foundations=state.f.reduce((sum,pile)=>sum+pile.length,0);
+for(const p of document.querySelectorAll('.foundation-count'))p.textContent=foundations+'/52';
+for(const p of document.querySelectorAll('.stock-count'))p.textContent=String(state.stock.length);
+for(const p of document.querySelectorAll('.foundation-progress'))p.style.width=(foundations/52*100)+'%';
+$('modeSummary').textContent='Πασιέντζα Klondike · Τράβηγμα '+(state.drawCount===3?'3 φύλλων':'1 φύλλου');
+$('clock').textContent=format(now());$('moves').textContent=String(state.moves);$('wins').textContent=String(stats.wins||0);$('undo').disabled=undo.length===0;
+$('draw').classList.toggle('empty',!state.stock.length);$('draw').textContent=state.stock.length?'✦':state.waste.length?'↻':'';
+const waste=$('waste');waste.replaceChildren();
+const visibleCount=Math.min(state.drawCount===3?3:1,state.waste.length);
+waste.setAttribute('aria-label',visibleCount
+  ? 'Ανοιγμένες κάρτες: '+visibleCount+' · Τράβηγμα ανά '+state.drawCount+' φύλλα'
+  : 'Κενή θέση ανοιγμένων καρτών');
+if(visibleCount){
+ const recent=state.waste.slice(-visibleCount);
+ recent.forEach((c,i)=>{
+   const front=i===recent.length-1;
+   const card=cardElement(c,()=>{if(front)tapCard('w',0,state.waste.length-1)},0,front&&pick?.zone==='w',!front);
+   if(state.drawCount===3){
+     card.classList.add('waste-fan');
+     card.style.setProperty('--waste-shift',(i-(recent.length-1)/2)*8+'px');
+   }
+   if(front)card.classList.add('waste-front');
+   else{card.tabIndex=-1;card.setAttribute('aria-hidden','true');}
+   card.style.zIndex=String(i+1);
+   waste.appendChild(card);
+ });
+}
+for(let i=0;i<4;i++){const pile=$('f'+i);pile.replaceChildren();const c=state.f[i].at(-1);if(c)pile.appendChild(cardElement(c,()=>select('f',i),0,pick?.zone==='f'&&pick.col===i));}
+const root=$('tableau');root.replaceChildren();
+const cw=Math.min(640,root.parentElement.clientWidth-10)/7-5,openStep=Math.max(21,Math.min(31,cw*.44)),downStep=Math.max(10,Math.min(18,cw*.25));
+for(let col=0;col<7;col++){
+const place=document.createElement('div');place.className='column'+(state.t[col].length?'':' empty');place.dataset.col=col;place.tabIndex=0;place.setAttribute('aria-label','Στήλη '+(col+1));place.addEventListener('click',()=>select('t',col));
+place.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select('t',col);}});
+let y=0;state.t[col].forEach((c,i)=>{const chosen=pick?.zone==='t'&&pick.col===col&&i>=pick.index;const btn=cardElement(c,()=>tapCard('t',col,i),y,chosen,!c.up);btn.style.zIndex=String(i+1);place.appendChild(btn);y+=c.up?openStep:downStep;});
+place.style.minHeight=Math.max(400,y+cw*1.5)+'px';root.appendChild(place);
+}
+}
+function hint(){for(const zone of ['w','t']){for(let col=0;col<(zone==='w'?1:7);col++){const a=zone==='w'?state.waste:state.t[col],i=a.length-1;if(i<0||!a[i].up)continue;const p={zone,col,index:i};if(validMove(p,'f',a[i].s)){say('💡 '+lab(a[i])+' → βάση '+S[a[i].s]);return;}}}
+for(let src=0;src<7;src++)for(let i=0;i<state.t[src].length;i++){const p={zone:'t',col:src,index:i};if(!validSequence(pickedCards(p)))continue;for(let dst=0;dst<7;dst++)if(dst!==src&&validMove(p,'t',dst)){say('💡 '+lab(state.t[src][i])+' → στήλη '+(dst+1));return;}}
+if(state.stock.length||state.waste.length)say('💡 Τράβηξε κάρτα από την τράπουλα.');else say('Δεν βρέθηκε διαθέσιμη κίνηση.');}
+function autoFoundation(){
+ if(state.done)return;
+ const before=state.f.reduce((n,pile)=>n+pile.length,0);
+ snapshot();
+ // The explicit Bases button also releases the player's temporary hold.
+ state.manualFoundationCards=[];
+ const moved=autoToFoundation();
+ if(moved){winIfComplete();draw();save();}
+ else {undo.pop();draw();save();}
+ say(moved?'Μεταφέρθηκαν '+moved+' φύλλα στις βάσεις.':'Δεν υπάρχουν διαθέσιμα φύλλα για τις βάσεις.');
+}
+function chooseDrawMode(n){
+ if(state.done)return;
+ if(n!==1&&n!==3)return;
+ drawMode=n;
+ try{localStorage.setItem(DRAW_SETTING,String(n));}catch(_){}
+ draw();
+ say('Αποθηκεύτηκε: '+n+(n===1?' φύλλο':' φύλλα')+' στην επόμενη νέα παρτίδα. Η τωρινή δεν αλλάζει.');
+}
+for(const btn of document.querySelectorAll('[data-draw]')){
+ btn.addEventListener('click',()=>chooseDrawMode(Number(btn.dataset.draw)));
+}
+$('draw').addEventListener('click',drawStock);
+$('new').addEventListener('click',async()=>{if(state.moves&& !state.done&&!await GameDialog.confirm('Νέα παρτίδα; Η τωρινή θα χαθεί.'))return;newGame()});
+$('newSide').addEventListener('click',()=>$('new').click());
+$('undo').addEventListener('click',()=>{const old=undo.pop();if(!old)return;state=old.state;elapsed=old.elapsed;since=active&&!state.done?Date.now():0;pick=null;say('Η τελευταία κίνηση αναιρέθηκε.');draw();save();});
+$('hint').addEventListener('click',hint);$('auto').addEventListener('click',autoFoundation);
+$('waste').addEventListener('click',()=>select('w',0));for(let i=0;i<4;i++){$('f'+i).addEventListener('click',()=>select('f',i));}
+// A timestamp-based second tap works even though cards are recreated after the first tap.
+window.addEventListener('resize',()=>draw());
+function visibility(){active=document.visibilityState==='visible'&&embeddedActive;if(active)resume();else pause()}
+let embeddedActive=true;window.addEventListener('message',e=>{if(e.origin!==location.origin)return;if(e.data?.type==='solitairefunny:visibility'){embeddedActive=!!e.data.active;visibility();}});
+document.addEventListener('visibilitychange',visibility);
+try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(saved?.state&&saved.state.t?.length===7&&saved.state.f?.length===4){state=saved.state;state.drawCount=state.drawCount===3?3:1;state.manualFoundationCards=Array.isArray(state.manualFoundationCards)?state.manualFoundationCards:[];elapsed=Number(saved.elapsed)||0;resume();autoToFoundation();say('Η αποθηκευμένη παρτίδα συνεχίζεται.');draw();save();}else newGame();}catch(_){newGame();}
+setInterval(()=>{if(since&&active&&!state.done){$('clock').textContent=format(now());if(Math.floor(now()/1000)%8===0)save();}},400);
+})();
+</script>
+<!-- Ενιαίος οδηγός παιχνιδιού μέσα στις ρυθμίσεις -->
+<script>
+(()=>{
+const rules=["Στόχος: μετέφερε όλες τις κάρτες στις τέσσερις βάσεις, από άσο μέχρι ρήγα, ανά χρώμα/σύμβολο.","Στις επτά στήλες τοποθετείς κάρτες σε φθίνουσα σειρά με εναλλαγή κόκκινου και μαύρου.","Σε άδεια στήλη μπορεί να μπει μόνο ρήγας ή ακολουθία που ξεκινά από ρήγα.","Αποκάλυπτε τις κλειστές κάρτες μετακινώντας τις ανοιχτές. Τράβα από την τράπουλα όταν δεν υπάρχει χρήσιμη κίνηση.","Στις βάσεις μπαίνουν πρώτα οι άσοι, μετά τα 2, 3 κ.ο.κ. του ίδιου συμβόλου. Τα διαθέσιμα φύλλα ανεβαίνουν αυτόματα. Με διπλό ταπ σε φύλλο μπορείς επίσης να το στείλεις στη βάση. Μπορείς να κατεβάσεις φύλλο από τη βάση σε στήλη με το χέρι. Κερδίζεις όταν συμπληρωθούν και οι τέσσερις."];
+const style=document.createElement('style');style.textContent=`.funny-help-overlay{position:fixed;inset:0;z-index:2147483640;background:#020b19dc;display:flex;align-items:center;justify-content:center;padding:16px}.funny-help-overlay[hidden]{display:none!important}.funny-help-card{width:min(460px,100%);max-height:85dvh;overflow:auto;background:linear-gradient(155deg,#15395b,#091a30);color:#edf8ff;border:1px solid #68b9ed;border-radius:18px;padding:20px;box-shadow:0 15px 50px #0009;font:14px/1.55 system-ui,sans-serif}.funny-help-card h2{font-size:20px;margin:0 0 12px;text-align:center}.funny-help-card ol{padding-left:24px}.funny-help-card li{margin-bottom:10px}.funny-help-btn{background:#17486d;color:#e8f7ff;border:1px solid #67b9e6;border-radius:10px;padding:9px 12px;cursor:pointer;font:600 13px system-ui,sans-serif}.funny-help-close{display:block;width:100%;margin-top:12px}.funny-help-gear{position:absolute;right:12px;top:12px;font-size:22px}.funny-help-host{position:relative}
+@media(orientation:portrait) and (max-width:650px){
+ .funny-help-overlay{
+  inset:auto!important;top:0!important;left:100vw!important;right:auto!important;bottom:auto!important;
+  width:100dvh!important;height:100vw!important;
+  transform-origin:top left!important;transform:rotate(90deg)!important;
+  padding:8px!important;box-sizing:border-box!important
+ }
+ .funny-help-card{
+  width:min(660px,calc(100% - 6px))!important;
+  max-height:calc(100% - 6px)!important;
+  padding:12px 18px!important;font-size:13px!important;
+  line-height:1.4!important
+ }
+ .funny-help-card h2{font-size:18px!important;margin-bottom:7px!important}
+ .funny-help-card ol{margin:5px 0!important;padding-left:23px!important}
+ .funny-help-card li{margin-bottom:6px!important}
+ .funny-help-close{margin-top:7px!important;min-height:34px}
+}
+`;document.head.append(style);
+const overlay=document.createElement('div');overlay.className='funny-help-overlay';overlay.hidden=true;overlay.setAttribute('role','presentation');const card=document.createElement('section');card.className='funny-help-card';card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');card.setAttribute('aria-label','Πώς παίζεται');const title=document.createElement('h2');title.textContent='📖 Πώς παίζεται';const list=document.createElement('ol');for(const rule of rules){const li=document.createElement('li');li.textContent=rule;list.append(li)}const close=document.createElement('button');close.type='button';close.className='funny-help-btn funny-help-close';close.textContent='Επιστροφή στο παιχνίδι';card.append(title,list,close);overlay.append(card);document.body.append(overlay);let previous=null;function hide(){overlay.hidden=true;const target=previous;if(target?.isConnected&&target.getClientRects().length)target.focus();else document.querySelector('#settingsButton,#gear,.funny-help-gear')?.focus()}function show(){previous=document.activeElement;const settings=document.getElementById('settingsDialog');if(settings?.open)settings.close();const chess=document.getElementById('settings');if(chess)chess.hidden=true;overlay.hidden=false;close.focus()}close.addEventListener('click',hide);overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});document.addEventListener('keydown',e=>{if(!overlay.hidden&&e.key==='Escape'){e.stopPropagation();hide()}});
+const settings=document.getElementById('settingsDialog')||document.getElementById('settings');const btn=document.createElement('button');btn.type='button';btn.className='funny-help-btn';btn.textContent='📖 Πώς παίζεται';btn.addEventListener('click',show);if(settings){const form=settings.querySelector('form')||settings.querySelector('.dialog')||settings;const last=form.querySelector('button:last-of-type');if(last)last.before(btn);else form.append(btn)}else{const hero=document.querySelector('.hero')||document.querySelector('header')||document.body;hero.classList.add('funny-help-host');const gear=document.createElement('button');gear.type='button';gear.className='funny-help-btn funny-help-gear';gear.textContent='⚙';gear.setAttribute('aria-label','Οδηγίες παιχνιδιού');gear.title='Πώς παίζεται';gear.addEventListener('click',show);hero.append(gear)}
+})();
+</script>
+</body></html>
