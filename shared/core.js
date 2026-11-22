@@ -1,14 +1,14 @@
 "use strict";
 window.G={
  $:id=>document.getElementById(id),
- store:(key,data)=>{try{localStorage.setItem("games:"+location.pathname+":"+key,JSON.stringify(data))}catch{}},
- load:(key,fallback=null)=>{try{const x=localStorage.getItem("games:"+location.pathname+":"+key);return x?JSON.parse(x):fallback}catch{return fallback}},
+ store:(key,data)=>{try{if(key==="round"&&window.G.activeProgress&&data&&typeof data==="object")data={...data,__stage:window.G.activeProgress.stage,__difficulty:window.G.activeProgress.difficulty};localStorage.setItem("games:"+location.pathname+":"+key,JSON.stringify(data))}catch{}},
+ load:(key,fallback=null)=>{try{const x=localStorage.getItem("games:"+location.pathname+":"+key);if(!x)return fallback;const data=JSON.parse(x),p=window.G.activeProgress;if(key==="round"&&p&&data&&typeof data==="object"&&(data.__stage!==undefined||p.stage>1||p.difficulty!=="normal")&&(data.__stage!==p.stage||data.__difficulty!==p.difficulty))return fallback;return data}catch{return fallback}},
  clear:key=>{try{localStorage.removeItem("games:"+location.pathname+":"+key)}catch{}},
  rand:n=>Math.floor(Math.random()*n),
  shuffle:a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a},
  btn:(label,fn,cls="")=>{const b=document.createElement("button");b.type="button";b.className="btn "+cls;b.textContent=label;if(fn)b.addEventListener("click",fn);return b},
  el:(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x},
- score:value=>{const node=document.getElementById("score");if(!node)return;node.dataset.fullScore=String(value);const compact=String(value).replace(/\s*·\s*Ρεκόρ:\s*[^·]+/g,"");if(node.textContent!==compact)node.textContent=compact},
+ score:value=>{const node=document.getElementById("score");if(!node)return;node.dataset.fullScore=String(value);const compact=String(value).replace(/\s*·\s*Ρεκόρ:\s*[^·]+/g,"");const p=window.G.activeProgress;const valueToShow=p?compact+" · "+p.shortLabel:compact;if(node.textContent!==valueToShow)node.textContent=valueToShow},
  msg:value=>{const node=document.getElementById("msg");if(!node)return;const message=String(value);if(node.textContent!==message)node.textContent=message;node.classList.toggle("game-hint",/^(Στόχευσε τον στόλο|Αφαίρεσε ρήγες|Στόχος:|Επίλεξε δύο ίδια|Πάτα αρχή χρώματος|Μετακίνησε αριθμούς|Βελάκια:|Πάτησε το ταμπλό|Κούνησε την μπάρα|Κίνησε το σκάφος|Μάζεψε τις τελείες|Κινείται αυτόματα|Πέρνα απέναντι|Πάτα το πρώτο|Επίλεξε γράμματα|Γύρισε δύο κάρτες)/.test(message))},
  ctrl:(...items)=>{const p=document.getElementById("controls");p.replaceChildren(...items)},
  render:node=>{const play=document.getElementById("play");play.replaceChildren(node);document.body.classList.toggle("arcade-game",!!play.querySelector("canvas.arcade"));requestAnimationFrame(()=>window.G.resizeArcade?.())},
@@ -16,6 +16,98 @@ window.G={
  card:(rank,suit,fn)=>{const c=document.createElement("button");c.type="button";c.className="playing-card"+("♥♦".includes(suit)?" red":"");c.innerHTML="<span></span><span></span>";c.children[0].textContent=rank;c.children[1].textContent=suit;c.setAttribute("aria-label",rank+" "+suit);if(fn)c.onclick=fn;return c},
  mount:()=>{window.addEventListener("pagehide",()=>{window.dispatchEvent(new Event("game-paused"))});}
 };
+
+/* Persistent, difficulty-specific campaign progression shared by all 14 games. */
+G.progress=(restart,options={})=>{
+ const total=Math.max(5,Math.min(99,Number(options.stages)||20));
+ const label={easy:"Εύκολο",normal:"Κανονικό",hard:"Δύσκολο"};
+ const order=["easy","normal","hard"];
+ const old=G.load("campaign-v1",{});
+ const highest={easy:1,normal:1,hard:1};
+ for(const k of order)highest[k]=Math.max(1,Math.min(total,Math.floor(Number(old.highest?.[k])||1)));
+ const cleared={easy:0,normal:0,hard:0};
+ for(const k of order)cleared[k]=Math.max(0,Math.min(total,Math.floor(Number(old.cleared?.[k])||0)));
+ let difficulty=order.includes(old.difficulty)?old.difficulty:"normal";
+ let stage=Math.min(highest[difficulty],Math.max(1,Math.floor(Number(old.stage?.[difficulty])||1)));
+ let advancing=false,timeout=null,seq=0;
+ const stageSelected={easy:1,normal:1,hard:1,...old.stage};
+ stageSelected[difficulty]=stage;
+ const persist=()=>G.store("campaign-v1",{difficulty,stage:stageSelected,highest,cleared,version:1});
+ const api={
+  get difficulty(){return difficulty},
+  get stage(){return stage},
+  get total(){return total},
+  get index(){return order.indexOf(difficulty)},
+  get shortLabel(){return "Πίστα "+stage+" · "+label[difficulty]},
+  get busy(){return advancing},
+  get cleared(){return cleared[difficulty]},
+  get highest(){return highest[difficulty]},
+  select(diff,num){
+   if(!order.includes(diff))return false;
+   const n=Math.floor(Number(num));
+   if(n<1||n>highest[diff]||n>total)return false;
+   seq++;if(timeout!==null)clearTimeout(timeout);timeout=null;advancing=false;
+   difficulty=diff;stage=n;stageSelected[diff]=n;persist();
+   G.clear("round");
+   document.querySelector(".game-help-dialog")?.close();
+   renderSettings();
+   restart();
+   return true;
+  },
+  win(){
+   if(advancing)return false;
+   advancing=true;
+   const diff=difficulty,completed=stage,serial=++seq;
+   cleared[diff]=Math.max(cleared[diff],completed);
+   highest[diff]=Math.max(highest[diff],Math.min(total,completed+1));
+   stageSelected[diff]=Math.min(total,completed+1);
+   persist();renderSettings();
+   timeout=setTimeout(()=>{
+     if(serial!==seq)return;
+     if(completed<total){api.select(diff,completed+1);}
+     else{
+       advancing=false;
+       G.msg("🏆 Ολοκλήρωσες όλες τις "+total+" πίστες στο "+label[diff]+"!");
+     }
+   },1050);
+   setTimeout(()=>{if(serial===seq)G.msg("🏆 Πίστα "+completed+" ολοκληρώθηκε!"+(completed<total?" Επόμενη: "+(completed+1):""))},50);
+   return true;
+  }
+ };
+ window.G.activeProgress=api;
+ let settings=document.querySelector(".game-help-dialog");
+ const section=document.createElement("section");
+ section.className="campaign-settings";
+ const heading=document.createElement("h3");
+ heading.textContent="Πίστες και δυσκολία";
+ const summary=document.createElement("p");
+ summary.className="campaign-summary";
+ const switches=document.createElement("div");
+ switches.className="campaign-difficulty";
+ const stages=document.createElement("div");
+ stages.className="campaign-levels";
+ section.append(heading,summary,switches,stages);
+ if(settings){const stats=settings.querySelector(".help-stats");settings.insertBefore(section,stats||settings.lastElementChild);}
+ function renderSettings(){
+  summary.textContent="Ολοκληρωμένες: "+cleared[difficulty]+"/"+total+" · Ξεκλείδωτες: "+highest[difficulty]+"/"+total;
+  switches.replaceChildren();
+  for(const k of order){
+   const b=G.btn(label[k],()=>{difficulty=k;stage=Math.min(highest[k],Math.max(1,Number(stageSelected[k])||1));persist();renderSettings()},"secondary");
+   b.setAttribute("aria-pressed",String(k===difficulty));switches.append(b);
+  }
+  stages.replaceChildren();
+  for(let n=1;n<=total;n++){
+   const unlocked=n<=highest[difficulty],done=n<=cleared[difficulty];
+   const b=G.btn((done?"✓ ":"")+(n),()=>api.select(difficulty,n),unlocked?"":"secondary");
+   b.className="campaign-level"+(n===stage?" selected":"")+(done?" completed":"");
+   b.setAttribute("aria-label","Πίστα "+n+(done?" ολοκληρωμένη":unlocked?" διαθέσιμη":" κλειδωμένη"));
+   b.disabled=!unlocked;b.title=!unlocked?"Κλειδωμένη πίστα":"Πίστα "+n;
+   stages.append(b);
+  }
+ }
+ renderSettings();persist();return api;
+};
+
 G.mount();
 // The Applications launcher keeps game iframes mounted. Pause moving games
 // when their tab or another game becomes active.
