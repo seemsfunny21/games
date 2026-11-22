@@ -17,6 +17,15 @@ window.G={
  mount:()=>{window.addEventListener("pagehide",()=>{window.dispatchEvent(new Event("game-paused"))});}
 };
 G.mount();
+// The Applications launcher keeps game iframes mounted. Pause moving games
+// when their tab or another game becomes active.
+window.addEventListener("message",event=>{
+ if(event.origin!==location.origin)return;
+ const data=event.data;
+ if(data&&typeof data.type==="string"&&data.type.endsWith(":visibility")&&data.active===false){
+   window.dispatchEvent(new Event("game-paused"));
+ }
+});
 // Each game can initialize the common offline cache even when opened directly.
 if("serviceWorker" in navigator&&location.protocol==="https:"){
   window.addEventListener("load",()=>navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(e=>console.warn("Games offline cache:",e)));
