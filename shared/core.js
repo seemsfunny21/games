@@ -28,6 +28,7 @@ G.progress=(restart,options={})=>{
  const cleared={easy:0,normal:0,hard:0};
  for(const k of order)cleared[k]=Math.max(0,Math.min(total,Math.floor(Number(old.cleared?.[k])||0)));
  let difficulty=order.includes(old.difficulty)?old.difficulty:"normal";
+ let viewing=difficulty;
  let stage=Math.min(highest[difficulty],Math.max(1,Math.floor(Number(old.stage?.[difficulty])||1)));
  let advancing=false,timeout=null,seq=0;
  const stageSelected={easy:1,normal:1,hard:1,...old.stage};
@@ -47,7 +48,7 @@ G.progress=(restart,options={})=>{
    const n=Math.floor(Number(num));
    if(n<1||n>highest[diff]||n>total)return false;
    seq++;if(timeout!==null)clearTimeout(timeout);timeout=null;advancing=false;
-   difficulty=diff;stage=n;stageSelected[diff]=n;persist();
+   difficulty=diff;viewing=diff;stage=n;stageSelected[diff]=n;persist();
    G.clear("round");
    document.querySelector(".game-help-dialog")?.close();
    renderSettings();
@@ -89,17 +90,17 @@ G.progress=(restart,options={})=>{
  section.append(heading,summary,switches,stages);
  if(settings){const stats=settings.querySelector(".help-stats");settings.insertBefore(section,stats||settings.lastElementChild);}
  function renderSettings(){
-  summary.textContent="Ολοκληρωμένες: "+cleared[difficulty]+"/"+total+" · Ξεκλείδωτες: "+highest[difficulty]+"/"+total;
+  summary.textContent="Ολοκληρωμένες: "+cleared[viewing]+"/"+total+" · Ξεκλείδωτες: "+highest[viewing]+"/"+total;
   switches.replaceChildren();
   for(const k of order){
-   const b=G.btn(label[k],()=>{difficulty=k;stage=Math.min(highest[k],Math.max(1,Number(stageSelected[k])||1));persist();renderSettings()},"secondary");
-   b.setAttribute("aria-pressed",String(k===difficulty));switches.append(b);
+   const b=G.btn(label[k],()=>{viewing=k;renderSettings()},"secondary");
+   b.setAttribute("aria-pressed",String(k===viewing));switches.append(b);
   }
   stages.replaceChildren();
   for(let n=1;n<=total;n++){
-   const unlocked=n<=highest[difficulty],done=n<=cleared[difficulty];
-   const b=G.btn((done?"✓ ":"")+(n),()=>api.select(difficulty,n),unlocked?"":"secondary");
-   b.className="campaign-level"+(n===stage?" selected":"")+(done?" completed":"");
+   const unlocked=n<=highest[viewing],done=n<=cleared[viewing];
+   const b=G.btn((done?"✓ ":"")+(n),()=>api.select(viewing,n),unlocked?"":"secondary");
+   b.className="campaign-level"+(viewing===difficulty&&n===stage?" selected":"")+(done?" completed":"");
    b.setAttribute("aria-label","Πίστα "+n+(done?" ολοκληρωμένη":unlocked?" διαθέσιμη":" κλειδωμένη"));
    b.disabled=!unlocked;b.title=!unlocked?"Κλειδωμένη πίστα":"Πίστα "+n;
    stages.append(b);
