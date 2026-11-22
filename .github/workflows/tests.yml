@@ -3,11 +3,12 @@ on:
   push:
     branches: [main]
     paths:
-      - '**/game.js'
-      - '**/index.html'
-      - 'shared/**'
-      - 'sw.js'
-      - 'tests/**'
+      - '**/*.js'
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.svg'
+      - '**/*.webmanifest'
+      - '**/*.cjs'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
 permissions:
@@ -23,11 +24,11 @@ jobs:
           node-version: '22'
       - name: Syntax validation
         run: |
-          node --check shared/core.js
-          for f in */game.js; do node --check "$f"; done
-          node --check sw.js
-          node --check tests/smoke.cjs
+          find . -name '*.js' -not -path './node_modules/*' -print0 | xargs -0 -n1 node --check
+          find tests -name '*.cjs' -print0 | xargs -0 -n1 node --check
       - name: Install browser automation
         run: npm install --no-save --ignore-scripts playwright@1.56.1
       - name: Run desktop and mobile gameplay smoke checks
         run: node tests/smoke.cjs
+      - name: Check other ten games on mobile and desktop including offline
+        run: node tests/migrated.cjs
