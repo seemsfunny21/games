@@ -194,7 +194,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v8-campaign-20x3');
+     const cache=await caches.open('games-shell-v9-stage-white-unlocks');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
