@@ -1,10 +1,23 @@
 (()=>{const {el,btn,rand}=G;let s,canvas,ctx,timer,heldStops=[];const P=G.progress(start);const W=420,H=510;
-function newWave(){s.enemies=Array.from({length:5},(_,r)=>Array.from({length:8},(_,c)=>({x:35+c*45,y:45+r*34,alive:true}))).flat();s.dir=1;s.bullets=[];s.enemyBullets=[];s.tick=0;}
-function start(){s={player:210,score:0,lives:{easy:4,normal:3,hard:2}[P.difficulty],level:P.stage,playing:true,paused:false};newWave();setup();draw();}
+function formation(stage,difficulty){
+ const d={easy:0,normal:1,hard:2}[difficulty];
+ const rows=stage===1&&d===1?5:3+(stage*2+d)%4;
+ const cols=stage===1&&d===1?8:6+(stage*3+d)%4;
+ const spacing=370/(cols-1),stepY=30+(stage+d)%6,offset=(stage*7+d*11)%14;
+ const enemies=[];
+ for(let r=0;r<rows;r++)for(let col=0;col<cols;col++){
+  if(!(stage===1&&d===1)&&((r*5+col*3+stage+d)%9===0))continue;
+  enemies.push({x:25+col*spacing+offset,y:40+r*stepY,alive:true});
+ }
+ return enemies;
+}
+window.SpaceLevels={formation};
+function newWave(){s.enemies=formation(P.stage,P.difficulty);s.dir=1;s.bullets=[];s.enemyBullets=[];s.tick=0;}
+function start(){s={player:210,score:0,lives:{easy:4,normal:3,hard:2}[P.difficulty],level:P.stage,playing:true,paused:false};s.enemySpeed=Math.min(9,3.6+P.stage*.23+P.index*.6);newWave();setup();draw();}
 function fire(){if(!s.playing||s.paused)return;if(!s.bullets.some(b=>b.y>410))s.bullets.push({x:s.player,y:460});}
 function move(dx){if(!s.playing||s.paused)return;s.player=Math.max(20,Math.min(W-20,s.player+dx));draw();}
 function step(){if(!s.playing||s.paused||document.hidden)return;s.tick++;if(s.tick%({easy:7,normal:9,hard:11}[P.difficulty])===0)fire();
-if(s.tick%8===0){let bounce=s.enemies.some(e=>e.alive&&(e.x+s.dir*((4+Math.min(7,s.level*.45)+P.index*.8))>W-19||e.x+s.dir*(4+s.level)<19));if(bounce)s.dir*=-1;for(const e of s.enemies)if(e.alive){e.x+=s.dir*(4+s.level);if(bounce)e.y+=15;}}
+if(s.tick%8===0){let bounce=s.enemies.some(e=>e.alive&&(e.x+s.dir*s.enemySpeed>W-19||e.x+s.dir*s.enemySpeed<19));if(bounce)s.dir*=-1;for(const e of s.enemies)if(e.alive){e.x+=s.dir*s.enemySpeed;if(bounce)e.y+=15;}}
 for(const b of s.bullets)b.y-=9;for(const b of s.enemyBullets)b.y+=4+s.level*.3;
 for(const b of s.bullets)for(const e of s.enemies)if(e.alive&&Math.abs(e.x-b.x)<19&&Math.abs(e.y-b.y)<16){e.alive=false;b.y=-100;s.score+=10;break;}
 for(const b of s.enemyBullets)if(Math.abs(b.x-s.player)<19&&b.y>452&&b.y<492){s.lives--;b.y=999;if(!s.lives)s.playing=false;}
