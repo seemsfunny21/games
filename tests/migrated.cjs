@@ -55,7 +55,7 @@ const server=http.createServer((req,res)=>{
    await page.waitForFunction(async()=>{
     if(!('serviceWorker' in navigator))return false;
     const reg=await navigator.serviceWorker.ready;
-    const cache=await caches.open('games-shell-v12-unique-levels');
+    const cache=await caches.open('games-shell-v13-24games-audited');
     return !!reg.active&&(await cache.keys()).length>=75;
    },null,{timeout:25000});
    await context.setOffline(true);
