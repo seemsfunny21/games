@@ -259,3 +259,17 @@ body.game-screen .flow-board .tile{touch-action:none!important;-webkit-user-sele
  body.game-screen .frogger-control-row{min-height:98px}
  body.game-screen .frogger-middle>.btn{min-height:40px}
 }
+
+/* Campaign selector lives inside the existing settings gear. */
+.campaign-settings{margin:12px 0 14px;padding:12px 0;border-top:1px solid #426b91;border-bottom:1px solid #426b91}
+.campaign-settings h3{margin:0 0 8px;font-size:16px}
+.game-help-dialog .campaign-summary{margin:0 0 10px;font-size:12px;color:#afd7fa}
+.campaign-difficulty{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin-bottom:10px}
+.campaign-difficulty .btn{font-size:clamp(11px,2.6vw,14px);padding:7px 3px;min-height:37px;white-space:nowrap}
+.campaign-difficulty button[aria-pressed="true"]{background:#208dc5;border-color:#c0f0ff}
+.campaign-levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;max-height:36dvh;overflow:auto;overscroll-behavior:contain;padding:2px}
+.campaign-level{min-height:46px;border:1px solid #447aa6;border-radius:10px;background:#123b61;color:#cceaff;font-size:15px;font-weight:800;touch-action:manipulation}
+.campaign-level.completed{border-color:#58c8a6;background:#145a53;color:#d8fff0}
+.campaign-level.selected{outline:2px solid #b2e9ff;outline-offset:0}
+.campaign-level:disabled{opacity:.32;color:#a7b3c3;cursor:default}
+body.game-screen .score{font-size:clamp(10px,2.45vw,13px);line-height:1.25}
