@@ -169,7 +169,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
             const indices=level.solutions.flat();
             return new Set(indices).size===indices.length&&
               level.solutions.every((path,k)=>path[0]===level.pairs[k][0]&&path.at(-1)===level.pairs[k][1]&&
-                path.every((cell,i)=>cell>=0&&cell<36&&(i===0||Math.abs(cell%6-path[i-1]%6)+Math.abs(Math.floor(cell/6)-Math.floor(path[i-1]/6))===1));
+                path.every((cell,i)=>cell>=0&&cell<36&&(i===0||Math.abs(cell%6-path[i-1]%6)+Math.abs(Math.floor(cell/6)-Math.floor(path[i-1]/6))===1)));
           });
           result[diff]={unique:new Set(signatures).size,valid,pairs:all.map(b=>b.pairs)};
         }
