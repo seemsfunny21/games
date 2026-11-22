@@ -101,3 +101,107 @@ body.game-screen .foot{display:none}
  .game-topbar .back{font-size:11px}
  body.game-screen .score{font-size:11px}
 }
+
+
+/* Individual games: maximize board area without scrolling the outer document. */
+body.game-screen .play>.memory-full-grid{
+ display:grid;flex:1 1 auto;align-self:center;min-height:0;min-width:0;
+ max-height:100%;max-width:520px;height:100%;align-content:stretch;
+}
+.memory-full-grid .match-card{
+ box-sizing:border-box;width:100%;height:100%;min-height:0;min-width:0;
+ border-radius:clamp(7px,1.5vh,13px);font-size:clamp(23px,5dvh,44px);
+ line-height:1;display:grid;place-items:center;aspect-ratio:auto;
+}
+.hangman-layout{
+ width:100%;height:100%;min-height:0;display:flex;
+ flex-direction:column;align-items:center;justify-content:space-evenly;
+ gap:clamp(3px,1vh,9px);padding:2px 3px
+}
+body.game-screen .hangman-layout .hangman-art{
+ flex:1 1 auto;min-height:125px;max-height:48%;
+ width:100%;display:grid;place-items:center;text-align:left;
+ font-size:clamp(29px,4.2dvh,51px);line-height:1.02;
+ white-space:pre;color:#bde5ff;text-shadow:0 0 9px #3291dc6b
+}
+.hangman-layout .badge{font-size:clamp(12px,2.4vw,16px);padding:4px 8px}
+body.game-screen .hangman-letters{width:100%;max-width:660px;flex-wrap:nowrap;gap:clamp(1px,.65vw,5px)}
+.hangman-layout .hangman-letter{
+ flex:1 1 0;max-width:44px;min-width:0;
+ padding:clamp(3px,.9vh,8px) 0!important;text-align:center;
+ font-size:clamp(15px,3.7vw,27px)!important;font-weight:900;
+ border-radius:7px
+}
+body.game-screen .hangman-keyboard{
+ flex:0 0 auto;width:min(100%,640px);
+ grid-template-columns:repeat(9,minmax(0,1fr));gap:clamp(3px,.8vw,8px)
+}
+body.game-screen .hangman-keyboard button{
+ min-height:clamp(42px,6.1dvh,58px);
+ padding:3px!important;font-size:clamp(16px,4vw,25px)!important;
+ border-radius:9px
+}
+body.game-screen.arcade-game .play .arcade-controls-layout{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ width:100%;height:100%;min-height:0;gap:5px
+}
+.edge-action-row{
+ width:100%;flex:0 0 auto;display:flex;align-items:center;
+ justify-content:space-between;gap:4px;
+ padding:1px 0;min-height:clamp(45px,7dvh,63px)
+}
+body.game-screen .edge-action-row>.btn{
+ flex:0 0 auto;min-width:clamp(53px,13vw,78px);
+ min-height:clamp(44px,6.8dvh,62px);font-size:clamp(26px,5.7vw,39px);
+ touch-action:none;user-select:none;-webkit-user-select:none;
+ border:1px solid #7cc5ff;box-shadow:0 4px 13px #06172a
+}
+.edge-action-center{display:flex;align-items:center;justify-content:center;gap:clamp(3px,1.7vw,11px)}
+body.game-screen .edge-action-center>.btn{
+ min-height:clamp(42px,6dvh,56px);min-width:clamp(43px,11vw,62px);
+ font-size:clamp(20px,4.7vw,28px);padding:3px
+}
+body.game-screen .blackjack-hand-actions{
+ width:100%;margin-top:clamp(7px,1.6dvh,16px);
+ gap:clamp(9px,2.4vw,18px)
+}
+body.game-screen .blackjack-hand-actions>.btn{
+ min-width:min(37vw,180px);min-height:clamp(44px,6dvh,60px);
+ font-size:clamp(15px,3vw,20px)
+}
+.tile.flow.flow-endpoint{
+ border:3px solid #fff!important;border-radius:50%!important;
+ font-size:clamp(21px,5vw,32px)!important;font-weight:900;
+ box-shadow:0 0 0 2px #c8e4ffb0,inset 0 0 0 2px #13365355,0 0 15px #a2ddff77
+}
+.tile.flow.flow-path{
+ border-radius:5px!important;font-size:clamp(16px,4vw,25px);
+ box-shadow:inset 0 0 12px #08243c33
+}
+.battleship-layout{
+ display:flex;flex-wrap:wrap;align-items:flex-start;
+ justify-content:center;gap:clamp(5px,1.5vw,12px);width:100%
+}
+.battleship-layout>section{flex:0 1 340px;min-width:0}
+.battleship-layout .battleship-board{margin-top:4px!important}
+.battleship-toggle{display:none}
+.game-topbar.has-restart{grid-template-columns:auto minmax(0,1fr) auto 38px}
+body.game-screen .battleship-restart{
+ max-width:100px;white-space:nowrap;padding:5px 7px;
+ min-height:32px;font-size:clamp(10px,2.3vw,13px)
+}
+@media(max-width:650px){
+ body.game-screen .battleship-layout{flex-direction:column;flex-wrap:nowrap;align-items:center;gap:5px;height:100%}
+ .battleship-layout>section{flex:0 0 auto;width:min(100%,min(340px,calc(100dvh - 190px)))!important;max-width:100%}
+ .battleship-toggle{display:flex;gap:6px;justify-content:center;align-items:center;flex:0 0 auto}
+ .battleship-toggle .btn[aria-pressed="true"]{background:#216f9e;border-color:#91d8ff}
+ .battleship-layout[data-view="enemy"]>.own-view,
+ .battleship-layout[data-view="own"]>.enemy-view{display:none}
+ .game-topbar.has-restart h1{font-size:clamp(13px,3.5vw,17px)}
+ .game-topbar.has-restart .back{font-size:10px}
+}
+@media(max-height:620px){
+ body.game-screen .hangman-layout .hangman-art{font-size:clamp(19px,3.8dvh,29px);min-height:80px}
+ body.game-screen .hangman-keyboard button{min-height:34px}
+ .memory-full-grid .match-card{font-size:clamp(19px,4dvh,30px)}
+}
