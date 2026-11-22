@@ -1,8 +1,18 @@
 (()=>{const {el,btn,rand}=G;const forms=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]]];const palette=["#4ec9ee","#ffd86f","#bb87fa","#658eff","#ff9a57","#5de3a4","#fa6987"];let s,canvas,ctx,timer;const P=G.progress(start);
+function initialBoard(stage,difficulty){
+ const d={easy:0,normal:1,hard:2}[difficulty],b=Array.from({length:20},()=>Array(10).fill(0));
+ const lines=stage===1&&d!==2?0:Math.min(3,(d===0?1:d===1?1:2)+(stage%2));
+ for(let r=0;r<lines;r++){
+  const y=19-r,hole=(stage*3+r*4+d)%10;
+  for(let x=0;x<10;x++)if(x!==hole)b[y][x]=1+((stage+r*3+x+d)%7);
+ }
+ return b;
+}
+window.FallingLevels={initial:initialBoard};
 function fresh(){return {shape:rand(7),x:3,y:0,rot:0};}function shape(p){let v=forms[p.shape].map(r=>[...r]);for(let a=0;a<p.rot%4;a++)v=v[0].map((_,i)=>v.map(row=>row[i]).reverse());return v;}
 function collide(p){const v=shape(p);for(let r=0;r<v.length;r++)for(let c=0;c<v[r].length;c++)if(v[r][c]){let x=p.x+c,y=p.y+r;if(x<0||x>=10||y>=20||y>=0&&s.board[y][x])return true;}return false}
 function spawn(){s.p=fresh();if(collide(s.p))s.dead=true}
-function start(){s={board:Array.from({length:20},()=>Array(10).fill(0)),score:0,lines:0,p:fresh(),dead:false,paused:false,goal:2+Math.ceil(P.stage/3)+P.index*2};setup();draw();}
+function start(){s={board:initialBoard(P.stage,P.difficulty),score:0,lines:0,p:fresh(),dead:false,paused:false,goal:2+Math.ceil(P.stage/3)+P.index*2};setup();draw();}
 function tick(){if(!s||s.dead||s.paused||document.hidden)return;move(0,1);draw();}
 function move(dx,dy){if(s.dead||s.paused)return;let p={...s.p,x:s.p.x+dx,y:s.p.y+dy};if(!collide(p)){s.p=p;return true;}if(dy){const a=shape(s.p);a.forEach((row,r)=>row.forEach((v,c)=>{if(v&&s.p.y+r>=0)s.board[s.p.y+r][s.p.x+c]=s.p.shape+1}));let count=0;s.board=s.board.filter(row=>{if(row.every(v=>v)){count++;return false;}return true;});while(s.board.length<20)s.board.unshift(Array(10).fill(0));s.lines+=count;s.score+=count?100*count*count:5;spawn();if(count&&s.lines>=s.goal&&!s.dead){s.paused=true;P.win();}if(s.dead){const best=Math.max(G.load("best",0),s.score);G.store("best",best);} }return false;}
 function rotate(){if(s.dead||s.paused)return;const p={...s.p,rot:(s.p.rot+1)%4};for(const d of [0,-1,1,-2,2])if(!collide({...p,x:p.x+d})){s.p={...p,x:p.x+d};break;}draw()}
