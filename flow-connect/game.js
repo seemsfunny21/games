@@ -3,13 +3,7 @@ const {el,btn}=G;
 const colors=["#ff6988","#58d2ff","#f8c34d","#8ae78a","#bd97ff","#ff9d60"];
 let s,board=null,drag=null;
 const P=G.progress(start);
-function points(){
- const rot=(P.stage-1)%4,skipped=(Math.floor((P.stage-1)/4)+5)%6;
- const rows=[0,1,2,3,4,5].filter(r=>P.difficulty==="hard"||r!==skipped);
- const chosen=P.difficulty==="easy"?rows.filter((_,i)=>i%2===0):rows;
- const transform=(x,y)=>rot===0?y*6+x:rot===1?x*6+(5-y):rot===2?(5-y)*6+(5-x):(5-x)*6+y;
- return chosen.map(y=>[transform(0,y),transform(5,y)]);
-}
+function points(){return FlowLevels.create(P.difficulty,P.stage).pairs;}
 const neighbors=(a,b)=>Math.abs(Math.floor(a/6)-Math.floor(b/6))+Math.abs(a%6-b%6)===1;
 
 function save(){G.store("round",s);}
@@ -102,8 +96,8 @@ function render(){
  grid.addEventListener("lostpointercapture",cancel);
  G.render(grid);paint();
 }
-function start(){s={level:P.stage-1,paths:[],active:-1,moves:0};s.paths=points().map(([a])=>[a]);save();render();}
+function start(){s={layoutVersion:2,level:P.stage-1,paths:[],active:-1,moves:0};s.paths=points().map(([a])=>[a]);save();render();}
 s=G.load("round");
-if(!s?.paths||s.paths.length!==points().length)start();
+if(!s?.paths||s.layoutVersion!==2||s.level!==P.stage-1||s.paths.length!==points().length)start();
 else{s.active=-1;render();}
 })();
