@@ -79,6 +79,12 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
     await page.waitForTimeout(60);
     if(game==='maze-chase'){
+      const surface=page.locator('#play canvas');
+      assert.equal(await surface.getAttribute('data-facing'),'right','Pac-Man starts facing right');
+      await page.getByRole('button',{name:'Κάτω'}).click();
+      assert.equal(await surface.getAttribute('data-facing'),'down','Pac-Man faces down after selecting downward movement');
+      await page.getByRole('button',{name:'Δεξιά'}).click();
+      assert.equal(await surface.getAttribute('data-facing'),'right','Pac-Man rotates back to the right');
       const before=await page.locator('#play canvas').evaluate(e=>e.toDataURL());
       await page.waitForTimeout(500);
       const after=await page.locator('#play canvas').evaluate(e=>e.toDataURL());
