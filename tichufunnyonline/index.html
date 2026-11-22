@@ -999,7 +999,7 @@ async function leave(){
 }
 async function share(){
  if(!roomCode){status('Φτιάξε πρώτα δωμάτιο.');return;}
- const url='https://seemsfunny21.github.io/applications/?app=tichufunnyonline&room='+roomCode;
+ const url='https://seemsfunny21.github.io/games/tichufunnyonline/?room='+roomCode;
  try{await navigator.clipboard.writeText(url);status('Αντιγράφηκε ο σύνδεσμος δωματίου '+roomCode+'.');}
  catch(_){await GameDialog.copy(url);}
 }
