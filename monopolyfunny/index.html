@@ -1,0 +1,385 @@
+<!doctype html><html lang="el"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#071426"><title>MonopolyFunny · v22</title><link rel="manifest" href="manifest.webmanifest"><style>
+:root{font-family:system-ui,Arial;background:#071426;color:#e9f7ff}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 50% 0,#16446a,#071426 75%);min-height:100dvh}button,select{font:inherit}button{border:1px solid #4e9dcc;background:#16456c;color:#f2fbff;border-radius:10px;padding:10px;cursor:pointer}button:disabled{opacity:.35;cursor:default}button.primary{background:linear-gradient(130deg,#187cba,#13517b);border-color:#80d7ff;font-weight:800}header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;max-width:1050px;margin:auto}h1{margin:0;font-size:clamp(20px,4vw,30px);letter-spacing:-1px}h1 span{color:#6fd4ff}.layout{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:12px;max-width:1050px;margin:auto;padding:0 10px 20px}.board{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(11,minmax(0,1fr));aspect-ratio:1;background:#0b2740;border:2px solid #64b9ed;border-radius:14px;overflow:hidden;box-shadow:0 0 35px #0e85d033}.tile{min-width:0;min-height:0;position:relative;border:1px solid #285472;background:#102f4b;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:1px;overflow:hidden;text-align:center}.tile .band{width:100%;height:5px;flex:none}.tile .name{font-size:clamp(5px,.85vw,10px);line-height:1.1;overflow-wrap:anywhere}.tile .price{font-size:clamp(5px,.75vw,9px);color:#a8e4ff}.tile .tokens{font-size:clamp(8px,1.2vw,14px);line-height:1}.tile.owned{box-shadow:inset 0 0 0 2px var(--owner)}.tile .houses{font-size:9px;color:#a8f7bb}.center{grid-column:2/12;grid-row:2/12;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;background:radial-gradient(circle,#154c74,#0a243b)}.center h2{font-size:clamp(18px,4vw,44px);margin:0;color:#8fe3ff}.dice{font-size:clamp(30px,7vw,70px)}.panel{background:#0b2843e8;border:1px solid #2e6b96;border-radius:14px;padding:12px;margin-bottom:10px}.panel h3{margin:0 0 8px;font-size:15px}.players{display:grid;gap:7px}.player{padding:8px;border-radius:9px;background:#123c5e;border-left:4px solid var(--pc);font-size:13px}.player.active{outline:2px solid #7bd7ff}.player.dead{opacity:.4}.player strong{display:block}.controls{display:grid;gap:7px}.controls button{width:100%}.log{font-size:12px;max-height:160px;overflow:auto;color:#b6d8ef}.log p{margin:5px 0;border-bottom:1px solid #285071;padding-bottom:4px}.hint{font-size:12px;color:#9fc5de}dialog{width:min(480px,94vw);max-height:85dvh;overflow:auto;background:#0c2944;color:#e8f8ff;border:1px solid #75c6f5;border-radius:16px;box-shadow:0 20px 80px #000b;padding:20px}dialog::backdrop{background:#010915dd}dialog h2{margin-top:0}dialog li{margin-bottom:9px}dialog button{margin:5px}#dialogActions{display:flex;flex-wrap:wrap;justify-content:center}.row{display:flex;justify-content:space-between;gap:8px;align-items:center}select{background:#123c5e;color:white;border:1px solid #5aa3ce;border-radius:8px;padding:8px}@media(max-width:760px){.layout{display:flex;flex-direction:column}.board{width:100%}.tile .name{font-size:clamp(5px,1.6vw,10px)}.tile .price{font-size:clamp(5px,1.4vw,9px)}.tile .tokens{font-size:clamp(8px,2.3vw,15px)}.panel{margin-bottom:8px}.players{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:400px){.tile .name{font-size:5px}.tile .price{font-size:5px}}
+
+/* Premium compact mobile board layout */
+@media(max-width:760px){
+ html,body{height:100%;overflow:hidden}
+ body{height:100dvh;display:flex;flex-direction:column}
+ header{flex:0 0 auto;padding:5px 10px;min-height:43px}
+ h1{font-size:22px}
+ header button{padding:7px 10px;font-size:12px}
+ .layout{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 7px 7px;width:100%}
+ .board{flex:0 0 auto;width:min(calc(100vw - 14px),43dvh);height:min(calc(100vw - 14px),43dvh);aspect-ratio:1;border-radius:12px;border-width:1px}
+ .center{gap:3px}
+ .center h2{font-size:clamp(12px,3vw,21px)}
+ .dice{font-size:clamp(19px,5vw,38px)}
+ .tile .band{height:3px}
+ .tile .name{font-size:clamp(4px,1.18vw,7px)}
+ .tile .price{font-size:clamp(4px,1.12vw,7px)}
+ .tile .tokens{font-size:clamp(7px,2vw,12px)}
+ .tile .houses{font-size:7px}
+ aside{width:100%;min-height:0;flex:1 1 auto;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+ .panel{margin:0;padding:8px 10px;border-radius:12px}
+ .panel h3{margin:0 0 5px;font-size:12px}
+ .players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .player{font-size:11px;padding:5px 7px;border-radius:7px;line-height:1.25}
+ .player strong{font-size:12px}
+ .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .controls button{padding:7px 4px;font-size:12px;min-height:34px}
+ .controls button[hidden]{display:none}
+ #status{font-size:11px;margin:5px 0 0;line-height:1.25}
+ 
+}
+@media(max-width:760px) and (max-height:680px){
+ .board{width:min(calc(100vw - 14px),39dvh);height:min(calc(100vw - 14px),39dvh)}
+ .panel{padding:5px 8px}
+ .player{padding:3px 6px;font-size:10px}
+ .controls button{min-height:28px;padding:4px}
+}
+@media(min-width:761px){.board{max-height:calc(100dvh - 90px)}}
+
+/* Clear player pieces and zoomed property information */
+.tokens{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;width:100%;min-height:12px}
+.piece{display:inline-grid;place-items:center;width:clamp(11px,2.7vw,20px);height:clamp(11px,2.7vw,20px);font-size:clamp(9px,2vw,15px);line-height:1;font-weight:900;color:#071426;background:var(--piece);border:1px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #071426,0 0 6px var(--piece)}
+.tile:has(.piece){background:#245278}
+.tile:focus-visible{outline:3px solid #ffdf86;z-index:2}
+dialog{font-size:15px;line-height:1.55}
+#modalBody p{background:#163a5c;border:1px solid #3d779f;padding:14px;border-radius:12px}
+@media(max-width:760px){.tile .tokens{min-height:10px}.piece{width:clamp(10px,2.5vw,16px);height:clamp(10px,2.5vw,16px);font-size:clamp(8px,1.8vw,12px)}}
+
+/* Full-screen board with controls integrated into the central playing area */
+@media(max-width:760px){
+ body{height:100dvh;overflow:hidden}
+ header{height:48px;min-height:48px;padding:4px 10px;justify-content:center;gap:12px}
+ h1{font-size:clamp(20px,5vw,26px)}
+ .layout{display:block;flex:1 1 auto;min-height:0;width:100%;max-width:none;padding:0 5px 5px;margin:0}
+ .board{width:100%;height:100%;max-width:none;aspect-ratio:auto;display:grid;grid-template-columns:repeat(11,minmax(0,1fr));grid-template-rows:repeat(11,minmax(0,1fr));border-radius:14px;border:1px solid #4da9d9;overflow:hidden}
+ .tile{padding:1px;border-color:#255471}
+ .tile .name{font-size:clamp(5px,1.28vw,9px);line-height:1.1}
+ .tile .price{font-size:clamp(5px,1.16vw,8px)}
+ .tile .band{height:4px}
+ .center{min-height:0;min-width:0;padding:clamp(7px,1.2vh,13px);display:flex;flex-direction:column;justify-content:flex-start;gap:clamp(4px,1vh,10px);background:radial-gradient(ellipse at 50% 20%,#16567b,#0a243b 75%)}
+ .center h2{font-size:clamp(16px,4vw,24px);line-height:1.1}
+ .center .dice{font-size:clamp(26px,6vw,42px);line-height:1}
+ .center>small{display:none}
+ .center aside{display:flex;flex-direction:column;gap:clamp(5px,1vh,10px);width:100%;flex:1;min-height:0;overflow:hidden}
+ .center .panel{padding:clamp(6px,1.1vh,11px);border-radius:12px;margin:0}
+ .center .panel h3{font-size:clamp(11px,1.9vh,15px);margin-bottom:5px}
+ .center .players{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .center .player{padding:clamp(4px,.8vh,8px);font-size:clamp(10px,1.6vh,13px)}
+ .center .player strong{font-size:clamp(11px,1.8vh,14px)}
+ .center .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .center .controls button{min-height:clamp(33px,5vh,47px);padding:6px 3px;font-size:clamp(11px,1.7vh,14px)}
+ .center .controls button[hidden]{display:none}
+ .center #status{font-size:clamp(10px,1.55vh,12px);line-height:1.3}
+ .center 
+ 
+}
+@media(max-width:760px) and (max-height:700px){
+ header{height:40px;min-height:40px}
+ .center{padding:5px;gap:4px}
+ .center h2{font-size:15px}
+ .center .dice{font-size:25px}
+ .center .panel{padding:5px}
+ .center .player{padding:3px}
+ .center .controls button{min-height:28px;padding:3px;font-size:11px}
+}
+@media(min-width:761px){
+ .layout{display:block;max-width:min(900px,calc(100dvh - 75px));margin:auto;padding:0 8px 12px}
+ .board{width:100%;height:auto;aspect-ratio:1;max-height:none}
+ .center{padding:16px;gap:8px}
+ .center h2{font-size:28px}
+ .center .dice{font-size:38px}
+ .center aside{width:100%;display:flex;flex-direction:column;gap:8px}
+ .center .panel{margin:0}
+ .center .players{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .center 
+}
+
+/* v7: centered controls stay entirely within the inner board; no clipped buttons */
+@media(max-width:760px){
+ .center{grid-column:2/11;grid-row:2/11;min-width:0;min-height:0;overflow:hidden;display:grid;grid-template-rows:auto auto minmax(0,1fr);justify-items:stretch;align-items:stretch;gap:clamp(4px,.8vh,9px);padding:clamp(5px,1vh,11px)}
+ .center h2{font-size:clamp(14px,3.5vw,21px);text-align:center;margin:0}
+ .center .dice{font-size:clamp(23px,5.5vw,38px);text-align:center}
+ .center aside{display:grid;grid-template-rows:auto minmax(0,1fr);gap:clamp(5px,1vh,10px);width:100%;min-width:0;min-height:0;overflow:hidden}
+ .center .panel{width:100%;min-width:0;min-height:0;max-width:100%;overflow:hidden;padding:clamp(6px,1vh,10px)}
+ .center .panel:has(.controls){display:flex;flex-direction:column;justify-content:flex-start;margin:0;min-height:0}
+ .center .players{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+ .center .player{min-width:0;overflow:hidden;padding:clamp(4px,.7vh,7px);font-size:clamp(10px,1.45vh,13px);overflow-wrap:anywhere}
+ .center .player strong{font-size:clamp(11px,1.65vh,14px)}
+ .center .controls{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;width:100%;min-width:0}
+ .center .controls button{min-width:0;max-width:100%;width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.18;min-height:clamp(34px,5.2vh,48px);padding:5px 4px;font-size:clamp(10px,1.6vh,13px)}
+ .center #turn{font-size:clamp(11px,1.8vh,15px);overflow-wrap:anywhere}
+ .center #status{font-size:clamp(10px,1.5vh,12px);line-height:1.25;overflow-wrap:anywhere}
+}
+@media(max-width:760px) and (max-height:690px){
+ .center{gap:3px;padding:4px}
+ .center .panel{padding:4px}
+ .center .controls button{min-height:28px;padding:3px;font-size:10px}
+ .center .player{padding:3px}
+}
+
+/* Definitive inner-board containment: central UI cannot overlap edge properties */
+@media(max-width:760px){
+ .board{position:relative;isolation:isolate}
+ .board>.center{position:absolute!important;grid-column:auto!important;grid-row:auto!important;inset:9.09% 9.09% 9.09% 9.09%;width:auto!important;height:auto!important;max-width:none!important;min-width:0!important;box-sizing:border-box;z-index:1;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr);justify-items:stretch}
+ .board>.center>aside{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);overflow:hidden}
+ .board>.center .panel{width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box}
+ .board>.center .players,.board>.center .controls{width:100%;max-width:100%;min-width:0;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .board>.center .player,.board>.center .controls button{min-width:0;max-width:100%;box-sizing:border-box}
+ .board>.center .controls button{font-size:clamp(9px,1.55vh,13px);overflow-wrap:anywhere;word-break:normal}
+}
+
+/* v8: owner-colored properties, refined centered controls and clear player identity */
+.tile.owned{background:var(--owner)!important;color:#081c2d!important;box-shadow:inset 0 0 0 2px #ffffffa8,0 0 9px color-mix(in srgb,var(--owner) 45%,transparent);border-color:#071c2c!important}
+.tile.owned .name{color:#061928!important;font-weight:850;text-shadow:none}
+.tile.owned .price,.tile.owned .houses{color:#0b3041!important;font-weight:750}
+.tile.owned .band{filter:brightness(.75);border-radius:2px}
+.tile.owned .piece{box-shadow:0 0 0 2px #062339,0 0 0 3px #fff}
+.player{border-left-width:5px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--pc) 35%,transparent)}
+.player.active{outline:2px solid var(--pc);background:color-mix(in srgb,var(--pc) 19%,#102d4a)}
+@media(max-width:760px){
+ .board>.center{background:radial-gradient(ellipse at 50% 30%,#1a5676,#0b2944 72%);gap:clamp(5px,.9vh,10px)}
+ .board>.center>h2{font-size:clamp(15px,3.5vw,22px);letter-spacing:-.4px}
+ .board>.center>aside{grid-template-rows:auto minmax(0,1fr);gap:clamp(6px,1.1vh,12px)}
+ .board>.center .panel{border:1px solid #3b7297;background:linear-gradient(145deg,#0c304f,#0b2641);box-shadow:0 5px 18px #03172844}
+ .board>.center .panel:has(.controls){justify-content:flex-start!important;gap:5px;margin:0!important}
+ .board>.center .panel:has(.controls) #turn{font-size:clamp(13px,2.15vh,19px);color:#c8edff}
+ .board>.center .controls button{border-radius:10px;border-color:#5b9ac1;background:linear-gradient(145deg,#1a557b,#174466);box-shadow:inset 0 1px #ffffff1a}
+ .board>.center .controls button.primary{background:linear-gradient(135deg,#1685b8,#16567f);border-color:#8bdfff}
+ .board>.center .players{gap:6px}
+ .board>.center .player{background:#133b59;border-radius:10px}
+ .board>.center .player.active{background:color-mix(in srgb,var(--pc) 18%,#133b59)}
+}
+
+/* Solid owner fills are intentionally applied to the complete property button. */
+.board .tile.owned{background-image:none!important;background-color:var(--owner)!important;color:#061827!important}
+.board .tile.owned .name,.board .tile.owned .price,.board .tile.owned .houses{color:#061827!important;font-weight:900!important}
+.board .tile.owned .band{opacity:.7}
+.board .tile.owned:focus-visible{outline:3px solid #fff!important;outline-offset:-3px}
+
+/* Symmetric new-game setup and settings dialog */
+#modal:has(#dialogActions button) {width:min(430px,calc(100vw - 28px));padding:clamp(14px,4vw,22px)}
+#modalTitle{text-align:center;font-size:clamp(19px,4.6vw,23px);margin:0 0 12px}
+#modalBody{text-align:center}
+#modalBody p{margin:0 0 14px;padding:12px;line-height:1.5}
+#dialogActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:min(46dvh,390px);overflow-y:auto;padding:3px}
+#dialogActions button{margin:0;min-width:0;width:100%;min-height:52px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:650}
+#dialogActions button:last-child:nth-child(odd){grid-column:1/-1}
+#dialogActions button:only-child{grid-column:1/-1}
+#modal[data-new-game="true"] #dialogActions{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#modal[data-new-game="true"] #dialogActions button{min-height:64px;font-size:clamp(12px,3.4vw,15px);border-radius:13px;border-color:#69bce7;background:linear-gradient(155deg,#1b6087,#123956)}
+#modal[data-new-game="true"] #dialogActions button:last-child{grid-column:1/-1;min-height:42px;background:#102e4a;color:#b7d8ea}
+#modal[data-new-game="true"] #modalBody p{font-size:13px}
+/* Mortgage selection as legible, tappable property cards */
+#dialogActions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:min(46dvh,390px);overflow-y:auto;padding:3px}
+#dialogActions button{min-width:0;white-space:normal;overflow-wrap:anywhere;line-height:1.35;min-height:54px;padding:10px 8px;text-align:center;border-radius:12px;background:linear-gradient(145deg,#17496e,#123554);border:1px solid #6eadd0}
+#dialogActions button:last-child{grid-column:1/-1}
+#modalBody p{max-height:24dvh;overflow:auto}
+
+/* Compact inner-board activity feed and automatic dice */
+#roll{display:none!important}
+@media(max-width:760px){
+ .center aside{grid-template-rows:auto minmax(0,1fr)!important;gap:5px!important}
+ .center .panel:has(.controls){justify-content:flex-start!important;gap:3px!important}
+ .center .history-panel{display:block!important;flex:1 1 auto;min-height:56px;overflow:hidden!important;padding:6px 8px!important;background:#0a2b48d9;border-color:#3e86b2}
+ .center .history-panel h3{margin:0 0 3px!important;font-size:clamp(10px,1.45vh,12px)!important;color:#90d7fa}
+ .center .history-panel .log{display:flex;flex-direction:column;gap:3px;max-height:100%;overflow-y:auto;overscroll-behavior:contain;font-size:clamp(9px,1.35vh,12px);line-height:1.25}
+ .center .history-panel .log p{margin:0;padding:2px 0 3px;border-bottom:1px solid #25506b}
+ .center .controls button{min-height:clamp(30px,4.4vh,40px)!important}
+ .center .panel:has(.controls){margin-top:0!important}
+ .center #status{margin:1px 0!important;max-height:2.6em;overflow:hidden}
+}
+@media(min-width:761px){.center .history-panel{display:block!important;max-height:170px;overflow:hidden}}
+
+/* v9: three distinct compact sections inside the central board */
+@media(max-width:760px){
+ .board>.center>aside{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto minmax(75px,1fr)!important;align-content:stretch!important;gap:clamp(5px,.9vh,9px)!important;min-height:0!important;overflow:hidden!important}
+ .board>.center>aside>.panel{min-height:0!important;max-height:none!important;overflow:hidden!important}
+ .board>.center>aside>.panel:has(.controls){display:block!important;flex:none!important;align-self:start!important;padding:clamp(6px,.9vh,10px)!important}
+ .board>.center>aside>.panel:has(.controls) #turn{margin:0 0 8px!important}
+ .board>.center>aside>.panel:has(.controls) .controls{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ .board>.center>aside>.panel:has(.controls) .controls button[hidden]{display:none!important}
+ .board>.center>aside>.history-panel{display:flex!important;flex-direction:column!important;justify-content:flex-start!important;min-height:75px!important;padding:7px 9px!important;overflow:hidden!important}
+ .board>.center>aside>.history-panel .log{flex:1 1 auto!important;min-height:0!important;max-height:none!important;overflow-y:auto!important;display:block!important}
+ .board>.center>aside>.history-panel .log p{padding:4px 0!important;margin:0!important;border-bottom:1px solid #315d7c!important}
+}
+
+/* v11: activity history must be visible, and controls must stay at the top */
+#roll{display:none!important}
+.board .center aside>.history-panel{display:flex!important;flex-direction:column!important;visibility:visible!important;opacity:1!important;min-height:100px!important;flex:1 1 auto!important;overflow:hidden!important}
+.board .center aside>.history-panel .log{display:block!important;overflow-y:auto!important;max-height:none!important;min-height:0!important;flex:1 1 auto!important;text-align:left!important}
+.board .center aside>.history-panel .log p{display:block!important;font-size:clamp(10px,1.4vh,13px)!important;line-height:1.4!important;margin:4px 0!important}
+.board .center aside>.panel:has(.controls){margin-top:0!important;justify-content:flex-start!important;flex:0 0 auto!important}
+.board .center aside{grid-template-rows:auto auto minmax(100px,1fr)!important;align-content:start!important}
+
+.purchase-panel[hidden]{display:none!important}
+.purchase-panel{display:flex!important;flex-direction:column;gap:5px;padding:9px!important;background:linear-gradient(135deg,#123e62,#17385b)!important;border:1px solid #6dc9ff!important;box-shadow:0 0 16px #35b7ff24}
+.purchase-panel h3{font-size:clamp(12px,1.7vh,16px)!important;margin:0!important;color:#f9d177}
+.purchase-panel p{font-size:clamp(11px,1.55vh,14px)!important;margin:0!important}
+.purchase-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.purchase-actions button{min-height:38px;padding:7px 5px;font-size:clamp(12px,1.6vh,15px);border-radius:10px}
+@media(max-width:760px){.board>.center>aside{grid-template-rows:auto auto minmax(75px,1fr) auto!important}.board>.center>aside>.purchase-panel{min-height:0!important;flex:0 0 auto!important}}
+
+/* Inline purchase decision lives under the history, no extra dialog */
+.board>.center>aside>.purchase-panel{display:flex!important;flex-direction:column!important;gap:6px!important;min-height:0!important;flex:0 0 auto!important;align-self:end!important;margin:0!important}
+.board>.center>aside>.purchase-panel[hidden],#auctionResult[hidden]{display:none!important}
+.board>.center>aside>.history-panel{min-height:45px!important}
+.board>.center>aside{grid-template-rows:auto auto minmax(45px,1fr) auto auto!important}
+.board>.center>aside>.purchase-panel .purchase-actions button{min-height:36px!important}
+.auction-result{padding:8px;text-align:center;border-radius:10px;border:1px solid #72cfff;background:#143b58;color:#f9d177;font-size:12px}
+/* Settings: center Continue and New Game symmetrically */
+#modal[data-settings="true"] #dialogActions{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:10px!important}
+#modal[data-settings="true"] #dialogActions button{width:min(100%,260px)!important;min-height:48px!important;margin:0!important;flex:none!important}
+
+/* v22: native modal remains visible above the board, never clipped. */
+dialog#purchasePanel{position:fixed!important;inset:0!important;box-sizing:border-box;
+ display:none!important;flex-direction:column!important;justify-content:center;
+ width:min(500px,calc(100vw - 28px))!important;height:max-content!important;
+ max-height:min(88dvh,660px)!important;overflow-y:auto!important;
+ margin:auto!important;padding:22px!important;z-index:2147483000;
+ background:linear-gradient(150deg,#16476d,#08263e)!important;
+ color:#eaf8ff;border:2px solid #8edaff!important;border-radius:18px!important;
+ box-shadow:0 20px 65px #000c,0 0 35px #2c9cd860!important;gap:13px!important}
+dialog#purchasePanel[open]{display:flex!important}
+dialog#purchasePanel::backdrop{background:rgba(1,8,20,.77);backdrop-filter:blur(5px)}
+dialog#purchasePanel h3{margin:0!important;text-align:center;font-size:clamp(22px,3vw,29px)!important;color:#ffe0a0}
+dialog#purchasePanel>p{margin:0;text-align:center;font-size:17px!important;line-height:1.5}
+dialog#purchasePanel .purchase-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%}
+dialog#purchasePanel .purchase-actions button{min-width:0;min-height:63px!important;padding:10px 8px;
+ font-size:clamp(15px,2vw,19px)!important;font-weight:850;border-radius:12px}
+dialog#purchasePanel .purchase-actions .primary{background:linear-gradient(135deg,#218cc7,#145783);border-color:#a0e8ff}
+dialog#purchasePanel .purchase-hint{font-size:12px!important;color:#b7d7ea!important}
+@media(max-width:430px){dialog#purchasePanel{padding:14px!important;gap:10px!important}
+ dialog#purchasePanel .purchase-actions{gap:7px}
+ dialog#purchasePanel .purchase-actions button{min-height:53px!important;font-size:14px!important}}
+</style><style id="applications-unified-game-banner">
+.suite-game-banner{box-sizing:border-box;display:block;width:min(100%,720px);height:clamp(74px,12dvh,112px);margin:2px auto 10px;overflow:hidden;border-radius:12px;border:1px solid rgba(111,188,255,.4);background:#102e54;box-shadow:0 10px 25px rgba(0,6,26,.32)}
+body>.suite-game-banner{width:min(calc(100% - 24px),720px);margin:12px auto 10px}
+.suite-game-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(min-width:761px){.suite-game-banner{height:150px}}
+
+/* Explicit start/restart controls, including games loaded from /apps. */
+.header-actions{display:flex;align-items:center;gap:6px;flex:0 0 auto}
+.header-actions button{white-space:nowrap}
+@media(max-width:520px){header{gap:5px}.header-actions{gap:4px}header h1{font-size:19px}.header-actions button{padding:6px;font-size:11px}}
+</style>
+</head><body><div class="suite-game-banner"><img src="./hero-banner.svg" width="900" height="300" alt="" aria-hidden="true" decoding="async"></div>
+<header><h1>Monopoly<span>Funny</span></h1><div class="header-actions"><button id="newGame" class="primary" type="button">▶ Νέα παρτίδα</button><button id="settings" type="button">⚙ Ρυθμίσεις</button></div></header><main class="layout"><div id="board" class="board" aria-label="Ταμπλό 40 θέσεων"></div><aside><section class="panel"><h3>Παίκτες</h3><div class="players" id="players"></div></section><section class="panel"><h3 id="turn">Η σειρά σου</h3><div class="controls"><button id="buy" hidden style="display:none!important">🏠 Αγορά</button><button id="auction" hidden style="display:none!important">🔨 Δημοπρασία</button><button id="build">🏘️ Χτίσιμο</button><button id="mortgage">🏦 Υποθήκη / Εξόφληση</button><button id="end" hidden>Επόμενος παίκτης ➜</button></div><p id="status" class="hint" role="status"></p></section><section class="panel history-panel" style="display:flex;flex-direction:column"><h3>📜 Ιστορικό</h3><div id="log" class="log" aria-live="polite"></div></section><div id="auctionResult" class="auction-result" hidden aria-live="polite"></div></aside></main><dialog id="purchasePanel" class="panel purchase-panel" aria-labelledby="purchaseTitle" aria-describedby="purchaseDetails"><h3 id="purchaseTitle">🏠 Αγορά ακινήτου</h3><p id="purchaseDetails"></p><div class="purchase-actions"><button id="inlineBuy" class="primary" type="button">🏠 Αγορά</button><button id="inlineAuction" type="button">🔨 Δημοπρασία</button></div><p class="purchase-hint">Επίλεξε αγορά ή δημοπρασία για να συνεχιστεί η παρτίδα.</p></dialog><button id="roll" hidden style="display:none!important" aria-hidden="true" tabindex="-1"></button><dialog id="modal"><h2 id="modalTitle"></h2><div id="modalBody"></div><div id="dialogActions"></div></dialog><script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id),SAVE='monopolyfunny-v1',COLORS=['#55c6ff','#ff8b79','#ffd16a','#9df6a7'],TOKENS=['◆','●','▲','■'],groups=['#7d4b2a','#a8dfff','#f094c6','#ffb34e','#e4444d','#e8d15b','#43ba78','#344caa'];
+const names=['Αφετηρία','Οδός Καστανιάς','Ταμείο Κοινότητας','Οδός Πεύκων','Δημοτικός Φόρος','Σταθμός Βορρά','Οδός Λίμνης','Τυχερή Κάρτα','Οδός Πλατάνων','Οδός Κήπων','Επίσκεψη / Φυλακή','Οδός Άνοιξης','Ηλεκτρική Εταιρεία','Οδός Ακτής','Οδός Ηλίου','Σταθμός Ανατολής','Λεωφόρος Φιλίας','Ταμείο Κοινότητας','Λεωφόρος Μουσών','Λεωφόρος Τεχνών','Δωρεάν Στάθμευση','Οδός Ελιάς','Τυχερή Κάρτα','Οδός Αγοράς','Οδός Πλατείας','Σταθμός Νότου','Λεωφόρος Αστεριών','Λεωφόρος Ονείρων','Ύδρευση','Λεωφόρος Θάλασσας','Πήγαινε Φυλακή','Λεωφόρος Βουνού','Λεωφόρος Κάστρου','Ταμείο Κοινότητας','Λεωφόρος Κορυφής','Σταθμός Δύσης','Τυχερή Κάρτα','Λεωφόρος Ορίζοντα','Φόρος Πολυτελείας','Λεωφόρος Φωτός'];
+const groupIndices=[[1,3],[6,8,9],[11,13,14],[16,18,19],[21,23,24],[26,27,29],[31,32,34],[37,39]];
+const prices=[0,60,0,60,0,200,100,0,100,120,0,140,150,140,160,200,180,0,180,200,0,220,0,220,240,200,260,260,150,280,0,300,300,0,320,200,0,350,0,400];
+const props=names.map((name,i)=>({name,price:prices[i],group:groupIndices.findIndex(g=>g.includes(i)),owner:-1,houses:0,mortgaged:false}));
+let gameGeneration=0;let state=null,busy=false,decision=false,modalResolver=null,autoRollPending=false,purchasePromptPending=false,turnAdvanceTimer=null,debtPromptPending=false;
+function initial(ai=2,difficulty='normal'){props.forEach(p=>{p.owner=-1;p.houses=0;p.mortgaged=false});return {players:Array.from({length:ai+1},(_,i)=>({name:i?'AI '+i:'seemsfunny',money:1500,pos:0,jail:0,dead:false,color:COLORS[i],token:TOKENS[i]})),current:0,phase:'roll',round:1,log:[],dice:[1,1],doubles:0,ai,difficulty,properties:props.map(p=>({owner:p.owner,houses:0,mortgaged:false})),winner:null}} 
+function sync(){if(!state)return;state.properties.forEach((p,i)=>Object.assign(props[i],p))}
+function save(){if(!state)return;state.properties=props.map(p=>({owner:p.owner,houses:p.houses,mortgaged:p.mortgaged}));try{localStorage.setItem(SAVE,JSON.stringify(state))}catch(_){}}
+function historyLabel(t){return String(t).replace(/Ο χρήστης|στον χρήστη|του χρήστη|Εσύ|Εξόφλησες|Υποθήκευσες|Έχτισες/g,m=>({'Ο χρήστης':'seemsfunny','στον χρήστη':'στον seemsfunny','του χρήστη':'του seemsfunny','Εσύ':'seemsfunny','Εξόφλησες':'seemsfunny εξόφλησε','Υποθήκευσες':'seemsfunny υποθήκευσε','Έχτισες':'seemsfunny έχτισε'})[m])}function note(t){t=historyLabel(t);state.log.unshift(t);state.log=state.log.slice(0,45);$('status').textContent=t;save()}
+function player(){return state.players[state.current]}
+function own(i){return props[i].owner}
+function ownedBy(i){return props.filter(p=>p.owner===i)}
+function monopoly(p){return p.group>=0&&groupIndices[p.group].every(i=>own(i)===p.owner&&!props[i].mortgaged)}
+function rent(i,dice=7){let p=props[i];if(p.mortgaged||p.owner<0)return 0;if([5,15,25,35].includes(i))return 25*Math.pow(2,Math.max(0,[5,15,25,35].filter(x=>own(x)===p.owner).length-1));if([12,28].includes(i))return dice*([12,28].filter(x=>own(x)===p.owner).length===2?10:4);let base=Math.max(2,Math.round(p.price/12));return p.houses?Math.round(base*[1,5,15,40,65,90][p.houses]):base*(monopoly(p)?2:1)}
+function worth(i){return state.players[i].money+ownedBy(i).reduce((a,p)=>a+(p.mortgaged?p.price/2:p.price)+p.houses*p.price/2,0)}
+const MAX_ROUNDS=50;
+function checkEndgame(){if(state.winner!==null||state.round<=MAX_ROUNDS)return false;const scores=state.players.map((p,i)=>({i,score:p.dead?-Infinity:worth(i)})).sort((a,b)=>b.score-a.score);state.winner=scores[0].i;state.phase='finished';note('🏆 Τελική κατάταξη μετά από '+MAX_ROUNDS+' γύρους: '+scores.filter(x=>Number.isFinite(x.score)).map((x,k)=>(k+1)+'. '+state.players[x.i].name+' '+Math.round(x.score)+'€').join(' · '));render();return true}
+function pay(from,to,amount){if(amount<=0||state.players[from].dead)return;let p=state.players[from];p.money-=amount;if(p.money<0){if(from===0){state.pendingDebt={to,amount};note('Χρειάζεσαι '+(-p.money)+'€ ακόμη. Επίλεξε ακίνητα για υποθήκη.');return}else{autoLiquidate(from);if(p.money<0){const unpaid=-p.money;p.money=0;bankrupt(from,to);note(p.name+' δεν μπόρεσε να καλύψει '+unpaid+'€ της οφειλής.');amount-=unpaid}}}if(to>=0&&!state.players[to].dead)state.players[to].money+=Math.max(0,amount)}
+function autoLiquidate(i){let p=state.players[i];for(const prop of ownedBy(i).sort((a,b)=>b.houses-a.houses)){while(p.money<0&&prop.houses>0){prop.houses--;p.money+=Math.floor(prop.price/4);note(p.name+' πούλησε κτίριο: '+prop.name)}if(p.money>=0)break}for(const prop of ownedBy(i)){if(p.money>=0)break;if(!prop.mortgaged&&prop.houses===0&&(prop.group<0||groupIndices[prop.group].every(k=>props[k].houses===0))){prop.mortgaged=true;p.money+=Math.floor(prop.price/2);note(p.name+' υποθήκευσε '+prop.name)}}}
+function bankrupt(i,to){const p=state.players[i];if(p.dead)return;p.dead=true;p.money=0;props.forEach(prop=>{if(prop.owner===i){prop.owner=to>=0?to:-1;prop.houses=0;prop.mortgaged=to>=0?prop.mortgaged:false}});note('💥 Χρεοκόπησε: '+p.name);const alive=state.players.filter(x=>!x.dead);if(alive.length===1||i===0){const winner=alive.map(x=>state.players.indexOf(x)).sort((a,b)=>worth(b)-worth(a))[0];state.winner=winner;state.phase='finished';note('🏆 Νικητής: '+state.players[winner].name+(i===0?' · Ο seemsfunny χρεοκόπησε.':''))}}
+function position(i){if(i<=10)return {row:11,col:11-i};if(i<=20)return {row:11-(i-10),col:1};if(i<=30)return {row:1,col:i-19};return {row:i-29,col:11}}
+function board(){const b=$('board'),side=document.querySelector('aside');b.replaceChildren();for(let i=0;i<40;i++){const p=props[i],el=document.createElement('button'),xy=position(i);el.className='tile'+(p.owner>=0?' owned':'');el.style.gridRow=xy.row;el.style.gridColumn=xy.col;if(p.owner>=0){el.style.setProperty('--owner',COLORS[p.owner]);el.style.setProperty('--owner-ink','#091827');el.style.setProperty('background-color',COLORS[p.owner],'important');el.style.setProperty('background-image','none','important');el.style.setProperty('color','#061827','important');el.dataset.owner=String(p.owner);el.setAttribute('aria-label',p.name+', ιδιοκτησία '+state.players[p.owner].name)}let band=document.createElement('div');band.className='band';band.style.background=p.group>=0?groups[p.group]:p.price?'#65a7bd':'#2d5876';let label=document.createElement('span');label.className='name';label.textContent=p.name;let cost=document.createElement('span');cost.className='price';cost.textContent=p.price?p.price+'€':i===0?'+200€':'';let houses=document.createElement('span');houses.className='houses';houses.textContent=p.mortgaged?'Υ':p.houses===5?'🏨':p.houses?'⌂'.repeat(p.houses):'';let tokens=document.createElement('span');tokens.className='tokens';tokens.replaceChildren();state.players.forEach((x,j)=>{if(x.dead||x.pos!==i)return;let t=document.createElement('b');t.className='piece';t.style.setProperty('--piece',x.color);t.textContent=x.token;t.title=x.name;tokens.append(t)});el.append(band,label,cost,houses,tokens);el.onclick=()=>info(i);b.append(el)}let center=document.createElement('div');center.className='center';center.innerHTML='<h2>MonopolyFunny</h2><div class="dice" id="dice">🎲 🎲</div><small>Ακίνητα • Στρατηγική • AI</small>';b.append(center);if(side)center.append(side);$('dice').textContent=['⚀','⚁','⚂','⚃','⚄','⚅'][state.dice[0]-1]+' '+['⚀','⚁','⚂','⚃','⚄','⚅'][state.dice[1]-1]}
+function render(){board();$('players').replaceChildren();state.players.forEach((p,i)=>{let el=document.createElement('div');el.className='player'+(state.current===i?' active':'')+(p.dead?' dead':'');el.style.setProperty('--pc',p.color);el.innerHTML='<strong>'+p.token+' '+p.name+(p.jail?' 🔒':'')+'</strong>'+p.money+'€ · '+ownedBy(i).length+' ακίνητα';$('players').append(el)});$('turn').textContent=state.winner!==null?'🏆 Νικητής: '+state.players[state.winner].name:'Σειρά: '+player().name+' · Γύρος '+Math.min(state.round,MAX_ROUNDS)+'/'+MAX_ROUNDS;const human=state.current===0&&!player().dead&&!busy&&state.winner===null;$('roll').disabled=!human||state.phase!=='roll';$('roll').hidden=true;$('buy').hidden=!(human&&state.phase==='buy');$('auction').hidden=!(human&&state.phase==='buy');$('end').hidden=true;$('build').disabled=!human||!['roll','end'].includes(state.phase);$('mortgage').disabled=!human||!['roll','end','buy','debt'].includes(state.phase);$('log').replaceChildren();state.log.slice(0,5).forEach(x=>{let p=document.createElement('p');p.textContent=historyLabel(x);$('log').append(p)});if(human&&state.phase==='buy')promptPurchase();else{purchasePromptPending=false;if($('purchasePanel').open)$('purchasePanel').close()}save();scheduleTurnAdvance()}
+function scheduleTurnAdvance(){clearTimeout(turnAdvanceTimer);if(!state||state.current!==0||state.phase!=='end'||state.winner!==null||busy||purchasePromptPending||debtPromptPending||state.pendingDebt)return;turnAdvanceTimer=setTimeout(()=>{if(state&&state.current===0&&state.phase==='end'&&!state.pendingDebt&&!purchasePromptPending&&!debtPromptPending&&!$('modal').open)next();else if(state&&state.current===0&&state.phase==='end'&&!state.pendingDebt)scheduleTurnAdvance()},4000)}
+function mortgageOptions(){return props.map((p,i)=>({p,i})).filter(x=>x.p.owner===0&&(x.p.mortgaged?player().money>=Math.ceil(x.p.price*.55):x.p.houses===0&&(x.p.group<0||groupIndices[x.p.group].every(i=>props[i].houses===0))))}
+async function manageMortgages(required=false){clearTimeout(turnAdvanceTimer);if(!state||state.current!==0||state.winner!==null)return;while(true){const debt=Math.max(0,-player().money);const opts=mortgageOptions();if(required&&debt===0){const creditor=state.pendingDebt?.to??-1,amount=state.pendingDebt?.amount??0;if(creditor>=0&&!state.players[creditor].dead)state.players[creditor].money+=amount;state.pendingDebt=null;state.phase='end';note('Η οφειλή καλύφθηκε.');render();scheduleTurnAdvance();return}if(!opts.length){if(required&&debt>0){const to=state.pendingDebt?.to??-1,amount=state.pendingDebt?.amount??0;const paid=Math.max(0,amount+player().money);if(to>=0&&!state.players[to].dead)state.players[to].money+=paid;state.pendingDebt=null;bankrupt(0,to);if(state.winner===null){advanceAfterHumanBankruptcy()}else{state.phase='finished';render()}}else await modal('🏦 Υποθήκες','Δεν υπάρχουν διαθέσιμα ακίνητα για υποθήκη ή εξόφληση.',[['Κλείσιμο',-1]]);return}const actions=opts.map(x=>[(x.p.mortgaged?'↩ Εξόφληση ':'🏦 Υποθήκη ')+x.p.name+' · '+(x.p.mortgaged?'-'+Math.ceil(x.p.price*.55):'+'+Math.floor(x.p.price/2))+' €',x.i]);actions.push([required?'Αδυναμία πληρωμής':'Κλείσιμο',-1]);const choice=await modal(required?'⚠ Χρειάζονται '+debt+' €':'🏦 Διαχείριση ακινήτων','Διαθέσιμα: '+player().money+' €'+(required?'\nΓια να καλύψεις την οφειλή, επίλεξε ακίνητα.':'\nΕπίλεξε ακίνητο για υποθήκη ή εξόφληση.'),actions);if(choice<0){if(required&&player().money<0){const ok=await modal('⚠ Ανεξόφλητη οφειλή','Χρειάζεσαι '+(-player().money)+' €. Αν συνεχίσεις χωρίς να πληρώσεις, θα χρεοκοπήσεις.',[['Επιστροφή στις υποθήκες',false],['Χρεοκοπία',true]]);if(!ok)continue;const to=state.pendingDebt?.to??-1,amount=state.pendingDebt?.amount??0;const paid=Math.max(0,amount+player().money);if(to>=0&&!state.players[to].dead)state.players[to].money+=paid;state.pendingDebt=null;bankrupt(0,to);if(state.winner===null){advanceAfterHumanBankruptcy()}else{state.phase='finished';render()}}return}const p=props[choice];if(p.owner!==0)continue;if(p.mortgaged){const cost=Math.ceil(p.price*.55);if(player().money<cost)continue;player().money-=cost;p.mortgaged=false;note('Εξόφλησες '+p.name+' με '+cost+' €')}else{if(p.houses>0||(p.group>=0&&!groupIndices[p.group].every(i=>props[i].houses===0)))continue;const gain=Math.floor(p.price/2);p.mortgaged=true;player().money+=gain;note('Υποθήκευσες '+p.name+' και πήρες '+gain+' €')}render();if(!required)continue}}
+function advanceAfterHumanBankruptcy(){state.phase='roll';state.current=state.players.findIndex((p,i)=>i>0&&!p.dead);if(state.current<0){state.winner=0;state.phase='finished';render();return}render();aiTurn()}
+function scheduleDebtPrompt(){if(!state||state.current!==0||!state.pendingDebt||debtPromptPending)return;debtPromptPending=true;const generation=gameGeneration;setTimeout(async()=>{try{if(generation===gameGeneration&&state?.pendingDebt&&state.current===0)await manageMortgages(true)}finally{if(generation===gameGeneration){debtPromptPending=false;if(state?.phase==='end'&&!state.pendingDebt)scheduleTurnAdvance()}}},350)}
+function modal(title,body,actions){return new Promise(resolve=>{modalResolver=resolve;$('modal').dataset.newGame=title==='Νέο παιχνίδι'?'true':'false';$('modal').dataset.settings=title.includes('Ρυθμίσεις')?'true':'false';$('modalTitle').textContent=title;$('modalBody').replaceChildren();let p=document.createElement('p');p.textContent=body;p.style.whiteSpace='pre-line';$('modalBody').append(p);$('dialogActions').replaceChildren();actions.forEach(([label,value])=>{let btn=document.createElement('button');btn.textContent=label;btn.onclick=()=>{$('modal').close();modalResolver=null;resolve(value)};$('dialogActions').append(btn)});$('modal').showModal()})}
+$('modal').addEventListener('cancel',e=>{if(modalResolver){e.preventDefault();$('dialogActions').querySelector('button:last-child')?.click()}});
+ $('purchasePanel').addEventListener('cancel',e=>e.preventDefault());
+ $('modal').addEventListener('close',()=>{if(state?.winner===null&&state.current===0&&state.phase==='buy'&&!$('purchasePanel').open)setTimeout(promptPurchase,0)});
+function timedNotice(title,body,ms=2000){return new Promise(resolve=>{const d=$('modal');if(d.open)d.close();modalResolver=null;$('modalTitle').textContent=title;$('modalBody').replaceChildren();const p=document.createElement('p');p.textContent=body;p.style.whiteSpace='pre-line';$('modalBody').append(p);$('dialogActions').replaceChildren();d.showModal();setTimeout(()=>{if(d.open)d.close();resolve()},ms)})}
+function info(i){const p=props[i];modal('🔎 '+p.name,'Θέση '+(i+1)+' / 40\nΤιμή αγοράς: '+(p.price?p.price+' €':'Δεν πωλείται')+'\nΙδιοκτήτης: '+(p.owner<0?'Τράπεζα':state.players[p.owner].name)+'\nΕνοίκιο: '+rent(i)+' €\nΚτίρια: '+p.houses+(p.mortgaged?'\nΣε υποθήκη':'')+'\nΠιόνια εδώ: '+(state.players.filter(x=>!x.dead&&x.pos===i).map(x=>x.name).join(', ')||'Κανένα'),[['Κλείσιμο',true]])}
+function card(i){const community=[['Κέρδισες βραβείο!',100],['Έξοδα επισκευής',-80],['Επιστροφή φόρου',60],['Δωρεά στην κοινότητα',-40]];const chance=[['Τυχερή επένδυση!',150],['Πρόστιμο στάθμευσης',-50],['Κέρδη από πωλήσεις',90],['Έκτακτη χρέωση',-100]];let pool=i===7||i===22||i===36?chance:community;let [t,m]=pool[Math.floor(Math.random()*pool.length)];if(m>=0)player().money+=m;else pay(state.current,-1,-m);note('🃏 '+player().name+': '+t+' '+(m>=0?'+':'')+m+'€');if(state.current===0)setTimeout(()=>timedNotice(i===7||i===22||i===36?'🍀 Τυχερή Κάρτα':'🎴 Κάρτα Κοινότητας',t+'\n'+(m>=0?'Κερδίζεις ':'Πληρώνεις ')+Math.abs(m)+' €',2200),180)}
+function land(dice){const p=player(),i=p.pos,prop=props[i];if(i===30){p.pos=10;p.jail=3;state.doubles=0;state.extraRoll=false;note(p.name+' πήγε φυλακή');return}if([2,7,17,22,33,36].includes(i)){card(i);return}if(i===4||i===38){pay(state.current,-1,i===4?200:100);note(p.name+' πλήρωσε '+(i===4?200:100)+'€ φόρο στην τράπεζα');return}if(!prop.price)return;if(prop.owner===-1){if(state.current===0){state.phase='buy';note('Διαθέσιμο: '+prop.name+' ('+prop.price+'€)')}else{if(p.money>=prop.price+(state.difficulty==='hard'?120:200)&&Math.random()<(state.difficulty==='easy'?.65:.93)){buy(i)}else auction(i)}return}if(prop.owner!==state.current&&!prop.mortgaged){const amount=rent(i,dice);pay(state.current,prop.owner,amount);note(p.name+' πλήρωσε '+amount+'€ στον '+state.players[prop.owner].name)}}
+function buy(i){const p=props[i],buyer=player();if(p.owner!==-1||buyer.money<p.price)return false;buyer.money-=p.price;p.owner=state.current;note(buyer.name+' αγόρασε '+p.name+' για '+p.price+'€');return true}
+function auction(i){const prop=props[i],candidates=state.players.map((p,j)=>({p,j,bid:Math.min(Math.floor(p.money*.75),Math.round(prop.price*(.65+Math.random()*.5)))})).filter(x=>x.j!==0&&!x.p.dead&&x.p.money>=x.bid&&x.bid>=Math.round(prop.price*.5));candidates.sort((a,b)=>b.bid-a.bid);if(candidates.length){let win=candidates[0];win.p.money-=win.bid;prop.owner=win.j;note('🔨 '+win.p.name+' κέρδισε '+prop.name+' με '+win.bid+'€');return {winner:win.p.name,bid:win.bid,bids:candidates}}note('🔨 Το '+prop.name+' έμεινε στην τράπεζα');return {winner:null,bid:0,bids:candidates}}
+function move(steps){const p=player(),old=p.pos;p.pos=(old+steps)%40;if(p.pos<old){p.money+=200;note(p.name+' πέρασε από Αφετηρία: +200€')}}
+function roll(){if(state.phase!=='roll'||state.winner!==null)return;const p=player(),a=1+Math.floor(Math.random()*6),b=1+Math.floor(Math.random()*6);state.dice=[a,b];const doubles=a===b;note(p.name+' έφερε '+a+' + '+b);let releasedFromJail=false;if(p.jail){if(doubles){p.jail=0;releasedFromJail=true;state.doubles=0;note(p.name+' βγήκε από τη φυλακή')}else{p.jail--;if(!p.jail){pay(state.current,-1,50);releasedFromJail=true;state.doubles=0;note(p.name+' πλήρωσε 50€ για έξοδο');if(state.pendingDebt){state.phase='debt';render();scheduleDebtPrompt();return}}else{state.phase='end';render();return}}}else{state.doubles=doubles?state.doubles+1:0;if(state.doubles===3){p.pos=10;p.jail=3;state.doubles=0;state.extraRoll=false;state.phase='end';note('Τρεις διπλές ζαριές: φυλακή');render();return}}move(a+b);land(a+b);if(state.pendingDebt)state.phase='debt';else if(state.phase!=='buy')state.phase='end';state.extraRoll=!!(doubles&&!releasedFromJail&&!p.jail&&!p.dead&&state.phase==='buy');if(doubles&&!releasedFromJail&&!p.jail&&!p.dead&&state.phase==='end'){state.phase='roll';note('Διπλή ζαριά: ξαναπαίζεις')}render();if(state.current===0&&state.pendingDebt)scheduleDebtPrompt();else if(state.current===0&&state.phase==='buy')setTimeout(promptPurchase,350);else if(state.current===0&&state.phase==='roll')scheduleAutoRoll()}
+function promptPurchase(){
+ if(!state||state.current!==0||state.phase!=='buy'||state.winner!==null)return;
+ const i=player().pos,p=props[i];if(!p.price||p.owner!==-1)return;
+ purchasePromptPending=true;
+ clearTimeout(turnAdvanceTimer);
+ $('purchaseTitle').textContent='🏠 '+p.name;
+ $('purchaseDetails').textContent='Τιμή '+p.price+'€ · Διαθέσιμα '+player().money+'€';
+ $('inlineBuy').disabled=player().money<p.price;
+ $('inlineBuy').onclick=()=>finishPurchase(i,1);
+ $('inlineAuction').onclick=()=>finishPurchase(i,2);
+ // Keep the purchase decision above the board, independently of its layout.
+ if(!$('purchasePanel').open && !$('modal').open){
+   $('purchasePanel').showModal();
+   ($('inlineBuy').disabled?$('inlineAuction'):$('inlineBuy')).focus();
+ }
+}
+async function finishPurchase(i,choice){
+ if(!state||state.current!==0||state.phase!=='buy'||player().pos!==i||props[i].owner!==-1)return;
+ purchasePromptPending=false;if($('purchasePanel').open)$('purchasePanel').close();
+ if(choice===1){if(!buy(i)){promptPurchase();return}state.phase=state.extraRoll?'roll':'end';state.extraRoll=false;render();if(state.phase==='roll')scheduleAutoRoll();else scheduleTurnAdvance();return}
+ const p=props[i],result=auction(i);state.phase=state.extraRoll?'roll':'end';state.extraRoll=false;render();
+ $('auctionResult').textContent=result.winner?'🔨 '+result.winner+' αγόρασε '+p.name+' για '+result.bid+'€':'🔨 '+p.name+': δεν υπήρξαν προσφορές';
+ $('auctionResult').hidden=false;
+ setTimeout(()=>{$('auctionResult').hidden=true},2400);
+ if(state.phase==='roll')scheduleAutoRoll();else scheduleTurnAdvance();
+}
+function next(){if(state.winner!==null||state.phase!=='end'||state.current!==0||state.pendingDebt||purchasePromptPending||debtPromptPending)return;clearTimeout(turnAdvanceTimer);state.phase='roll';state.doubles=0;state.extraRoll=false;let old=state.current;do{state.current=(state.current+1)%state.players.length}while(state.players[state.current].dead);if(state.current<=old)state.round++;if(checkEndgame())return;render();if(state.current!==0)aiTurn();else scheduleAutoRoll()}
+async function aiTurn(){if(busy||state.winner!==null)return;const generation=gameGeneration;busy=true;render();await new Promise(r=>setTimeout(r,500));if(generation!==gameGeneration)return;let guard=0;while(generation===gameGeneration&&state.current!==0&&state.winner===null&&guard++<80){if(state.phase==='roll')roll();if(state.phase==='buy'){auction(player().pos);state.phase=state.extraRoll?'roll':'end';state.extraRoll=false}if(state.phase==='end'){const i=state.current;if(!state.players[i].dead)aiBuild(i);nextAi();}else if(state.phase==='debt'){const i=state.current;autoLiquidate(i);if(state.players[i].money<0)bankrupt(i,-1);state.phase='end';nextAi();}render();await new Promise(r=>setTimeout(r,450))}if(generation!==gameGeneration)return;busy=false;render();if(state.current===0&&state.winner===null)scheduleAutoRoll()}
+function scheduleAutoRoll(){if($('modal').open)return;if(autoRollPending||busy||!state||state.current!==0||state.phase!=='roll'||state.winner!==null)return;autoRollPending=true;const generation=gameGeneration;setTimeout(()=>{if(generation!==gameGeneration)return;autoRollPending=false;if(!busy&&state&&state.current===0&&state.phase==='roll'&&state.winner===null){roll();if(state.phase==='roll')scheduleAutoRoll()}},850)}
+function nextAi(){if(state.winner!==null)return;const old=state.current;state.phase='roll';state.doubles=0;state.extraRoll=false;let guard=0;do{state.current=(state.current+1)%state.players.length;if(++guard>state.players.length)return}while(state.players[state.current].dead);if(state.current<=old)state.round++;checkEndgame()}
+function aiBuild(i){const p=state.players[i];if(p.money<350)return;let opts=props.filter(x=>x.owner===i&&monopoly(x)&&x.houses<5&&!x.mortgaged);if(opts.length){const x=opts.sort((a,b)=>a.houses-b.houses)[0],cost=Math.round(x.price/2);if(p.money>cost+250&&x.houses===Math.min(...groupIndices[x.group].map(k=>props[k].houses))){p.money-=cost;x.houses++;note(p.name+' έχτισε στο '+x.name)}}}
+$('roll').onclick=roll;$('buy').onclick=()=>{if(buy(player().pos))state.phase='end';else note('Δεν υπάρχουν αρκετά χρήματα');render()};$('auction').onclick=async()=>{if(state.phase!=='buy'||state.current!==0)return;let i=player().pos,p=props[i];let confirm=await modal('🔨 Δημοπρασία: '+p.name,'Αξία ακινήτου: '+p.price+' €. Αν δεν το αγοράσεις, οι αντίπαλοι AI κάνουν αυτόματες προσφορές. Εσύ δεν χρεώνεσαι και δεν συμμετέχεις στη δημοπρασία.',[['Έναρξη δημοπρασίας',true],['Άκυρο',false]]);if(!confirm)return;let result=auction(i);state.phase='end';render();await timedNotice('🔨 Αποτέλεσμα δημοπρασίας','Ακίνητο: '+p.name+'\n'+(result.bids.length?'Προσφορές AI:\n'+result.bids.map(x=>x.p.name+': '+x.bid+' €').join('\n')+'\n':'Δεν έγιναν προσφορές.\n')+(result.winner?'Νικητής: '+result.winner+' με '+result.bid+' €':'Το ακίνητο παραμένει διαθέσιμο στην τράπεζα.'),2000)};$('end').onclick=next;
+$('build').onclick=async()=>{let options=props.map((p,i)=>({p,i})).filter(x=>x.p.owner===0&&monopoly(x.p)&&x.p.houses<5&&!x.p.mortgaged&&player().money>=Math.round(x.p.price/2));if(!options.length){await modal('Χτίσιμο','Χρειάζεσαι πλήρη ομάδα χρώματος και αρκετά χρήματα.',[['Εντάξει',0]]);return}let choice=await modal('Χτίσιμο','Διάλεξε ακίνητο. Κόστος κάθε κτιρίου: μισή τιμή αγοράς.',[...options.map(x=>[x.p.name+' ('+Math.round(x.p.price/2)+'€)',x.i]),['Άκυρο',-1]]);if(choice>=0){let p=props[choice];const siblings=groupIndices[p.group].map(i=>props[i].houses);if(p.houses>Math.min(...siblings)){note('Χτίζεις ομοιόμορφα σε όλη την ομάδα');render();return}player().money-=Math.round(p.price/2);p.houses++;note('Έχτισες στο '+p.name);render()}};
+$('mortgage').onclick=async()=>{if(state.current!==0||state.winner!==null)return;await manageMortgages(!!state.pendingDebt)};
+async function startNewGameFlow(){
+ const n=await modal('Νέο παιχνίδι','Επίλεξε πόσους αντιπάλους θέλεις στην παρτίδα.',[
+  ['🤖 1 AI',1],['🤖 2 AI',2],['🤖 3 AI',3],['Ακύρωση',0]
+ ]);
+ if(!n){if(state?.phase==='roll')scheduleAutoRoll();return false}
+ const inProgress=state?.winner===null&&Array.isArray(state.log)&&state.log.some(x=>String(x).includes('έφερε'));
+ if(inProgress){
+  const ok=await modal('Επιβεβαίωση','Η τρέχουσα παρτίδα θα αντικατασταθεί.',[['Νέα παρτίδα',true],['Άκυρο',false]]);
+  if(!ok){if(state?.phase==='roll')scheduleAutoRoll();return false}
+ }
+ gameGeneration++;
+ clearTimeout(turnAdvanceTimer);
+ if($('modal').open)$('modal').close();
+ state=initial(n);
+ busy=false;purchasePromptPending=false;debtPromptPending=false;autoRollPending=false;
+ note('Νέα παρτίδα με '+n+' AI');
+ render();
+ setTimeout(()=>{if(state&&state.winner===null&&state.round===1&&state.current===0&&state.phase==='roll')scheduleAutoRoll()},350);
+ return true
+}
+$('newGame').onclick=()=>startNewGameFlow();
+$('settings').onclick=async()=>{
+ const c=await modal('⚙ Ρυθμίσεις','Παιχνίδι ακινήτων με πρωτότυπο ταμπλό. Στόχος: να μείνεις ο τελευταίος παίκτης με χρήματα. Ρίχνεις δύο ζάρια, αγοράζεις ελεύθερα ακίνητα, εισπράττεις ενοίκια και χτίζεις αφού αποκτήσεις όλα τα ακίνητα ενός χρώματος. Αν αρνηθείς αγορά γίνεται δημοπρασία. Στην Αφετηρία εισπράττεις 200€. Υπάρχουν φόροι, κάρτες, φυλακή, υποθήκες και χρεοκοπία. Η πρόοδος αποθηκεύεται αυτόματα.',[['Συνέχεια',0],['Νέο παιχνίδι',1]]);
+ if(c===1)await startNewGameFlow();
+ else if(state?.phase==='roll')scheduleAutoRoll();
+}
+try{
+ const saved=JSON.parse(localStorage.getItem(SAVE)||'null');
+ const valid=saved&&Array.isArray(saved.players)&&saved.players.length>=2&&saved.players.length<=4
+  &&Array.isArray(saved.properties)&&saved.properties.length===40&&Array.isArray(saved.log)
+  &&Array.isArray(saved.dice)&&saved.dice.length===2&&Number.isInteger(saved.current)
+  &&saved.current>=0&&saved.current<saved.players.length
+  &&Number.isInteger(saved.round)&&saved.round>=1
+  &&['roll','buy','end','debt','finished'].includes(saved.phase)
+  &&saved.players.every(p=>p&&typeof p.money==='number'&&Number.isInteger(p.pos))
+  &&saved.properties.every(p=>p&&Number.isInteger(p.owner)&&Number.isInteger(p.houses));
+ state=valid?saved:initial(2);
+}catch(_){state=initial(2)}sync();if(state.players?.[0])state.players[0].name='seemsfunny';if(Array.isArray(state.log))state.log=state.log.map(historyLabel);if(state.winner===null&&state.round>MAX_ROUNDS)checkEndgame();if(!state.log.length)note('Καλώς ήρθες! Ρίξε τα ζάρια.');render();if(state.current!==0&&state.winner===null)aiTurn();else if(state.pendingDebt)scheduleDebtPrompt();else if(state.phase==='buy')setTimeout(promptPurchase,450);else if(state.phase==='end')scheduleTurnAdvance();else scheduleAutoRoll();
+})();
+</script><script>if('serviceWorker' in navigator)window.addEventListener('load',async()=>{try{const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.filter(r=>r.scope.includes('/monopolyfunny/')).map(r=>r.unregister()));const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('monopolyfunny-')).map(k=>caches.delete(k)));}catch(e){console.warn('Cache cleanup:',e)}});</script></body></html>
