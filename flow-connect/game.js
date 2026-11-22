@@ -1,7 +1,7 @@
 (()=>{const {el,btn}=G;const colors=["#ff6988","#58d2ff","#f8c34d","#8ae78a","#bd97ff","#ff9d60"];const puzzles=[
-[[0,30],[5,35],[7,20],[11,28],[16,27]],
 [[0,5],[6,11],[12,17],[18,23],[24,29]],
-[[0,35],[5,30],[6,29],[11,24],[14,21]]
+[[0,30],[1,31],[2,32],[3,33],[4,34]],
+[[0,7],[5,10],[12,19],[17,22],[24,31]]
 ];let s;
 const neighbors=(a,b)=>Math.abs(Math.floor(a/6)-Math.floor(b/6))+Math.abs(a%6-b%6)===1;
 function start(){const level=(G.load("progress",0)||0)%puzzles.length;s={level,paths:puzzles[level].map(([a])=>[a]),active:-1,moves:0};save();render();}
