@@ -78,6 +78,41 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     if(game==='word-search')await page.locator('#play button').first().click();
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
     await page.waitForTimeout(60);
+    if(game==='memory-match'){
+      assert.equal(await page.locator('#play .match-card').count(),32,'Memory Match has eight rows of four cards');
+      const rows=await page.locator('.memory-full-grid').evaluate(e=>getComputedStyle(e).gridTemplateRows.split(' ').length);
+      assert.equal(rows,8,'Memory Match board uses eight grid rows');
+    }
+    if(game==='flow-connect'){
+      assert.equal(await page.locator('#play .flow-endpoint').count(),10,'Five clearly numbered endpoint pairs');
+      assert.equal(await page.locator('#play .flow-endpoint').first().innerText(),'1','Endpoint has identifying number');
+    }
+    if(game==='blackjack'){
+      assert.equal(await page.locator('.blackjack-hand-actions button').count(),2,'Both Blackjack decisions follow the cards');
+      assert.ok(await page.locator('.blackjack-hand-actions').evaluate(e=>e.previousElementSibling?.textContent?.includes('Τα φύλλα σου')),'Actions directly follow player hand');
+    }
+    if(game==='battleship'){
+      const gear=page.locator('.game-topbar .gear-button');
+      assert.ok(await page.locator('.game-topbar .battleship-restart').count()===1,'Reset is beside gear');
+      assert.ok(await page.locator('.game-topbar .battleship-restart').evaluate(e=>e.nextElementSibling?.classList.contains('gear-button')),'Reset immediately precedes gear');
+      if(mode==='mobile'){
+        assert.ok(await page.locator('.battleship-layout .enemy-view').isVisible(),'Opponent board shows on mobile');
+        assert.ok(!(await page.locator('.battleship-layout .own-view').isVisible()),'Own board initially hidden to avoid vertical scroll');
+      }
+    }
+    if(game==='brick-breaker'||game==='falling-blocks'){
+      const controls=page.locator('.edge-action-row');
+      assert.ok(await controls.isVisible(),'Bottom edge controls visible '+game);
+      const pos=await page.evaluate(()=>{
+        const canvas=document.querySelector('#play canvas').getBoundingClientRect();
+        const row=document.querySelector('.edge-action-row').getBoundingClientRect();
+        const arrows=[...document.querySelectorAll('.edge-action-row > button')].map(b=>b.getBoundingClientRect());
+        return {canvasBottom:canvas.bottom,rowTop:row.top,left:arrows[0]?.left,right:arrows[1]?.right,width:innerWidth};
+      });
+      assert.ok(pos.rowTop>=pos.canvasBottom-3,'Arrows sit below the board '+game);
+      assert.ok(pos.left<18&&pos.right>pos.width-18,'Arrows sit on opposite screen edges '+game);
+      if(game==='falling-blocks'&&mode==='mobile')await page.locator('#play canvas').tap({position:{x:30,y:50}});
+    }
     assert.equal(failures.length,0,'Gameplay exceptions '+game+': '+failures.join('; '));
     console.log('PASS '+mode+' '+game+' · '+status.slice(0,70));
    }
