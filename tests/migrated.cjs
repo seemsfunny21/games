@@ -47,6 +47,7 @@ const server=http.createServer((req,res)=>{
       height:innerHeight,scrollHeight:document.documentElement.scrollHeight
     }));
     assert.ok(metrics.scrollWidth<=metrics.width+3,name+' must not horizontally scroll on '+mode);
+    assert.ok(metrics.scrollHeight<=metrics.height+3,name+' must fit vertically without page scrolling on '+mode);
     console.log('PASS '+mode+' '+name+' · '+JSON.stringify(metrics));
    }
    // Confirm the shared offline shell can open the newly migrated games.
