@@ -1,21 +1,24 @@
 (()=>{
 const {el,btn}=G;
 const colors=["#ff6988","#58d2ff","#f8c34d","#8ae78a","#bd97ff","#ff9d60"];
-const puzzles=[
- [[0,5],[6,11],[12,17],[18,23],[24,29]],
- [[0,30],[1,31],[2,32],[3,33],[4,34]],
- [[0,7],[5,10],[12,19],[17,22],[24,31]]
-];
 let s,board=null,drag=null;
+const P=G.progress(start);
+function points(){
+ const rot=(P.stage-1)%4,skipped=Math.floor((P.stage-1)/4)%6;
+ const rows=[0,1,2,3,4,5].filter(r=>P.difficulty==="hard"||r!==skipped);
+ const chosen=P.difficulty==="easy"?rows.filter((_,i)=>i%2===0):rows;
+ const transform=(x,y)=>rot===0?y*6+x:rot===1?x*6+(5-y):rot===2?(5-y)*6+(5-x):(5-x)*6+y;
+ return chosen.map(y=>[transform(0,y),transform(5,y)]);
+}
 const neighbors=(a,b)=>Math.abs(Math.floor(a/6)-Math.floor(b/6))+Math.abs(a%6-b%6)===1;
-const points=()=>puzzles[s.level];
+
 function save(){G.store("round",s);}
 function owner(i){return s.paths.findIndex(p=>p.includes(i));}
 function endpoint(i){return points().findIndex(pair=>pair.includes(i));}
 function completed(k){const [a,b]=points()[k],p=s.paths[k];return p.length>1&&p.includes(a)&&p.includes(b);}
 function solved(){return s.paths.every((_,k)=>completed(k));}
 function stats(){
- G.score("Συνδέσεις: "+s.paths.filter((_,k)=>completed(k)).length+"/"+points().length+" · Κινήσεις: "+s.moves+" · Πίστα "+(s.level+1));
+ G.score("Συνδέσεις: "+s.paths.filter((_,k)=>completed(k)).length+"/"+points().length+" · Κινήσεις: "+s.moves+" · Πίστα "+P.stage);
  G.msg(solved()?"🏆 Όλες οι γραμμές συνδέθηκαν! Πήγαινε στην επόμενη πίστα.":"Σύρε το χρώμα στον αντίστοιχο κύκλο για να ενώσεις τα ζευγάρια.");
 }
 function paint(){
@@ -55,14 +58,12 @@ function extend(i){
 }
 function end(){
  if(!drag)return;
- drag=null;s.active=-1;save();paint();
+ drag=null;s.active=-1;save();paint();if(solved())P.win();
 }
 function render(){
  G.ctrl(btn("↻ Επανεκκίνηση",()=>{
   drag=null;s.paths=points().map(([a])=>[a]);s.active=-1;s.moves=0;save();render();
- }),btn("Επόμενη πίστα",()=>{
-  drag=null;s.level=(s.level+1)%puzzles.length;s.paths=points().map(([a])=>[a]);s.active=-1;s.moves=0;G.store("progress",s.level);save();render();
- },"secondary"));
+ }),...(P.highest>P.stage?[btn("Επόμενη πίστα",()=>P.select(P.difficulty,P.stage+1),"secondary")]:[]));
  const grid=el("div","grid-board flow-board");
  grid.style.cssText="grid-template-columns:repeat(6,minmax(0,1fr));width:min(100%,440px);touch-action:none";
  for(let i=0;i<36;i++){const b=el("button","tile flow");b.type="button";b.dataset.cell=i;grid.append(b);}
@@ -101,8 +102,8 @@ function render(){
  grid.addEventListener("lostpointercapture",cancel);
  G.render(grid);paint();
 }
-function start(){s={level:(G.load("progress",0)||0)%puzzles.length,paths:[],active:-1,moves:0};s.paths=points().map(([a])=>[a]);save();render();}
+function start(){s={level:P.stage-1,paths:[],active:-1,moves:0};s.paths=points().map(([a])=>[a]);save();render();}
 s=G.load("round");
-if(!s?.paths||s.paths.length!==5||!puzzles[s.level])start();
+if(!s?.paths||s.paths.length!==points().length)start();
 else{s.active=-1;render();}
 })();
