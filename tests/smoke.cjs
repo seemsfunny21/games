@@ -159,6 +159,43 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     if(game==='flow-connect'){
       assert.equal(await page.locator('#play .flow-endpoint').count(),10,'Five clearly numbered endpoint pairs');
       assert.equal(await page.locator('#play .flow-endpoint').first().innerText(),'1','Endpoint has identifying number');
+      // All 60 layouts must be distinct and must include a real non-overlapping solution.
+      const levels=await page.evaluate(()=>{
+        const result={};
+        for(const diff of ['easy','normal','hard']){
+          const all=Array.from({length:20},(_,i)=>FlowLevels.create(diff,i+1));
+          const signatures=all.map(b=>JSON.stringify(b.pairs));
+          const valid=all.every(level=>{
+            const indices=level.solutions.flat();
+            return new Set(indices).size===indices.length&&
+              level.solutions.every((path,k)=>path[0]===level.pairs[k][0]&&path.at(-1)===level.pairs[k][1]&&
+                path.every((cell,i)=>cell>=0&&cell<36&&(i===0||Math.abs(cell%6-path[i-1]%6)+Math.abs(Math.floor(cell/6)-Math.floor(path[i-1]/6))===1));
+          });
+          result[diff]={unique:new Set(signatures).size,valid,pairs:all.map(b=>b.pairs)};
+        }
+        return result;
+      });
+      for(const diff of ['easy','normal','hard']){
+        assert.equal(levels[diff].unique,20,'All 20 Flow layouts are distinct in '+diff);
+        assert.ok(levels[diff].valid,'All 20 Flow layouts have a usable solution in '+diff);
+      }
+      if(mode==='mobile'){
+        // Complete the remaining paths of level one with the same touch-drag gesture.
+        const paths=await page.evaluate(()=>FlowLevels.create('normal',1).solutions.slice(1));
+        const cell=page.locator('.flow-board [data-cell]');
+        for(const pathIndices of paths){
+          for(let p=0;p<pathIndices.length;p++){
+            const b=await cell.nth(pathIndices[p]).boundingBox();
+            const x=b.x+b.width/2,y=b.y+b.height/2;
+            await page.mouse.move(x,y,{steps:p===0?1:5});
+            if(p===0)await page.mouse.down();
+          }
+          await page.mouse.up();
+        }
+        await page.waitForFunction(()=>G.activeProgress.stage===2,null,{timeout:4000});
+        assert.notDeepEqual(levels.normal.pairs[0],levels.normal.pairs[1],'Flow level two changes endpoints after progression');
+        assert.ok(await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).count()===1,'Help gear still works at Flow stage two');
+      }
     }
     if(game==='blackjack'){
       assert.equal(await page.locator('.blackjack-hand-actions button').count(),2,'Both Blackjack decisions follow the cards');
@@ -194,7 +231,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v9-stage-white-unlocks');
+     const cache=await caches.open('games-shell-v10-flow-unique20');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
