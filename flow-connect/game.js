@@ -4,7 +4,7 @@ const colors=["#ff6988","#58d2ff","#f8c34d","#8ae78a","#bd97ff","#ff9d60"];
 let s,board=null,drag=null;
 const P=G.progress(start);
 function points(){
- const rot=(P.stage-1)%4,skipped=Math.floor((P.stage-1)/4)%6;
+ const rot=(P.stage-1)%4,skipped=(Math.floor((P.stage-1)/4)+5)%6;
  const rows=[0,1,2,3,4,5].filter(r=>P.difficulty==="hard"||r!==skipped);
  const chosen=P.difficulty==="easy"?rows.filter((_,i)=>i%2===0):rows;
  const transform=(x,y)=>rot===0?y*6+x:rot===1?x*6+(5-y):rot===2?(5-y)*6+(5-x):(5-x)*6+y;
