@@ -56,6 +56,21 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.equal(failures.length,0,'Gameplay exceptions '+game+': '+failures.join('; '));
     console.log('PASS '+mode+' '+game+' · '+status.slice(0,70));
    }
+   // Ensure the preloaded games can launch without any network access.
+   await page.goto(base+'/',{waitUntil:'load'});
+   await page.waitForFunction(async()=>{
+     if(!('serviceWorker' in navigator))return false;
+     const registration=await navigator.serviceWorker.ready;
+     const cache=await caches.open('games-shell-v3-fresh-online-offline-fallback');
+     const keys=await cache.keys();
+     return !!registration.active&&keys.length>=30;
+   },null,{timeout:15000});
+   await page.waitForTimeout(200);
+   await context.setOffline(true);
+   await page.goto(base+'/puzzle-15/',{waitUntil:'load',timeout:20000});
+   assert.ok(await page.locator('#play button').count()>0,'Offline game starts with no network');
+   await context.setOffline(false);
+   console.log('PASS '+mode+' offline preload and game startup');
    await context.close();
   }
  }finally{if(browser)await browser.close();await new Promise(r=>server.close(r));}
