@@ -1,5 +1,16 @@
 (()=>{const {el,btn}=G;let s,canvas,ctx,timer;const P=G.progress(start);const W=400,H=500;
-function start(){const speed=({easy:3,normal:3.6,hard:4.4}[P.difficulty]+P.stage*.11),width=({easy:140,normal:98,hard:76}[P.difficulty]);s={paddle:200,pw:width,speed,ball:{x:200,y:405,vx:speed*.78,vy:-speed},bricks:Array.from({length:6},(_,r)=>Array(8).fill(r<({easy:Math.min(6,3+Math.floor(P.stage/5)),normal:6,hard:6}[P.difficulty])?1:0)),lives:{easy:4,normal:3,hard:2}[P.difficulty],score:0,playing:true,paused:false};setup();draw();}
+function brickLayout(stage,difficulty){
+ const d={easy:0,normal:1,hard:2}[difficulty],rows=d===0?Math.min(6,3+Math.floor(stage/5)):6;
+ return Array.from({length:6},(_,r)=>Array.from({length:8},(_,col)=>{
+  if(r>=rows)return 0;
+  if(stage===1&&d===1)return 1;
+  const n=((stage*1103515245+r*92821+col*68917+d*314159)>>>0);
+  const varied=((n^(n>>>11)^(r*col*97))%11+11)%11;
+  return varied<(d===0?8:d===1?9:10)?1:0;
+ }));
+}
+window.BrickLevels={layout:brickLayout};
+function start(){const speed=({easy:3,normal:3.6,hard:4.4}[P.difficulty]+P.stage*.11),width=({easy:140,normal:98,hard:76}[P.difficulty]);s={paddle:200,pw:width,speed,ball:{x:200,y:405,vx:speed*.78,vy:-speed},bricks:brickLayout(P.stage,P.difficulty),lives:{easy:4,normal:3,hard:2}[P.difficulty],score:0,playing:true,paused:false};setup();draw();}
 function step(){if(!s.playing||s.paused||document.hidden)return;const b=s.ball;let nx=b.x+b.vx,ny=b.y+b.vy;if(nx<=8||nx>=392)b.vx*=-1;if(ny<9)b.vy=Math.abs(b.vy);nx=b.x+b.vx;ny=b.y+b.vy;if(b.vy>0&&ny>=448&&ny<=462&&Math.abs(nx-s.paddle)<s.pw/2+3){b.vy=-Math.abs(b.vy);b.vx=(nx-s.paddle)/15;}if(ny>500){s.lives--;if(!s.lives){s.playing=false;G.store("best",Math.max(s.score,G.load("best",0)));}else s.ball={x:s.paddle,y:412,vx:s.speed*.78,vy:-s.speed};draw();return;}
 for(let r=0;r<6;r++)for(let c=0;c<8;c++)if(s.bricks[r][c]){const x=12+c*47,y=38+r*27;if(nx>=x-7&&nx<=x+45&&ny>=y-7&&ny<=y+24){s.bricks[r][c]=0;b.vy*=-1;s.score+=10;break;}}
 b.x=nx;b.y=ny;if(s.bricks.every(r=>r.every(v=>!v))){s.playing=false;G.store("best",Math.max(s.score,G.load("best",0)));P.win();}draw();}
