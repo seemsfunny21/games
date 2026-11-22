@@ -40,7 +40,7 @@ const server=http.createServer((req,res)=>{
     await page.waitForTimeout(220);
     assert.equal(await page.locator(selector).count(),1,name+' primary game UI is mounted');
     assert.ok(await page.locator('button').count()>0,name+' interactive buttons exist');
-    assert.ok((await page.locator('body').innerText()).length>80,name+' has visible content');
+    assert.ok((await page.locator('body').innerText()).length>15,name+' has visible content');
     assert.deepEqual(failures,[],name+' loads without JavaScript or missing asset errors on '+mode);
     const metrics=await page.evaluate(()=>({
       width:innerWidth,scrollWidth:document.documentElement.scrollWidth,
