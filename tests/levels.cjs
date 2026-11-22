@@ -31,6 +31,16 @@ const server=http.createServer((req,res)=>{
   for(const [folder,name] of Object.entries(mapped)){
    errors.length=0;
    await page.goto(base+'/'+folder+'/',{waitUntil:'load'});
+   if(name==='Mahjong'||name==='Puzzle'){
+    await page.evaluate(()=>{
+     const key='games:'+location.pathname+':campaign-v1';
+     localStorage.setItem(key,JSON.stringify({
+      difficulty:'normal',stage:{easy:1,normal:1,hard:1},
+      highest:{easy:20,normal:20,hard:20},cleared:{easy:0,normal:0,hard:0},version:1
+     }));
+    });
+    await page.reload({waitUntil:'load'});
+   }
    const outcome=await page.evaluate(({name})=>{
     const difficulties=['easy','normal','hard'],result={};
     const hooks={
