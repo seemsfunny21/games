@@ -268,8 +268,8 @@ body.game-screen .flow-board .tile{touch-action:none!important;-webkit-user-sele
 .campaign-difficulty .btn{font-size:clamp(11px,2.6vw,14px);padding:7px 3px;min-height:37px;white-space:nowrap}
 .campaign-difficulty button[aria-pressed="true"]{background:#208dc5;border-color:#c0f0ff}
 .campaign-levels{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;max-height:36dvh;overflow:auto;overscroll-behavior:contain;padding:2px}
-.campaign-level{min-height:46px;border:1px solid #447aa6;border-radius:10px;background:#123b61;color:#cceaff;font-size:15px;font-weight:800;touch-action:manipulation}
-.campaign-level.completed{border-color:#58c8a6;background:#145a53;color:#d8fff0}
-.campaign-level.selected{outline:2px solid #b2e9ff;outline-offset:0}
-.campaign-level:disabled{opacity:.32;color:#a7b3c3;cursor:default}
+.campaign-level{min-height:46px;border:1px solid #447aa6;border-radius:10px;background:#123b61;color:#cceaff;font-size:16px;font-weight:850;touch-action:manipulation;font-variant-numeric:tabular-nums;display:grid;place-items:center}
+.campaign-level.completed{border-color:#f6fbff;background:#f8fbff;color:#132842;box-shadow:0 0 9px #d9efff50}
+.campaign-level.selected{outline:3px solid #54baff;outline-offset:1px;box-shadow:0 0 0 3px #174c75,0 0 12px #49acfa72}
+.campaign-level:disabled{opacity:1;color:#8b94a2;background:#27303d;border-color:#394655;box-shadow:none;cursor:default}
 body.game-screen .score{font-size:clamp(10px,2.45vw,13px);line-height:1.25}
