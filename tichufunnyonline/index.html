@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#071426">
+<meta name="color-scheme" content="dark">
+<title>TichuFunny Online — Προεπισκόπηση</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#071426;color:#f0f8ff;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}body{background:radial-gradient(ellipse at 50% -10%,#174b79,#071426 67%)}button,select{font:inherit;touch-action:manipulation}button{cursor:pointer}
+.app{max-width:740px;margin:auto;padding:9px 9px 36px}.hero{text-align:center;border:1px solid #2c5c82;border-radius:17px;background:linear-gradient(140deg,#16466f,#0a2540);padding:11px 7px;margin-bottom:9px}.hero .icon{font-size:25px;color:#b7e5ff;text-shadow:0 0 14px #168ee1}h1{margin:2px;font-size:clamp(21px,5vw,29px)}.sub{font-size:12px;color:#a6c5e0;margin:2px}
+.panel{background:#0b223ae3;border:1px solid #2c5273;border-radius:17px;padding:11px 9px;box-shadow:0 10px 25px #0005}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 0 10px}.metric{background:#102f4f;border:1px solid #30658c;border-radius:10px;padding:8px 2px;text-align:center}.metric small{display:block;color:#a2c6df;font-size:10px}.metric strong{font-size:18px}
+.table{background:radial-gradient(ellipse at 50% 40%,#185080,#0a2947 70%);border:1px solid #326589;border-radius:14px;padding:10px;min-height:230px}.opponents{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;align-items:center;margin:0 0 10px}.seat{text-align:center;min-height:57px;border:1px solid #2b5676;border-radius:10px;background:#082943a8;padding:7px 3px;font-size:11px;color:#aacce2}.seat strong{display:block;color:#e7f5ff;font-size:12px}.seat.active{border-color:#80d6ff;box-shadow:0 0 12px #43aafc66}.seat.partner{border-color:#6ad5b37a}.seat.done{opacity:.55}
+.pot{margin:auto;min-height:102px;display:flex;justify-content:center;align-items:center;gap:5px;flex-wrap:wrap;max-width:570px}.pot.empty{border:1px dashed #6085a176;border-radius:10px;color:#779bb9;font-size:12px;padding:12px}.trick-label{text-align:center;font-size:11px;color:#afd4ec;min-height:18px}.yourseat{text-align:center;margin-top:9px;border-radius:9px;border:1px solid #376287;padding:7px;background:#103554;font-size:12px}.yourseat.active{border-color:#6cc7ff;box-shadow:0 0 10px #3cafff44}
+.message{min-height:36px;text-align:center;padding:10px 5px;color:#d1eafd;line-height:1.4;font-size:12px}.wish{text-align:center;margin:8px;color:#ffd783;font-size:12px}.hand{display:flex;align-items:flex-start;justify-content:center;flex-wrap:wrap;gap:5px;min-height:100px;margin:12px 0 8px;padding:8px 2px;border:1px solid #2b5878;border-radius:12px;background:#071d35}
+.card{width:clamp(39px,10vw,53px);height:clamp(64px,15vw,76px);background:linear-gradient(145deg,#fff,#dfe8ef);color:#15304b;border:1px solid #bcd1e1;border-radius:7px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;padding:5px 4px;box-shadow:0 2px 6px #0007;user-select:none;-webkit-user-select:none;cursor:pointer;transition:transform .12s ease,border .12s ease}
+.card.red{color:#c62e52}.card.special{background:linear-gradient(140deg,#fee7a9,#e7b96d);color:#533c1d;border-color:#ffe0a4}.card.phoenix{background:linear-gradient(145deg,#b5edff,#79b9e6);color:#14365d}.card.selected{transform:translateY(-9px);border:2px solid #38ceff;box-shadow:0 0 12px #37c5ffb0}.card.assigned{opacity:.5}.card b{font-size:clamp(12px,3vw,16px)}.card .center{text-align:center;font-size:clamp(18px,5.5vw,27px)}.card small{font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pot .card{width:34px;height:50px;pointer-events:none;padding:2px;font-size:10px}.pot .card b{font-size:12px}.pot .card .center{font-size:19px}.pot .card small{font-size:7px}
+.controls{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:9px 1px}.btn,select{border:1px solid #396f98;border-radius:11px;background:linear-gradient(145deg,#174870,#0d2c49);color:#eaf8ff;min-height:40px;padding:8px 12px}.btn.primary{background:linear-gradient(145deg,#2596da,#145989);border-color:#7acbff}.btn:disabled{opacity:.38}.btn:focus-visible,.card:focus-visible{outline:2px solid #9adeff;outline-offset:2px}.btn.warn{border-color:#d1ad68;color:#ffe7aa}.hint{font-size:12px;color:#a4c6df;text-align:center;padding:4px}.footer{text-align:center;color:#87acc7;font-size:12px;line-height:1.6;margin:12px 4px}.hidden{display:none!important}
+@media(max-width:440px){.app{padding:5px 5px 30px}.panel{padding:7px 4px}.table{padding:7px 4px}.hand{gap:3px}.card{width:clamp(34px,9.4vw,44px);height:clamp(57px,14vw,69px);padding:3px 2px}.card b{font-size:12px}.controls{gap:5px}.btn{font-size:12px;padding:7px 8px}.pot .card{width:30px;height:46px}}@media(prefers-reduced-motion:reduce){.card{transition:none}}
+
+/* TichuFunny: denser, touch-friendly game table for phones.
+   The game remains within Applications; no fullscreen, orientation lock or zoom. */
+@media(max-width:600px){
+ .app{max-width:620px;padding:6px 6px 16px}
+ .hero{display:flex;align-items:center;justify-content:center;gap:8px;
+   padding:8px 7px;margin-bottom:6px;border-radius:13px}
+ .hero .icon{font-size:21px;flex:none}
+ .hero h1{font-size:20px;margin:0}
+ .hero .sub{display:none}
+ .panel{padding:7px 6px;border-radius:14px}
+ .stats{gap:5px;margin-bottom:7px}
+ .metric{padding:4px 3px;border-radius:9px}
+ .metric small{font-size:10px;white-space:nowrap}
+ .metric strong{font-size:17px}
+ .table{padding:7px 6px;min-height:0;border-radius:12px}
+ .opponents{gap:5px;margin-bottom:6px}
+ .seat{min-height:43px;padding:4px 2px;font-size:10px;border-radius:8px}
+ .seat strong{font-size:11px;margin-bottom:1px}
+ .trick-label{font-size:10px;min-height:15px}
+ .pot{min-height:75px;max-width:100%;gap:3px}
+ .pot.empty{min-height:75px;padding:9px}
+ .pot .card{width:30px;height:43px;padding:2px;border-radius:5px}
+ .pot .card .center{font-size:16px}
+ .yourseat{margin-top:5px;padding:5px;font-size:11px}
+ .wish{margin:5px;font-size:11px}
+ .message{min-height:24px;padding:5px 3px;font-size:11px;line-height:1.3}
+ .hand{gap:4px;min-height:0;margin:7px 0;padding:10px 4px 5px;
+   background:radial-gradient(ellipse at 50% 0%,#163f65,#081d32 80%);
+   border-color:#38668c;border-radius:11px;align-items:flex-start}
+ .hand .card{width:clamp(37px,10.2vw,46px);height:clamp(60px,16vw,70px);
+   padding:4px 3px;border-radius:7px;flex:none}
+ .hand .card.selected{transform:translateY(-7px);border-color:#63d7ff;
+   box-shadow:0 0 12px #52ceff9c,0 3px 7px #0007}
+ .hand .card b{font-size:13px}
+ .hand .card .center{font-size:23px}
+ .hand .card small{font-size:8px}
+ #controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:6px 0}
+ #controls .btn{width:100%;padding:7px 5px;min-height:38px;font-size:12px}
+ .controls:not(#controls){margin:7px 0 4px;gap:6px}
+ .controls:not(#controls) .btn,.controls:not(#controls) select{min-height:36px;padding:6px 8px;font-size:12px}
+ .controls:not(#controls) .sub{font-size:11px}
+ .hint{font-size:10px;padding:3px;line-height:1.3}
+ .footer{display:none}
+}
+@media(max-width:360px){
+ .hand{gap:2px;padding-inline:2px}
+ .hand .card{width:clamp(34px,10.4vw,39px);height:clamp(56px,16vw,64px);padding:3px 2px}
+ .hand .card .center{font-size:19px}
+ .metric small{font-size:9px}
+ .seat strong{font-size:10px}
+ #controls .btn{font-size:11px}
+}
+/* Landscape phones: enough width for a wider card row, without oversized panels. */
+@media(min-width:601px) and (max-height:560px){
+ .app{max-width:880px;padding:4px 6px 12px}
+ .hero{padding:4px 7px;margin-bottom:4px}
+ .hero .icon{display:inline;font-size:17px}
+ .hero h1{display:inline;font-size:18px}
+ .hero .sub{display:none}
+ .panel{padding:5px 7px}
+ .stats{margin-bottom:5px}
+ .metric{padding:3px 2px}
+ .metric strong{font-size:15px}
+ .table{min-height:160px;padding:6px}
+ .opponents{margin-bottom:5px}
+ .seat{min-height:39px;padding:4px 2px}
+ .pot{min-height:55px}
+ .pot.empty{min-height:55px}
+ .yourseat{margin-top:5px;padding:4px}
+ .message{min-height:20px;padding:3px}
+ .hand{min-height:0;margin:6px 0;padding:9px 4px 4px;gap:3px}
+ .hand .card{width:clamp(36px,5vw,48px);height:clamp(54px,8vw,68px);padding:3px}
+ .controls{margin:5px 1px;gap:5px}
+ .btn,select{min-height:34px;padding:5px 9px;font-size:12px}
+ .footer{display:none}
+}
+
+
+/* Landscape-format gameplay inside a portrait mobile viewport.
+   Rotate ONLY this game's canvas; the Applications tabs remain unrotated.
+   No requestFullscreen() and no screen.orientation.lock() needed. */
+@media (orientation:portrait) and (max-width:650px){
+ html,body{
+  width:100%;height:100%;min-height:0;margin:0;
+  overflow:hidden;overscroll-behavior:none;
+ }
+ .app{
+  position:fixed;top:0;left:100vw;
+  width:100dvh;height:100vw;max-width:none;min-height:0;
+  margin:0;padding:3px 5px 5px;
+  transform-origin:top left;transform:rotate(90deg);
+  display:flex;flex-direction:column;justify-content:flex-start;
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none;
+ }
+ .app::-webkit-scrollbar{display:none}
+ .hero{
+  display:flex;flex:none;align-items:center;justify-content:center;gap:7px;
+  min-height:27px;height:27px;margin:0 0 3px;padding:2px 7px;
+  border-radius:9px;
+ }
+ .hero .icon{font-size:17px;line-height:1}
+ .hero h1{font-size:17px;line-height:1.1;margin:0}
+ .hero .sub{display:none}
+ .panel{
+  display:flex;flex:none;flex-direction:column;gap:3px;
+  min-height:0;margin:0;padding:4px 6px;
+  border-radius:10px;box-shadow:0 3px 10px #0005;
+ }
+ .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:0}
+ .metric{
+  display:flex;justify-content:center;align-items:center;gap:6px;
+  min-height:25px;padding:2px 4px;border-radius:7px;
+ }
+ .metric small{display:inline;font-size:10px;white-space:nowrap}
+ .metric strong{display:inline;font-size:14px;line-height:1}
+ .table{min-height:0;padding:4px 6px;border-radius:9px}
+ .opponents{gap:5px;margin:0 0 4px}
+ .seat{
+  min-height:27px;height:27px;
+  display:flex;justify-content:center;align-items:center;gap:5px;
+  padding:2px 4px;font-size:10px;border-radius:7px;
+ }
+ .seat strong{display:inline;font-size:11px;white-space:nowrap}
+ .seat span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .trick-label{font-size:10px;min-height:13px;line-height:13px}
+ .pot{
+  min-height:48px;max-height:53px;gap:3px;
+  display:flex;flex-wrap:nowrap;justify-content:center;align-items:center;
+  overflow-x:auto;overflow-y:hidden;
+ }
+ .pot.empty{min-height:48px;padding:6px}
+ .pot .card{width:29px;height:42px;flex:none;padding:2px}
+ .pot .card b{font-size:11px}
+ .pot .card .center{font-size:16px}
+ .yourseat{margin-top:3px;padding:2px 4px;font-size:10px;line-height:1.15}
+ .wish{font-size:10px;margin:2px 4px}
+ .message{
+  min-height:16px;max-height:22px;padding:1px 3px;
+  font-size:10px;line-height:1.3;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+ }
+ .hand{
+  display:flex;flex-wrap:nowrap;justify-content:flex-start;
+  align-items:center;gap:2px;
+  height:76px;min-height:76px;margin:3px 0;padding:9px 4px 3px;
+  overflow-x:auto;overflow-y:hidden;touch-action:pan-x;
+  -webkit-overflow-scrolling:touch;scrollbar-width:thin;
+ }
+ .hand .card{
+  width:clamp(31px,5.4dvh,42px);height:clamp(49px,8dvh,62px);
+  flex:none;border-radius:6px;padding:3px 2px;
+ }
+ .hand .card b{font-size:11px}
+ .hand .card .center{font-size:clamp(17px,3.1dvh,21px)}
+ .hand .card small{font-size:7px}
+ .hand .card.selected{transform:translateY(-6px)}
+ #controls{
+  display:flex;flex-wrap:wrap;justify-content:center;align-items:center;
+  grid-template-columns:none;gap:4px;margin:2px 0;
+ }
+ #controls .btn{
+  flex:0 0 auto;width:auto;min-height:30px;
+  padding:4px 9px;font-size:11px;white-space:nowrap;
+ }
+ .controls:not(#controls){
+  display:flex;flex-wrap:nowrap;justify-content:center;
+  align-items:center;gap:6px;margin:3px 0 0;
+ }
+ .controls:not(#controls) .sub{font-size:10px}
+ .controls:not(#controls) .btn,.controls:not(#controls) select{
+  font-size:11px;min-height:29px;padding:4px 8px;
+ }
+ .hint,.footer{display:none}
+}
+/* Small physical portrait phones: give cards room without clipping controls. */
+@media (orientation:portrait) and (max-width:360px){
+ .app{padding:2px 3px 4px}
+ .hero{min-height:24px;height:24px;margin-bottom:2px}
+ .hero h1{font-size:15px}
+ .panel{gap:2px;padding:3px 4px}
+ .metric{min-height:22px}
+ .seat{height:24px;min-height:24px}
+ .pot{min-height:42px;max-height:44px}
+ .pot.empty{min-height:42px}
+ .hand{height:69px;min-height:69px;margin:2px 0;padding-top:7px}
+ .hand .card{height:53px;width:31px}
+ .controls:not(#controls){margin-top:1px}
+}
+
+
+/* Four visible seats around a curved, blue-green felt card table. */
+.table#cardTable{
+ position:relative;isolation:isolate;
+ display:grid;grid-template-areas:". north ." "west center east" ". south .";
+ grid-template-columns:minmax(76px,20%) minmax(0,1fr) minmax(76px,20%);
+ grid-template-rows:38px minmax(92px,1fr) 34px;
+ gap:5px;align-items:stretch;
+ min-height:210px;padding:8px;
+ border:2px solid #487e9fa6;border-radius:40px;
+ background:
+ radial-gradient(ellipse at 49% 42%,#226c72 0%,#15505e 43%,#0a334d 80%,#09253c 100%);
+ box-shadow:inset 0 0 0 4px #123e57,inset 0 0 18px #051a2e,0 8px 20px #0008;
+}
+.table#cardTable::before{
+ content:"";position:absolute;inset:6px 8px;border-radius:37px;
+ border:1px solid #82d5d33f;box-shadow:inset 0 0 24px #6fcac30e;
+ pointer-events:none;z-index:0;
+}
+.table#cardTable > *{position:relative;z-index:1;min-width:0}
+.table#cardTable .seat{
+ display:flex;align-items:center;justify-content:center;flex-wrap:wrap;
+ gap:2px 5px;height:auto;min-height:0;
+ padding:3px 4px;border-radius:10px;text-align:center;
+ background:linear-gradient(135deg,#0a2b44ee,#153d55dc);
+ border:1px solid #5b8e9f9c;
+ color:#cde9ee;box-shadow:0 3px 9px #0005;
+}
+.table#cardTable .seat strong{display:inline;font-size:11px;color:#f5ffff;line-height:1.1;white-space:nowrap}
+.table#cardTable .seat .count{font-size:10px;white-space:nowrap;color:#afd5d9}
+.table#cardTable .seat-top{grid-area:north;justify-self:center;min-width:170px;max-width:95%;border-color:#57bda7}
+.table#cardTable .seat-left{grid-area:west;align-self:center;min-height:52px;flex-direction:column}
+.table#cardTable .seat-right{grid-area:east;align-self:center;min-height:52px;flex-direction:column}
+.table#cardTable .seat-bottom{
+ grid-area:south;justify-self:center;min-height:30px;min-width:130px;
+ border:1px solid #65b7e5;border-radius:10px;padding:6px 10px;
+ background:linear-gradient(130deg,#174e73,#0d344d);
+ font-size:11px;text-align:center;color:#f5ffff;
+}
+.table#cardTable .card-backs{display:inline-flex;align-items:center;gap:0;height:20px;overflow:visible}
+.table#cardTable .card-backs i{
+ display:block;flex:none;width:13px;height:19px;margin-left:-5px;
+ background:repeating-linear-gradient(45deg,#e5eef8 0 2px,#255981 3px 5px,#142b50 6px 8px);
+ border:1px solid #b4e0f5;border-radius:3px;transform:rotate(6deg);
+ box-shadow:0 1px 4px #0009;
+}
+.table#cardTable .card-backs i:first-child{margin-left:0;transform:rotate(-7deg)}
+.table#cardTable .card-backs i:nth-child(2){transform:rotate(4deg)}
+.table#cardTable .table-center{
+ grid-area:center;
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:3px;min-width:0;min-height:0;
+ padding:4px 6px;border-radius:50% / 44%;
+ background:radial-gradient(ellipse at center,#124c65b5,#0c344ca6 82%);
+ border:1px solid #92d8d04d;
+ box-shadow:inset 0 0 16px #0003;
+}
+.table#cardTable .trick-label{width:100%;font-size:10px;font-weight:700;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.table#cardTable .trick-owner{
+ max-width:100%;padding:3px 8px;border-radius:20px;
+ border:1px solid #f1b964;color:#ffe3a7;background:#533919db;
+ box-shadow:0 0 12px #ffb64d47;font-size:11px;font-weight:800;
+ text-align:center;line-height:1.2;
+}
+.table#cardTable .trick-owner.ally{
+ border-color:#71edb1;color:#dfffea;background:#15593edc;
+ box-shadow:0 0 13px #47e99c80;
+}
+.table#cardTable .trick-owner.opponent{
+ border-color:#ffbc6a;color:#ffeacc;background:#583b21ec;
+}
+.table#cardTable .pot{
+ width:100%;min-height:46px;max-height:96px;max-width:100%;
+ padding:3px 2px;margin:0;
+ display:flex;flex-wrap:nowrap;align-items:center;justify-content:center;
+ gap:3px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+}
+.table#cardTable .pot.empty{
+ border:1px dashed #79c6cf85;border-radius:10px;
+ min-height:44px;font-size:11px;white-space:normal;
+}
+.table#cardTable .pot .card{
+ flex:0 0 auto;width:clamp(24px,4vw,34px);height:clamp(38px,6vw,49px);
+ border-radius:5px;padding:2px;
+}
+.table#cardTable .pot .card b{font-size:11px}
+.table#cardTable .pot .card .center{font-size:16px}
+.table#cardTable .seat.leader{
+ border:2px solid #ffcf6d!important;
+ background:linear-gradient(135deg,#664b27,#264d5a)!important;
+ color:#fff0d1;
+ box-shadow:0 0 0 1px #fff1cc35,0 0 17px #ffcc60c9!important;
+}
+.table#cardTable .seat.leader.partner,.table#cardTable .seat-bottom.leader{
+ border-color:#78ffba!important;
+ background:linear-gradient(135deg,#126452,#10405a)!important;
+ box-shadow:0 0 0 1px #dcffe850,0 0 19px #50f6b3bf!important;
+}
+.table#cardTable .seat.active:not(.leader),.table#cardTable .seat-bottom.active:not(.leader){
+ border-color:#7fcfff;box-shadow:0 0 11px #68beff70;
+}
+.table#cardTable.partner-leading .table-center{
+ box-shadow:inset 0 0 18px #14a9774b,0 0 15px #47e9a52b;
+ border-color:#75ecc189;
+}
+.hand .card.straight-glow{
+ transform:translateY(-5px);
+ border:2px solid #81f4c2;
+ box-shadow:0 0 0 2px #5cf0b951,0 0 15px #5cfaada8,0 4px 9px #0008;
+ animation:tichu-straight-glow 1.4s ease-in-out infinite;
+}
+@keyframes tichu-straight-glow{
+ 0%,100%{box-shadow:0 0 0 2px #5cf0b954,0 0 11px #55e9aa83,0 4px 9px #0008}
+ 50%{box-shadow:0 0 0 2px #82ffce99,0 0 20px #77ffcbdc,0 4px 9px #0008}
+}
+.btn.partner-caution{
+ border-color:#f6c96b;background:linear-gradient(145deg,#62502d,#503a23);
+ color:#fff3d9;box-shadow:0 0 11px #e7ad4f58;
+}
+@media(max-width:600px){
+ .table#cardTable{min-height:188px;grid-template-rows:34px minmax(78px,1fr) 31px;
+  grid-template-columns:minmax(67px,19%) minmax(0,1fr) minmax(67px,19%);
+  padding:6px;gap:4px;border-radius:31px}
+ .table#cardTable .seat-top{min-width:136px}
+ .table#cardTable .seat strong{font-size:10px}
+ .table#cardTable .seat .count{font-size:9px}
+ .table#cardTable .seat-left,.table#cardTable .seat-right{min-height:47px}
+ .table#cardTable .seat-bottom{min-height:28px}
+ .table#cardTable .pot{min-height:41px}
+ .table#cardTable .pot .card{width:27px;height:41px}
+ .table#cardTable .trick-owner{font-size:10px;padding:2px 5px}
+}
+@media(orientation:portrait) and (max-width:650px){
+ .table#cardTable{
+  flex:none;height:157px;min-height:157px;
+  grid-template-rows:30px minmax(65px,1fr) 27px;
+  grid-template-columns:minmax(69px,17%) minmax(0,1fr) minmax(69px,17%);
+  padding:5px 7px;gap:3px;border-radius:30px;
+ }
+ .table#cardTable .seat{min-height:0;padding:2px 4px}
+ .table#cardTable .seat-top{min-width:156px}
+ .table#cardTable .seat-left,.table#cardTable .seat-right{min-height:44px}
+ .table#cardTable .seat strong{font-size:10px}
+ .table#cardTable .seat .count{font-size:9px}
+ .table#cardTable .seat-bottom{min-height:25px;padding:3px 6px;font-size:10px}
+ .table#cardTable .card-backs{height:17px}
+ .table#cardTable .card-backs i{width:11px;height:16px}
+ .table#cardTable .table-center{gap:2px;padding:3px 4px}
+ .table#cardTable .trick-label{font-size:9px;min-height:12px;line-height:12px}
+ .table#cardTable .trick-owner{font-size:9px;padding:2px 4px}
+ .table#cardTable .pot{min-height:34px;max-height:45px;gap:2px}
+ .table#cardTable .pot.empty{min-height:36px;font-size:10px}
+ .table#cardTable .pot .card{width:27px;height:39px}
+ .table#cardTable .pot .card .center{font-size:14px}
+}
+@media(orientation:portrait) and (max-width:360px){
+ .table#cardTable{height:140px;min-height:140px;
+  grid-template-rows:26px minmax(55px,1fr) 24px;padding:4px;gap:2px}
+ .table#cardTable .seat-top{min-width:130px}
+ .table#cardTable .seat-left,.table#cardTable .seat-right{min-height:36px}
+ .table#cardTable .card-backs{display:none}
+ .table#cardTable .pot .card{width:25px;height:36px}
+}
+@media(min-width:601px) and (max-height:560px){
+ .table#cardTable{height:151px;min-height:151px;
+  grid-template-rows:28px minmax(60px,1fr) 26px;padding:5px;gap:3px}
+ .table#cardTable .seat-top{min-width:150px}
+ .table#cardTable .seat-left,.table#cardTable .seat-right{min-height:41px}
+ .table#cardTable .pot{min-height:34px;max-height:44px}
+ .table#cardTable .pot .card{width:27px;height:39px}
+}
+@media(prefers-reduced-motion:reduce){
+ .hand .card.straight-glow{animation:none}
+}
+
+
+/* Table-centric layout: all your cards are at the bottom of the felt,
+   directly above the "Εσύ" seat. The old outside control row is gone. */
+.hero{
+ position:relative;z-index:20;isolation:isolate;
+ display:grid;grid-template-columns:32px minmax(0,1fr) 32px;
+ align-items:center;gap:5px;
+}
+.hero::before{content:"";width:32px;height:1px}
+.hero-title{
+ min-width:0;display:flex;align-items:center;justify-content:center;gap:7px;
+}
+.hero-title .icon{font-size:22px;line-height:1}
+.hero-title h1{
+ margin:0;font-size:clamp(18px,4.4vw,26px);line-height:1.1;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.settings-toggle{
+ display:grid;place-items:center;justify-self:end;
+ width:32px;height:32px;padding:0;
+ border:1px solid #6daacb9d;border-radius:10px;
+ background:linear-gradient(145deg,#1b587e,#102f4f);
+ color:#e6f8ff;font-size:22px;line-height:1;cursor:pointer;
+ box-shadow:inset 0 1px #ffffff31,0 2px 8px #0004;
+}
+.settings-toggle[aria-expanded="true"]{
+ border-color:#91e4ff;background:#235b82;
+ box-shadow:0 0 12px #54b9ff86;
+}
+.settings-toggle:focus-visible{
+ outline:2px solid #b9f1ff;outline-offset:2px;
+}
+.settings-panel{
+ position:absolute;top:calc(100% + 5px);right:0;z-index:50;
+ width:min(245px,calc(100vw - 16px));
+ display:flex;flex-direction:column;gap:7px;padding:12px;
+ background:linear-gradient(150deg,#154163,#082b44);
+ border:1px solid #70b5dc;border-radius:13px;
+ box-shadow:0 14px 30px #000b,0 0 14px #2b8ec753;
+ text-align:left;
+}
+.settings-panel[hidden]{display:none!important}
+.settings-panel strong{font-size:14px;color:#e7f8ff;text-align:center}
+.settings-panel label{font-size:12px;color:#c1e5f4}
+.settings-panel select,.settings-panel .btn{
+ width:100%;min-height:40px;font-size:13px;
+}
+.settings-panel .btn{margin-top:3px}
+.panel{position:relative;z-index:1}
+.table#cardTable{
+ grid-template-areas:". north ." "west center east" "hand hand hand" ". south .";
+ grid-template-rows:38px minmax(92px,1fr) 89px 34px;
+ min-height:300px;
+}
+.table#cardTable > .hand{
+ grid-area:hand;
+ display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;
+ width:100%;min-width:0;max-width:100%;
+ height:86px;min-height:0;margin:0;padding:11px 5px 4px;
+ gap:3px;overflow-x:auto;overflow-y:hidden;
+ -webkit-overflow-scrolling:touch;touch-action:pan-x;
+ scrollbar-width:thin;scrollbar-color:#7cb7cb6e transparent;
+ background:linear-gradient(180deg,#0c3e4a54,#09263888);
+ border:1px solid #84c7be55;border-radius:13px;
+ box-shadow:inset 0 5px 13px #0002,inset 0 -2px 8px #5de4c50b;
+}
+.table#cardTable > .hand .card{flex:0 0 auto}
+.table#cardTable > .hand .card.selected{transform:translateY(-7px)}
+.table#cardTable > .hand .card.straight-glow{transform:translateY(-5px)}
+.table#cardTable > .seat-bottom{z-index:2}
+@media(max-width:600px){
+ .hero{grid-template-columns:30px minmax(0,1fr) 30px;gap:2px}
+ .hero::before{width:30px}
+ .hero-title .icon{font-size:19px}
+ .hero-title h1{font-size:19px}
+ .settings-toggle{width:30px;height:30px;font-size:20px}
+ .table#cardTable{min-height:271px;
+  grid-template-rows:34px minmax(75px,1fr) 78px 30px}
+ .table#cardTable > .hand{height:76px;padding:10px 4px 3px}
+}
+@media(orientation:portrait) and (max-width:650px){
+ .hero{display:grid;grid-template-columns:26px minmax(0,1fr) 26px;
+   min-height:27px;height:27px;padding:2px 5px;gap:2px}
+ .hero::before{width:26px}
+ .hero-title{gap:5px}
+ .hero-title .icon{font-size:16px;line-height:1}
+ .hero-title h1{font-size:16px;line-height:1.05}
+ .settings-toggle{width:25px;height:24px;font-size:18px;border-radius:7px}
+ .settings-panel{width:210px;padding:9px;gap:6px}
+ .settings-panel strong{font-size:12px}
+ .settings-panel label{font-size:11px}
+ .settings-panel select,.settings-panel .btn{min-height:34px;font-size:11px}
+ .table#cardTable{
+  flex:none;height:232px;min-height:232px;
+  grid-template-rows:29px minmax(60px,1fr) 75px 26px;
+  gap:3px;padding:5px 7px;
+ }
+ .table#cardTable > .hand{
+  height:73px;min-height:0;
+  margin:0;padding:8px 5px 3px;gap:2px;
+ }
+ .table#cardTable > .hand .card{height:clamp(49px,8dvh,62px)}
+}
+@media(orientation:portrait) and (max-width:360px){
+ .hero{min-height:24px;height:24px;grid-template-columns:23px minmax(0,1fr) 23px}
+ .hero::before{width:23px}
+ .hero-title h1{font-size:15px}
+ .settings-toggle{width:23px;height:22px;font-size:16px}
+ .table#cardTable{
+  height:210px;min-height:210px;
+  grid-template-rows:24px minmax(50px,1fr) 67px 23px;
+  gap:2px;padding:4px;
+ }
+ .table#cardTable > .hand{height:65px;padding:7px 3px 2px;gap:2px}
+ .table#cardTable > .hand .card{height:53px;width:31px}
+}
+@media(min-width:601px) and (max-height:560px){
+ .hero{display:grid;grid-template-columns:28px minmax(0,1fr) 28px}
+ .hero::before{width:28px}
+ .hero-title h1{font-size:17px}
+ .settings-toggle{height:27px;width:27px;font-size:18px}
+ .table#cardTable{
+  height:230px;min-height:230px;
+  grid-template-rows:28px minmax(59px,1fr) 78px 26px;
+ }
+ .table#cardTable > .hand{height:76px;padding:9px 5px 3px}
+}
+
+
+/* Fill the unused bottom strip under "Επόμενος γύρος" in the
+   portrait-phone landscape emulation, rather than reserving blank space. */
+@media (orientation:portrait) and (max-width:650px){
+ .app{padding-bottom:2px}
+ .panel{
+  flex:1 0 auto;
+  padding-bottom:3px;
+ }
+ .table#cardTable{
+  flex:1 0 auto;
+  height:auto;
+  min-height:232px;
+ }
+ #controls{margin-bottom:0}
+}
+@media (orientation:portrait) and (max-width:360px){
+ .table#cardTable{min-height:210px}
+}
+
+
+/* Compact inline score bar: all three values share the title banner,
+   freeing the old three-card score row for the felt table. */
+.hero{
+ display:flex;align-items:center;justify-content:space-between;
+ flex-wrap:nowrap;gap:clamp(5px,1.2vw,12px);
+}
+.hero::before{display:none}
+.hero-title{
+ flex:0 0 auto;min-width:0;
+ justify-content:flex-start;gap:5px;
+}
+.hero-scores{
+ display:flex;flex:1 1 auto;min-width:0;
+ justify-content:center;align-items:center;
+ gap:clamp(4px,1vw,8px);overflow:hidden;
+ font-variant-numeric:tabular-nums;
+}
+.header-score{
+ display:inline-flex;align-items:center;justify-content:center;
+ gap:4px;min-width:0;max-width:100%;
+ padding:3px 6px;border-radius:7px;
+ border:1px solid #70b6d022;background:#ffffff0a;
+ color:#bbd8e9;font-size:clamp(10px,1.35vw,12px);
+ line-height:1.25;white-space:nowrap;
+}
+.header-score strong{font-size:1.12em;color:#f7fcff;font-weight:850}
+.header-score:nth-child(1) strong{color:#7eeec6}
+.header-score:nth-child(2) strong{color:#ffd0a0}
+.hero .settings-toggle{flex:0 0 auto}
+@media (orientation:portrait) and (max-width:650px){
+ .hero{display:flex;gap:5px}
+ .hero-title{gap:4px}
+ .hero-title .icon{font-size:15px}
+ .hero-title h1{font-size:15px}
+ .hero-scores{gap:4px}
+ .header-score{font-size:10px;gap:3px;padding:2px 4px;border-radius:6px}
+ .header-score strong{font-size:11px}
+ .hero .settings-toggle{width:24px;height:24px}
+}
+@media (orientation:portrait) and (max-width:360px){
+ .hero{gap:3px}
+ .hero-title{gap:2px}
+ .hero-title h1{font-size:14px}
+ .header-score{font-size:9px;padding:1px 3px;gap:2px}
+ .header-score strong{font-size:10px}
+ .hero .settings-toggle{width:22px;height:22px}
+}
+@media (min-width:601px) and (max-height:560px){
+ .hero{display:flex;gap:6px}
+ .hero-title h1{font-size:16px}
+ .hero-scores{gap:6px}
+ .header-score{font-size:11px;padding:2px 5px}
+}
+
+
+/* Online preview uses exactly the established Tichu table composition. */
+.online-tag{font-size:.63em;display:inline-block;padding:2px 5px;
+ border:1px solid #6dddc9a1;border-radius:6px;color:#9ef5dd;
+ background:#14635852;vertical-align:middle;margin-left:3px}
+.table#cardTable .pot .card{pointer-events:none}
+.table#cardTable .hand .card{opacity:1}
+.table#cardTable .hand .card:disabled{cursor:default;filter:none}
+.table#cardTable .hand .card.preview-start{
+ cursor:pointer;border-color:#7ff7c6;box-shadow:0 0 0 1px #86ffd5ad,0 0 15px #52ffc98a;
+}
+.online-preview-badge{
+ display:inline-block;padding:2px 7px;border-radius:20px;
+ background:#154459e8;border:1px solid #7ec3d780;color:#d9f7ff;
+ font-size:10px;font-weight:800;white-space:nowrap;
+}
+.online-info{margin:5px 2px 2px;text-align:center;color:#d1e9f5;
+ font-size:12px;line-height:1.35}
+.online-info strong{color:#9af3db}
+.settings-panel input{
+ width:100%;min-height:39px;padding:7px 9px;
+ border:1px solid #5598bb;background:#0b2940;color:#f5fbff;
+ border-radius:9px;font:inherit
+}
+.settings-panel input:focus-visible{outline:2px solid #9ef4db}
+.settings-panel .btn:disabled{opacity:.46;cursor:not-allowed}
+.table#cardTable .seat.waiting{opacity:.85}
+.preview-note{min-height:20px;font-size:11px;color:#c9e9f0;text-align:center}
+@media (orientation:portrait) and (max-width:650px){
+ .hero-title h1{font-size:14px}
+ .online-tag{font-size:9px;padding:1px 4px}
+ .online-info{font-size:11px;margin:2px}
+ .preview-note{font-size:10px;min-height:17px}
+}
+@media (orientation:portrait) and (max-width:360px){
+ .hero-title h1{font-size:13px}
+ .online-tag{font-size:8px;margin-left:1px}
+}
+
+
+/* Real mixed multiplayer: in-table action dock and clickable chairs. */
+.table#cardTable{
+ grid-template-areas:". north ." "west center east" "actions actions actions" "hand hand hand" ". south .";
+ grid-template-rows:38px minmax(81px,1fr) 34px 89px 34px;
+ min-height:305px;
+}
+.table#cardTable .seat{appearance:none;cursor:pointer;font:inherit}
+.table#cardTable .seat:disabled{cursor:default}
+.table#cardTable .seat.can-sit{
+ border-color:#77e2b6;box-shadow:0 0 13px #54e9a48c;
+ background:linear-gradient(120deg,#105944,#0b3f52);
+}
+.table#cardTable .seat.can-sit .count{color:#a7ffd8;font-weight:800}
+.table#cardTable .seat.occupied{border-color:#76b5d084}
+.table#cardTable .seat.ai-seat{border-style:dashed}
+.table#cardTable .seat.myseat{border-color:#86ffc6;box-shadow:0 0 13px #54ebac66}
+.table#cardTable .seat.trade-target{border-color:#86ffe0;cursor:pointer}
+.table#cardTable > #controls{
+ grid-area:actions;display:flex!important;align-items:center;justify-content:center;
+ flex-wrap:nowrap;min-height:31px;margin:0;padding:1px 4px;gap:5px;
+ overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x;
+ background:#082b3fa3;border:1px solid #6db5c55f;border-radius:10px;
+}
+.table#cardTable > #controls .btn{
+ width:auto!important;flex:0 0 auto;
+ min-height:28px;padding:4px 9px;font-size:11px;
+ white-space:nowrap;line-height:1.1;border-radius:8px;
+}
+.room-marker{font-size:10px;color:#9becd6;font-weight:850;line-height:1.1}
+.table-status{font-size:10px;line-height:1.25;color:#bedde9;min-height:12px;
+ text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.table#cardTable .pot{max-height:79px}
+.table#cardTable > .hand{height:86px;min-height:0}
+.table#cardTable > .hand .card:not(:disabled){cursor:pointer}
+.table#cardTable .seat-bottom:disabled{opacity:1}
+.online-info{font-size:10px;margin:3px 2px 0}
+#settingsPanel .btn[hidden]{display:none!important}
+#joinCode{text-transform:uppercase;letter-spacing:.12em}
+@media(max-width:600px){
+ .table#cardTable{grid-template-rows:34px minmax(58px,1fr) 32px 78px 30px;min-height:264px}
+ .table#cardTable > .hand{height:76px}
+ .table#cardTable > #controls .btn{font-size:10px;min-height:26px;padding:3px 7px}
+}
+@media(orientation:portrait) and (max-width:650px){
+ .table#cardTable{
+  min-height:232px;height:auto;flex:1 0 auto;
+  grid-template-rows:29px minmax(45px,1fr) 31px 75px 26px;
+ }
+ .table#cardTable > #controls{height:29px;min-height:29px;padding:1px 3px}
+ .table#cardTable > #controls .btn{font-size:10px;min-height:25px;padding:3px 9px}
+ .table#cardTable > .hand{height:73px}
+ .table#cardTable .pot{max-height:40px}
+ .room-marker{font-size:9px}
+ .table-status{font-size:9px;min-height:10px}
+ .online-info{font-size:9px;margin:2px 0 0}
+}
+@media(orientation:portrait) and (max-width:360px){
+ .table#cardTable{min-height:210px;grid-template-rows:24px minmax(39px,1fr) 27px 67px 23px}
+ .table#cardTable > #controls{height:26px;min-height:26px}
+ .table#cardTable > #controls .btn{font-size:9px;min-height:23px;padding:2px 7px}
+ .table#cardTable > .hand{height:65px}
+}
+@media(min-width:601px) and (max-height:560px){
+ .table#cardTable{height:230px;grid-template-rows:28px minmax(43px,1fr) 31px 78px 26px}
+ .table#cardTable > #controls .btn{font-size:10px;min-height:26px}
+ .table#cardTable > .hand{height:76px}
+}
+
+
+/* Paused multiplayer is visibly frozen, with the player seat retained.
+   Only an explicit "Συνέχεια με AI" can replace an absent human. */
+.table#cardTable.paused{
+ border-color:#f9c56ca8;
+ box-shadow:inset 0 0 0 4px #123e57,inset 0 0 18px #051a2e,
+ 0 0 14px #ffb65f4a;
+}
+.table#cardTable .seat.offline{
+ border-color:#f3ac58!important;
+ background:linear-gradient(135deg,#61412c,#253d53)!important;
+ box-shadow:0 0 12px #ed9c528c!important;
+}
+.table#cardTable .seat.offline .count{color:#ffe1ba}
+.table#cardTable.paused .table-status{color:#ffe0b7;font-weight:800}
+.table#cardTable.paused .table-actionbar .btn.primary{
+ background:linear-gradient(120deg,#19795a,#115b64);
+ border-color:#9aefc5;
+}
+
+/* Collapsible tutorial lives only inside settings and uses no table height. */
+.settings-panel{max-height:min(85dvh,530px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.tutorial-details{border:1px solid #68afc680;border-radius:10px;overflow:hidden;background:#0d3450;color:#e5f7fd}
+.tutorial-details summary{display:flex;align-items:center;justify-content:center;min-height:33px;padding:8px;cursor:pointer;list-style:none;font-size:12px;font-weight:800}
+.tutorial-details summary::-webkit-details-marker{display:none}
+.tutorial-details summary:focus-visible{outline:2px solid #9df4e9;outline-offset:-2px}
+.tutorial-details[open] summary{border-bottom:1px solid #72bccc6b;background:#1b5674}
+.tutorial-content{padding:8px 9px;max-height:200px;overflow-y:auto;-webkit-overflow-scrolling:touch;font-size:11px;line-height:1.4;text-align:left;color:#d5ebf5;scrollbar-width:thin}
+.tutorial-content p{margin:0 0 8px}
+.tutorial-content p:last-child{margin-bottom:0}
+.tutorial-content strong{color:#a1f5dd}
+@media(orientation:portrait) and (max-width:650px){.settings-panel{max-height:calc(100vw - 48px)}.tutorial-details summary{font-size:11px;padding:6px;min-height:28px}.tutorial-content{max-height:min(39vw,180px);font-size:10px}}
+@media(orientation:portrait) and (max-width:360px){.settings-panel{max-height:calc(100vw - 40px)}.tutorial-content{max-height:120px}}
+
+
+/* Direct desktop join without navigating settings; only displayed before joining. */
+.table#cardTable > #controls .quick-room-code{
+ flex:1 1 128px;min-width:100px;max-width:230px;min-height:30px;
+ padding:3px 9px;margin:0;border:1px solid #77bfd1;border-radius:8px;
+ background:#082a44;color:#f2fbff;font-size:12px;
+ letter-spacing:.07em;text-transform:uppercase;outline:none;
+}
+.table#cardTable > #controls .quick-room-code:focus{border-color:#82ffca;box-shadow:0 0 0 2px #58edb04d}
+#joinCode[aria-invalid="true"]{border-color:#ffa56c;box-shadow:0 0 0 1px #ffa56c66}
+@media(orientation:portrait) and (max-width:650px){
+ .table#cardTable > #controls .quick-room-code{min-width:112px;max-width:168px;min-height:26px;padding:2px 6px;font-size:10px}
+}
+
+</style>
+<style id="game-dialog-theme">
+.game-dialog-cover{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:12px;background:#021426d9;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.game-dialog-cover[hidden]{display:none!important}
+.game-dialog-box{box-sizing:border-box;width:min(370px,100%);max-height:min(82dvh,440px);overflow:auto;padding:15px 14px;border:1px solid #7ccef3;border-radius:16px;background:linear-gradient(145deg,#194f77,#0a2945 83%);box-shadow:0 16px 40px #000b,0 0 20px #36aff83b;color:#e8f8ff;font:inherit;text-align:center}
+.game-dialog-box h2{font-size:clamp(15px,2.5vw,19px);margin:0 0 7px;line-height:1.2;color:#f0fbff}
+.game-dialog-box p{font-size:clamp(12px,1.8vw,14px);line-height:1.45;color:#c7e1f6;margin:0 0 12px}
+.game-dialog-actions{display:flex;gap:8px;justify-content:center;align-items:stretch}
+.game-dialog-btn{flex:1 1 0;min-width:0;min-height:37px;border-radius:10px;border:1px solid #659ec9;background:linear-gradient(145deg,#22577f,#123856);color:#f3fbff;padding:7px 8px;font:700 12px system-ui,sans-serif;cursor:pointer}
+.game-dialog-btn.primary{border-color:#8de0ff;background:linear-gradient(145deg,#259bdc,#1460a2);box-shadow:0 0 12px #2cb9f653}
+.game-dialog-btn:focus-visible{outline:2px solid #90f3fc;outline-offset:2px}
+.game-dialog-choices{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin:10px 0 13px}
+.game-dialog-choices button{min-width:0;min-height:36px;border:1px solid #63a6cc;border-radius:8px;background:linear-gradient(145deg,#246b97,#114466);color:white;font:800 13px system-ui,sans-serif;padding:4px 0;cursor:pointer}
+.game-dialog-choices button:focus-visible{outline:2px solid #abfddc;outline-offset:1px}
+.game-dialog-copy{display:block;width:100%;margin:8px 0 12px;padding:8px;border:1px solid #6ab5d9;border-radius:8px;background:#0b2c45;color:#d8f4ff;font:12px system-ui,sans-serif}
+@media(max-width:380px){.game-dialog-cover{padding:7px}.game-dialog-box{padding:10px}.game-dialog-choices{gap:4px}.game-dialog-choices button{min-height:31px;font-size:12px}}
+</style>
+<script id="game-dialog-controller">
+(function(){
+ 'use strict';
+ let current=null;
+ function mount(){
+  let el=document.getElementById('gameDialogCover');
+  if(el)return el;
+  el=document.createElement('div');el.id='gameDialogCover';el.className='game-dialog-cover';el.hidden=true;
+  el.setAttribute('role','presentation');
+  const root=document.querySelector('main.app')||document.querySelector('.app-shell')&&document.body||document.body;
+  root.appendChild(el);
+  return el;
+ }
+ function open(title,message,choices,opts){
+  if(current)return Promise.resolve(null);
+  const layer=mount();layer.replaceChildren();layer.hidden=false;
+  const box=document.createElement('section');box.className='game-dialog-box';
+  box.setAttribute('role','dialog');box.setAttribute('aria-modal','true');box.setAttribute('aria-label',title);
+  const heading=document.createElement('h2');heading.textContent=title;box.appendChild(heading);
+  const paragraph=document.createElement('p');paragraph.textContent=message;box.appendChild(paragraph);
+  const zone=document.createElement('div');zone.className=opts&&opts.grid?'game-dialog-choices':'game-dialog-actions';
+  box.appendChild(zone);layer.appendChild(box);
+  let resolvePromise;
+  const promise=new Promise(resolve=>{resolvePromise=resolve;});
+  const close=value=>{
+   if(!current)return;
+   document.removeEventListener('keydown',keyHandler,true);layer.hidden=true;layer.replaceChildren();
+   current=null;resolvePromise(value);
+  };
+  const keyHandler=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close(null);}};
+  current={close};document.addEventListener('keydown',keyHandler,true);
+  if(opts&&opts.input){
+   const input=document.createElement('input');input.className='game-dialog-copy';input.readOnly=true;input.value=opts.input;input.setAttribute('aria-label','Σύνδεσμος πρόσκλησης');box.insertBefore(input,zone);
+   input.addEventListener('focus',()=>input.select());
+  }
+  for(const option of choices){
+   const button=document.createElement('button');button.type='button';
+   button.className=opts&&opts.grid?'':'game-dialog-btn'+(option.primary?' primary':'');
+   button.textContent=option.label;button.addEventListener('click',()=>close(option.value));
+   zone.appendChild(button);
+  }
+  const first=zone.querySelector('button');if(first)first.focus();
+  return promise;
+ }
+ const confirm=message=>open('Επιβεβαίωση',message,[{label:'Ακύρωση',value:false},{label:'Συνέχεια',value:true,primary:true}]).then(x=>x===true);
+ const wish=()=>open('🀄 Ευχή Mahjong','Ποιο φύλλο ζητάς από τους επόμενους παίκτες;',[...Array(13)].map((_,i)=>{const n=i+2;return{label:n===11?'J':n===12?'Q':n===13?'K':n===14?'A':String(n),value:n};}).concat([{label:'Ακύρωση',value:null}]),{grid:true});
+ const copy=url=>open('🔗 Πρόσκληση φίλου','Αντέγραψε τον σύνδεσμο και στείλε τον φίλο σου.',[{label:'Κλείσιμο',value:true,primary:true}],{input:url});
+ window.GameDialog=Object.freeze({confirm,wish,copy});
+})();
+</script>
+<style id="applications-unified-game-banner">
+.suite-game-banner{box-sizing:border-box;display:block;width:min(100%,720px);height:clamp(74px,12dvh,112px);margin:2px auto 10px;overflow:hidden;border-radius:12px;border:1px solid rgba(111,188,255,.4);background:#102e54;box-shadow:0 10px 25px rgba(0,6,26,.32)}
+body>.suite-game-banner{width:min(calc(100% - 24px),720px);margin:12px auto 10px}
+.suite-game-banner img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+@media(min-width:761px){.suite-game-banner{height:150px}}
+
+/* Mobile-only: the rotating Tichu table must get the entire available
+   short edge of the phone. Hide the artwork; keep desktop/TV unchanged. */
+@media(max-width:760px){
+ .suite-game-banner{display:none!important}
+ .app{padding-top:2px!important}
+}
+@media(orientation:portrait) and (max-width:650px){
+ .app{padding:2px 4px 2px!important}
+ .panel{flex:1 1 auto!important;min-height:0!important}
+ .table#cardTable{flex:1 1 auto!important;height:auto!important;min-height:210px!important}
+}
+
+
+/* Full-HD TV table: larger table, playing cards and controls. */
+@media(min-width:1500px) and (min-height:900px){
+ .app{max-width:1710px;padding:8px 14px 10px}
+ .hero{padding:8px 14px;margin-bottom:6px}
+ .hero-title h1{font-size:29px}
+ .header-score{font-size:15px;padding:5px 12px;gap:6px}
+ .header-score strong{font-size:17px}
+ .panel{min-height:775px;padding:12px}
+ .table#cardTable{min-height:640px;grid-template-rows:50px minmax(250px,1fr) 53px 120px 43px;padding:12px}
+ .table#cardTable>.hand{height:118px;gap:7px;padding:8px 10px 3px}
+ .table#cardTable>.hand .card{width:clamp(57px,3.8vw,73px);height:clamp(84px,5.5vw,101px);padding:5px 4px}
+ .table#cardTable>.hand .card b{font-size:17px}
+ .table#cardTable>.hand .card .center{font-size:30px}
+ .table#cardTable .seat strong{font-size:15px}
+ .table#cardTable .seat .count{font-size:13px}
+ .table#cardTable .seat-left,.table#cardTable .seat-right{min-height:70px}
+ .table#cardTable .pot .card{width:44px;height:63px}
+ .table#cardTable .pot .card b{font-size:13px}
+ .table#cardTable .pot .card .center{font-size:21px}
+ .table#cardTable > #controls .btn{font-size:15px;min-height:44px;padding:7px 14px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="suite-game-banner"><img src="./hero-banner.svg" width="900" height="300" alt="" aria-hidden="true" decoding="async"></div>
+<header class="hero">
+ <div class="hero-title"><div class="icon" aria-hidden="true">🃏</div><h1>TichuFunny <span class="online-tag">Online</span></h1></div>
+ <div class="hero-scores" aria-label="Βαθμολογία και γύρος">
+  <span class="header-score">Η ομάδα μου <strong id="team0">0</strong></span>
+  <span class="header-score">Οι αντίπαλοι <strong id="team1">0</strong></span>
+  <span class="header-score">Γύρος <strong id="round">1</strong></span>
+ </div>
+ <button class="settings-toggle" id="settingsToggle" type="button" aria-label="Ρυθμίσεις Tichu Online" aria-expanded="false" aria-controls="settingsPanel" title="Ρυθμίσεις">⚙</button>
+ <div class="settings-panel" id="settingsPanel" hidden>
+  <strong>⚙ Ρυθμίσεις & δωμάτιο</strong>
+  <p class="online-info" id="onlineInfo">Φτιάξε δωμάτιο, κάλεσε φίλους και πάτα Εκκίνηση. Οι κενές θέσεις γίνονται AI.</p>
+  <label for="playerName">Όνομα παίκτη</label>
+  <input id="playerName" type="text" maxlength="22" autocomplete="nickname" placeholder="Το όνομά σου">
+  <button class="btn primary" id="createRoom" type="button">＋ Δημιουργία δωματίου</button>
+  <label for="joinCode">Κωδικός φίλου</label>
+  <input id="joinCode" type="text" maxlength="260" autocomplete="off" autocapitalize="characters" placeholder="Κωδικός ABC123 ή σύνδεσμος φίλου" inputmode="text">
+  <button class="btn" id="openRoom" type="button">↪ Άνοιγμα δωματίου</button>
+  <button class="btn" id="shareRoom" type="button" hidden>🔗 Αντιγραφή πρόσκλησης</button>
+  <button class="btn warn" id="new" type="button" hidden>↻ Νέα παρτίδα</button>
+  <button class="btn" id="leaveRoom" type="button" hidden>Αποχώρηση από καρέκλα</button>
+  <details class="tutorial-details" id="tichuTutorial">
+<summary>📖 Πώς παίζεται το Tichu</summary>
+<div class="tutorial-content">
+<p><strong>Στόχος:</strong> Παίζετε 2 εναντίον 2, με συμπαίκτη τον απέναντι. Η πρώτη ομάδα που φτάνει τους 1.000 βαθμούς στο τέλος γύρου κερδίζει.</p>
+<p><strong>Μοίρασμα:</strong> Βλέπεις 8 φύλλα, αποφασίζεις για Grand Tichu, παίρνεις άλλα 6 και ανταλλάσσεις από ένα φύλλο με κάθε άλλον παίκτη.</p>
+<p><strong>Συνδυασμοί:</strong> Μονό, ζευγάρι, τριάδα, φουλ (3+2), κέντα τουλάχιστον 5 συνεχόμενων ή συνεχόμενα ζευγάρια. Απαντάς με ισχυρότερο ίδιο συνδυασμό ή πάσο. Βόμβα: 4 ίδια ή κέντα ίδιου χρώματος.</p>
+<p><strong>Mahjong:</strong> Το 1, ξεκινά τον γύρο και σου επιτρέπει να ζητήσεις αριθμό 2–Άσο. Αν κάποιος μπορεί νόμιμα να εκπληρώσει την ευχή, οφείλει να το κάνει.</p>
+<p><strong>Dog 🐕:</strong> Παραχωρεί το ξεκίνημα στον συμπαίκτη. <strong>Phoenix 🔥:</strong> Μπαλαντέρ, −25 βαθμοί. <strong>Dragon 🐉:</strong> Ισχυρότερο μονό, +25 βαθμοί· κερδισμένη μπάζα Dragon δίνεται σε αντίπαλο.</p>
+<p><strong>Tichu:</strong> Δήλωση ότι θα τελειώσεις πρώτος, +100 αν πετύχει ή −100 αν όχι. <strong>Grand Tichu:</strong> Η ίδια πρόβλεψη στα πρώτα 8 φύλλα, ±200.</p>
+<p><strong>Βαθμοί:</strong> 5 = 5, 10 και Ρήγας = 10, Dragon = 25, Phoenix = −25. Αν οι δύο συμπαίκτες βγουν πρώτοι και δεύτεροι, παίρνουν 200 αντί των βαθμών των φύλλων.</p>
+<p><strong>Χειρισμός:</strong> Επίλεξε φύλλα και πάτα «Παίξε». Υπάρχουν «Πάσο», «Υπόδειξη», και glow για νόμιμες κέντες όταν πατάς το μικρότερο φύλλο.</p>
+<p><strong>Online:</strong> Κάλεσε φίλους με κωδικό, διάλεξαν καρέκλα και πάτα «Εκκίνηση». Οι υπόλοιπες καρέκλες γίνονται AI. Αν φίλος αποσυνδεθεί, το παιχνίδι παγώνει έως ότου επιστρέψει ή επιλεγεί «Συνέχεια με AI».</p>
+</div></details>
+</div>
+</header>
+<section class="panel">
+ <div class="table" id="cardTable" aria-label="Online τραπέζι Tichu με τέσσερις καρέκλες">
+  <button class="seat partner seat-top" id="seat2" type="button"><strong>🤝 Συμπαίκτης</strong><span class="count">Κενή καρέκλα</span><span class="card-backs" aria-hidden="true"><i></i><i></i><i></i></span></button>
+  <button class="seat seat-left" id="seat1" type="button"><strong>Αριστερά</strong><span class="count">Κενή καρέκλα</span><span class="card-backs" aria-hidden="true"><i></i><i></i></span></button>
+  <div class="table-center">
+   <div id="roomMarker" class="room-marker">Tichu Online</div>
+   <div id="trickLabel" class="trick-label">Φτιάξε δωμάτιο ή μπες με κωδικό</div>
+   <div id="trickOwner" class="trick-owner hidden" role="status" aria-live="polite"></div>
+   <div class="pot empty" id="pot">Εσύ και οι φίλοι σου · οι κενές θέσεις γίνονται AI</div>
+   <div id="tableStatus" class="table-status" role="status" aria-live="polite"></div>
+  </div>
+  <button class="seat seat-right" id="seat3" type="button"><strong>Δεξιά</strong><span class="count">Κενή καρέκλα</span><span class="card-backs" aria-hidden="true"><i></i><i></i></span></button>
+  <div id="controls" class="controls table-actionbar" aria-label="Ενέργειες παιχνιδιού"></div>
+  <div class="hand" id="hand" aria-label="Τα φύλλα σου"></div>
+  <button class="yourseat seat-bottom" id="you" type="button">Εσύ · Χωρίς δωμάτιο</button>
+ </div>
+</section>
+</main>
+<script src="./engine.js?v=20261120-bomb-rule"></script>
+<script>
+(function(){
+'use strict';
+const E=window.TichuEngine, $=id=>document.getElementById(id);
+const API='https://zrbmsziipzabnniqcpav.supabase.co/functions/v1/tichu-online';
+const KEY='tichufunnyonline:session:v1', NAME='tichufunnyonline:preview:name';
+let room=null,roomCode='',seatToken='',busy=false,polling=false,active=true;
+let parentActive=true,pollTimer=null,failures=0;
+let selected=new Set(),preview=null,trades={},notice='';
+const seats=['you','seat1','seat2','seat3'];
+const cardsById=new Map(E.deck().map(c=>[c.id,c]));
+const SUITS=['♠','♥','♣','♦'],red=new Set([1,3]);
+const names=['Εσύ','Αριστερά','Συμπαίκτης','Δεξιά'];
+function text(s){return String(s||'');}
+function playerName(){return $('playerName').value.trim().slice(0,22)||'Παίκτης';}
+function saveLocal(){
+ try{localStorage.setItem(KEY,JSON.stringify({code:roomCode,token:seatToken}));}catch(_){}
+}
+function showSettings(open){
+ $('settingsPanel').hidden=!open;
+ $('settingsToggle').setAttribute('aria-expanded',open?'true':'false');
+}
+function status(s){notice=s;$('tableStatus').textContent=s;}
+async function call(action,extra){
+ const resp=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+  cache:'no-store',body:JSON.stringify(Object.assign({action:action,code:roomCode,token:seatToken},extra||{}))});
+ let result;
+ try{result=await resp.json();}catch(_){throw Error('Δεν απάντησε σωστά ο διακομιστής.');}
+ if(!resp.ok||result.error)throw Error(result.error||'Αποτυχία επικοινωνίας.');
+ return result;
+}
+function accept(data,clear){
+ if(data.token)seatToken=data.token;
+ if(data.code)roomCode=data.code;
+ if(clear){selected.clear();preview=null;trades={};}
+ room=data;saveLocal();render();
+}
+async function perform(action,extra,clear){
+ if(busy)return;
+ busy=true;render();
+ try{const data=await call(action,extra);accept(data,clear!==false);status('');return data;}
+ catch(err){status(err.message||'Πρόβλημα σύνδεσης.');render();return null;}
+ finally{busy=false;render();schedulePoll();}
+}
+async function createRoom(){
+ if(busy)return;
+ const result=await perform('create',{name:playerName()});
+ if(result){$('joinCode').value=result.code;showSettings(false);status('Δώσε τον κωδικό '+result.code+' σε φίλους.');}
+}
+function normalizeRoomCode(raw){
+ const value=String(raw||'').trim();
+ let candidate=value.toUpperCase().replace(/[\s-]+/g,'');
+ if(/^https?:\/\//i.test(value)){
+  try{candidate=(new URL(value).searchParams.get('room')||'').trim().toUpperCase();}
+  catch(_){return '';}
+ }
+ return /^[A-HJ-NP-Z2-9]{6}$/.test(candidate)?candidate:'';
+}
+async function openRoom(raw){
+ const c=normalizeRoomCode(typeof raw==='string'?raw:$('joinCode').value);
+ if(!c){
+  status('Γράψε τον εξαψήφιο κωδικό ή επικόλλησε τον σύνδεσμο πρόσκλησης.');
+  $('joinCode').setAttribute('aria-invalid','true');return;
+ }
+ $('joinCode').setAttribute('aria-invalid','false');
+ const prevCode=roomCode,prevToken=seatToken;
+ roomCode=c;seatToken=prevCode===c?prevToken:'';
+ const data=await perform('state',{},true);
+ if(data){
+  $('joinCode').value=c;showSettings(false);
+  if(data.phase==='lobby'&&data.selfSeat<0)status('Το δωμάτιο βρέθηκε! Διάλεξε καρέκλα ή πάτησε «✋ Κάτσε».');
+  else if(data.phase==='active'&&data.selfSeat<0)status('Η παρτίδα έχει ήδη ξεκινήσει. Ζήτησε νέο δωμάτιο πριν από την εκκίνηση.');
+  else status('Συνδέθηκες στο δωμάτιο '+c+'.');
+  render();
+ }else{roomCode=prevCode;seatToken=prevToken;render();}
+}
+async function sit(globalSeat){
+ if(busy||!room||room.phase!=='lobby'||room.selfSeat>=0||room.seats[globalSeat])return;
+ const data=await perform('join',{seat:globalSeat,name:playerName()});
+ if(data)status('Κάθισες! Περιμένουμε να πατήσει Εκκίνηση ο οικοδεσπότης.');
+}
+async function leave(){
+ if(!room||room.selfSeat<=0||room.phase!=='lobby')return;
+ const yes=await GameDialog.confirm('Να αφήσεις την καρέκλα σου;');
+ if(!yes)return;
+ const data=await perform('leave',{});
+ if(data){seatToken='';saveLocal();status('Άφησες την καρέκλα.');}
+}
+async function share(){
+ if(!roomCode){status('Φτιάξε πρώτα δωμάτιο.');return;}
+ const url='https://seemsfunny21.github.io/applications/?app=tichufunnyonline&room='+roomCode;
+ try{await navigator.clipboard.writeText(url);status('Αντιγράφηκε ο σύνδεσμος δωματίου '+roomCode+'.');}
+ catch(_){await GameDialog.copy(url);}
+}
+function makeCard(card,disabled,click,assigned,chosen,glow){
+ const button=document.createElement('button');button.type='button';
+ button.className='card'+(card.key?' special':'')+(card.key==='P'?' phoenix':'')+(red.has(card.suit)?' red':'');
+ if(chosen)button.classList.add('selected');
+ if(assigned)button.classList.add('assigned');
+ if(glow)button.classList.add('straight-glow');
+ const rank=card.key?card.key:(card.rank===14?'A':card.rank===13?'K':card.rank===12?'Q':card.rank===11?'J':String(card.rank));
+ const face=card.key?{M:'麻',D:'🐕',P:'🔥',G:'🐉'}[card.key]:SUITS[card.suit];
+ const top=document.createElement('b');top.textContent=rank;
+ const middle=document.createElement('span');middle.className='center';middle.textContent=face;
+ const foot=document.createElement('small');foot.textContent=card.key?E.label(card):face;
+ button.append(top,middle,foot);button.setAttribute('aria-label',E.label(card));
+ button.disabled=disabled;if(click)button.addEventListener('click',click);return button;
+}
+function sorted(cards){return cards.slice().sort((a,b)=>E.cardRank(a)-E.cardRank(b)||(a.suit??0)-(b.suit??0));}
+function sortedTrick(trick){
+ const cards=trick.cards.map(id=>cardsById.get(id)).filter(Boolean);
+ const combo=trick.combo;
+ if(!['straight','bombStraight','pairs'].includes(combo.type))return cards;
+ const first=combo.value-combo.len+1;
+ const present=new Set(cards.filter(c=>c.key!=='P').map(E.cardRank));
+ let substitute=0;
+ if(combo.type!=='pairs')for(let r=first;r<=combo.value;r++)if(!present.has(r)){substitute=r;break;}
+ return cards.sort((a,b)=>(a.key==='P'?substitute:E.cardRank(a))-(b.key==='P'?substitute:E.cardRank(b)));
+}
+function rankText(r){return r===14?'A':r===13?'K':r===12?'Q':r===11?'J':String(r);}
+function options(){
+ const game=room?.game;if(!game||room.selfSeat<0)return {moves:[],forced:false};
+ return E.options({hands:[game.hand],trick:game.trick,wish:game.wish},0);
+}
+function straightStarting(card){
+ if(!card||card.key==='P'||card.key==='D'||card.key==='G'||!room?.game)return null;
+ const first=E.cardRank(card);
+ const moves=options().moves.filter(m=>(m.combo.type==='straight'||m.combo.type==='bombStraight')&&m.combo.len>=5&&
+  m.combo.value-m.combo.len+1===first&&m.ids.includes(card.id));
+ moves.sort((a,b)=>b.combo.len-a.combo.len||a.combo.bomb-b.combo.bomb);
+ const m=moves[0];
+ return m?{ids:m.ids,start:card.id,label:rankText(first)+'–'+rankText(m.combo.value)}:null;
+}
+function chooseCard(id){
+ if(!room||busy||room.selfSeat<0||!['playing','trade'].includes(room.game?.stage))return;
+ if(room.waiting?.trade)return;
+ if(preview&&preview.ids.includes(id)&&id!==preview.start){selected=new Set(preview.ids);preview=null;render();return;}
+ if(!selected.has(id)&&selected.size===0&&room.game.stage==='playing'){
+  const c=room.game.hand.find(x=>x.id===id);const hint=straightStarting(c);
+  if(hint){preview=hint;selected.add(id);status('✨ Κέντα '+hint.label+' — πάτησε ένα φωτισμένο φύλλο.');render();return;}
+ }
+ preview=null;
+ if(room.game.stage==='trade'&&Object.values(trades).includes(id))
+  for(const k of Object.keys(trades))if(trades[k]===id)delete trades[k];
+ if(selected.has(id))selected.delete(id);
+ else{if(room.game.stage==='trade')selected.clear();selected.add(id);}
+ render();
+}
+function acceptStraight(){if(!preview)return;selected=new Set(preview.ids);preview=null;render();}
+function assignTrade(target){
+ if(selected.size!==1)return;
+ const id=[...selected][0];
+ for(const k of Object.keys(trades))if(trades[k]===id)delete trades[k];
+ trades[String(target)]=id;selected.clear();render();
+}
+function hint(){
+ const moves=options().moves;if(!moves.length){status('Δεν υπάρχει νόμιμη κίνηση.');return;}
+ moves.sort((a,b)=>a.combo.bomb-b.combo.bomb||b.cards.length-a.cards.length||a.combo.value-b.combo.value);
+ selected=new Set(moves[0].ids);preview=null;render();
+ status('💡 Πρόταση: '+moves[0].cards.map(E.label).join(', '));
+}
+async function play(){
+ if(!selected.size||!room?.game||room.selfSeat<0)return;
+ const ids=[...selected],hasMahjong=room.game.hand.some(c=>selected.has(c.id)&&c.key==='M');
+ let wish=null;
+ if(hasMahjong){
+  const initialCode=roomCode,initialToken=seatToken;
+  wish=await GameDialog.wish();
+  if(wish===null||roomCode!==initialCode||seatToken!==initialToken)return;
+ }
+ await perform('play',{ids:ids,wish:wish});
+}
+async function trade(){
+ if(Object.keys(trades).length!==3)return;
+ await perform('trade',{trades:Object.entries(trades).map(([target,id])=>({target:Number(target),id:id}))});
+}
+function actionButton(label,handler,primary,disabled){
+ const b=document.createElement('button');b.type='button';
+ b.textContent=label;b.className='btn'+(primary?' primary':'');
+ b.disabled=!!disabled;b.addEventListener('click',handler);
+ $('controls').appendChild(b);return b;
+}
+function render(){
+ const self=room?.selfSeat??-1,base=self>=0?self:0,g=room?.game;
+ const seatsInRoom=room?.seats||[null,null,null,null];
+ const scores=g?.scores||[0,0],team=self>=0?self%2:0;
+ $('team0').textContent=String(scores[team]);
+ $('team1').textContent=String(scores[1-team]);
+ $('round').textContent=String(g?.round||1);
+ $('roomMarker').textContent=room?'ΔΩΜΑΤΙΟ '+room.code:'TICHU ONLINE';
+ const leader=g?.trick?.player;
+ $('cardTable').classList.toggle('partner-leading',leader!==undefined&&leader!==null&&leader===(base+2)%4);
+ const map={seat1:(base+1)%4,seat2:(base+2)%4,seat3:(base+3)%4,you:base};
+ for(const [id,p] of Object.entries(map)){
+  const el=$(id),s=seatsInRoom[p],free=room?.phase==='lobby'&&!s&&self<0&&p!==0;
+  const my=s&&p===self;
+  el.classList.toggle('leader',leader===p);
+  el.classList.toggle('myseat',!!my);
+  el.classList.toggle('can-sit',free);
+  el.classList.toggle('occupied',!!s);
+  el.classList.toggle('waiting',!s);
+  el.classList.toggle('ai-seat',s?.kind==='ai');
+  const offline=!!room?.paused&&room.missingSeats?.includes(p);
+  el.classList.toggle('offline',offline);
+  el.classList.toggle('trade-target',!!(g?.stage==='trade'&&self>=0&&p!==self&&!room.waiting?.trade&&selected.size===1));
+  const n=s?(my?'Εσύ':s.name):('Θέση '+(p+1));
+  if(id==='you'){
+   el.textContent=n+(g?' · '+g.counts[p]+' φύλλα':' · '+(free?'Κάτσε':'αναμονή'));
+  }else{
+   el.querySelector('strong').textContent=(id==='seat2'?'🤝 ':'')+n;
+   el.querySelector('.count').textContent=free?'✋ Κάτσε':(offline?'⏸ Εκτός σύνδεσης':(s?(g?g.counts[p]+' φύλλα':'Έτοιμος'):'Κενή καρέκλα'));
+  }
+  el.disabled=!free&&!(g?.stage==='trade'&&self>=0&&p!==self&&!room.waiting?.trade&&selected.size===1);
+  el.onclick=free?()=>sit(p):(g?.stage==='trade'&&self>=0&&p!==self?()=>assignTrade(p):null);
+ }
+ const owner=$('trickOwner');owner.classList.toggle('hidden',leader===undefined||leader===null);
+ owner.classList.toggle('ally',leader!==undefined&&leader!==null&&(leader%2===base%2));
+ owner.classList.toggle('opponent',leader!==undefined&&leader!==null&&(leader%2!==base%2));
+ owner.textContent=leader===undefined||leader===null?'':leader===(base+2)%4?'🛡️ Προηγείται ο συμπαίκτης':leader===base?'✦ Προηγείσαι εσύ':'⚡ Προηγείται αντίπαλος';
+ const types={single:'Μονό',pair:'Ζευγάρι',triple:'Τριάδα',full:'Φουλ',straight:'Κέντα',pairs:'Συνεχόμενα ζευγάρια',bomb4:'Βόμβα',bombStraight:'Βόμβα κέντας'};
+ const label=$('trickLabel'),pot=$('pot');pot.replaceChildren();
+ pot.classList.toggle('empty',!g?.trick);
+ if(g?.trick){
+  label.textContent=(seatsInRoom[leader]?.name||'Παίκτης')+' · '+(types[g.trick.combo.type]||g.trick.combo.type);
+  for(const c of sortedTrick(g.trick))pot.appendChild(makeCard(c,true,null,false,false,false));
+ }else{
+  label.textContent=!room?'Φτιάξε δωμάτιο ή μπες με κωδικό':room.phase==='lobby'?'Κάτσε σε ελεύθερη καρέκλα':g?.stage==='grand'?'Grand Tichu':g?.stage==='trade'?'Ανταλλαγές':g?.stage==='finished'?'Τέλος γύρου':'Νέα μπάζα';
+  pot.textContent=!room?'Εσύ και οι φίλοι σου · οι κενές θέσεις γίνονται AI':room.phase==='lobby'?'Όταν πατηθεί Εκκίνηση, οι κενές θέσεις γίνονται AI.':g?.stage==='grand'?'Βλέπεις τα πρώτα 8 φύλλα σου.':g?.stage==='trade'?'Δώσε ένα φύλλο σε κάθε άλλον παίκτη.':g?.stage==='finished'?'Ο γύρος τελείωσε.':'Περιμένουμε το πρώτο φύλλο.';
+ }
+ $('tableStatus').textContent=room?.paused?
+  '⏸ Παύση — περιμένουμε επανασύνδεση ή συνέχεια με AI.':
+  notice||(!room?'Βάλε κωδικό και πάτησε Είσοδος.':
+   room.phase==='lobby'?(self<0?'Πάτησε Κάτσε σε καρέκλα ή στο πράσινο κουμπί.':'Αναμονή εκκίνησης.'):
+   self<0?'Η παρτίδα έχει ήδη ξεκινήσει. Νέοι παίκτες μπαίνουν πριν την Εκκίνηση.':
+   g?.stage==='playing'?(g.turn===self?'Η σειρά σου.':'Περιμένουμε παίκτη…'):'');
+ $('cardTable').classList.toggle('paused',!!room?.paused);
+ const hand=$('hand');hand.replaceChildren();
+ for(const c of sorted(g?.hand||[])){
+  const assigned=Object.values(trades).includes(c.id);
+  hand.appendChild(makeCard(c,busy||!(g?.stage==='playing'||g?.stage==='trade'),()=>chooseCard(c.id),assigned,selected.has(c.id),!!preview?.ids.includes(c.id)&&preview.start!==c.id));
+ }
+ const controls=$('controls');controls.replaceChildren();
+ const inRoom=!!room,host=self===0;
+ if(!inRoom){
+  actionButton('＋ Δημιουργία',createRoom,true,busy);
+  const input=document.createElement('input');
+  input.type='text';input.id='quickRoomCode';input.className='quick-room-code';
+  input.placeholder='Κωδικός δωματίου';input.autocomplete='off';input.autocapitalize='characters';
+  input.setAttribute('aria-label','Κωδικός δωματίου ή σύνδεσμος πρόσκλησης');
+  input.value=$('joinCode').value||'';
+  input.addEventListener('input',()=>{$('joinCode').value=input.value;});
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();void openRoom(input.value);}});
+  controls.appendChild(input);
+  actionButton('↪ Είσοδος',()=>openRoom(input.value),true,busy);
+ }else if(room.phase==='lobby'){
+  if(host)actionButton('▶ Εκκίνηση · κενές θέσεις με AI',()=>perform('start',{}),true,busy);
+  else if(self<0){
+   const nextFree=room.seats.findIndex((seat,p)=>p>0&&!seat);
+   actionButton('✋ Κάτσε',()=>sit(nextFree),true,busy||nextFree<0);
+  }else actionButton('✓ Κάθισες · περιμένουμε Εκκίνηση',()=>{},false,true);
+  actionButton('🔗 Πρόσκληση',share,false,false);
+  }else if(room.paused){
+  const offlineSeats=room.missingSeats||[];
+  actionButton('⏸ Παύση παρτίδας',()=>{},false,true);
+  if(self>=0)for(const p of offlineSeats){
+   const former=seatsInRoom[p]?.name||('Θέση '+(p+1));
+   actionButton('▶ Συνέχεια με AI · '+former,()=>perform('continue_ai',{seat:p}),true,busy);
+  }
+ }else if(g?.stage==='grand'){
+  if(self>=0&&!room.waiting?.grand){
+   actionButton('Grand Tichu +200',()=>perform('grand',{yes:true}),false,busy);
+   actionButton('Χωρίς Grand',()=>perform('grand',{yes:false}),true,busy);
+  }else actionButton('Αναμονή δηλώσεων Grand',()=>{},false,true);
+ }else if(g?.stage==='trade'){
+  if(self>=0&&!room.waiting?.trade){
+   const labels={seat1:'← Αριστερά',seat2:'↑ Συμπαίκτης',seat3:'Δεξιά →'};
+   for(const id of ['seat1','seat2','seat3']){
+    const target=map[id];
+    actionButton(labels[id]+(trades[target]?' ✓':''),()=>assignTrade(target),false,busy||selected.size!==1);
+   }
+   actionButton('✓ Ανταλλαγή',trade,true,busy||Object.keys(trades).length!==3);
+  }else actionButton('Αναμονή ανταλλαγών',()=>{},false,true);
+ }else if(g?.stage==='playing'){
+  if(preview)actionButton('✨ Κέντα '+preview.label,acceptStraight,true,busy);
+  const isTurn=g.turn===self;
+  const partnerLead=leader===(base+2)%4;
+  const playBtn=actionButton(partnerLead?'⚠ Παίξε — συμπαίκτης':'▶ Παίξε',play,true,busy||!selected.size||self<0);
+  if(partnerLead)playBtn.classList.add('partner-caution');
+  actionButton('Πάσο',()=>perform('pass',{}),false,busy||!isTurn||!g.trick);
+  actionButton('💡 Υπόδειξη',hint,false,busy||!isTurn);
+  if(self>=0&&g.hand?.length===14&&!g.announcements[self])
+   actionButton('Tichu +100',()=>perform('tichu',{}),false,busy);
+ }else if(g?.stage==='finished'){
+  if(host)actionButton('↻ Επόμενος γύρος',()=>perform('next',{}),true,busy);
+  else actionButton('Περιμένουμε τον οικοδεσπότη',()=>{},false,true);
+ }
+ $('createRoom').disabled=busy;
+ $('openRoom').disabled=busy;
+ $('shareRoom').hidden=!room;
+ $('new').hidden=!(room?.phase==='active'&&host);
+ $('leaveRoom').hidden=!(room?.phase==='lobby'&&self>0);
+ $('onlineInfo').textContent=!room?'Δημιούργησε δωμάτιο, κάλεσε φίλους και πάτα Εκκίνηση. Οι κενές καρέκλες γίνονται υπολογιστές.':
+  room.phase==='lobby'?'Κωδικός '+room.code+' · Ο οικοδεσπότης ξεκινά με όσους φίλους κάθονται. Οι υπόλοιποι είναι AI.':
+  room.paused?'⏸ Το παιχνίδι έχει αποθηκευτεί. Ο φίλος μπορεί να επιστρέψει ή να επιλέξετε AI.':
+  'Μικτό παιχνίδι με φίλους και AI · Τα φύλλα κάθε παίκτη είναι ιδιωτικά.';
+}
+/* Responsive while people play; economical when no other human
+   is present. All timings are seconds, not a permanent SQL loop.
+   - Lobby: 2.5 s to show friends sitting down
+   - Multiplayer play: 1.6 s to show friends' cards quickly
+   - Grand/trade: 2 s; paused: 3.5 s; finished: 8 s
+   - Solo vs AI and hidden app: 0 repeated requests
+   Actions always update immediately from their server response. */
+function pollDelay(){
+ if(!active||!roomCode)return 0;
+ if(!room)return 2_500;
+ if(room.phase==='lobby')return 2_500;
+ const humans=room.seats.filter(seat=>seat?.kind==='human').length;
+ if(humans<=1)return 0;
+ if(room.paused)return 3_500;
+ if(room.game?.stage==='finished')return 8_000;
+ return ['grand','trade'].includes(room.game?.stage)?2_000:1_600;
+}
+function schedulePoll(override){
+ if(pollTimer!==null){clearTimeout(pollTimer);pollTimer=null;}
+ let delay=override===undefined?pollDelay():override;
+ if(!active||!roomCode||!delay)return;
+ if(failures)delay=Math.min(60_000,delay*Math.pow(2,Math.min(failures,4)));
+ pollTimer=setTimeout(()=>{pollTimer=null;void poll();},delay);
+}
+async function poll(){
+ if(!active||busy||polling||!roomCode){if(!polling)schedulePoll();return;}
+ const requestCode=roomCode,requestToken=seatToken;
+ polling=true;
+ try{
+  const next=await call('state',{});
+  if(!active||busy||requestCode!==roomCode||requestToken!==seatToken)return;
+  if(room&&next.version<room.version)return;
+  failures=0;
+  if(!room||next.version!==room.version||next.selfSeat!==room.selfSeat||
+    next.paused!==room.paused||
+    JSON.stringify(next.missingSeats||[])!==JSON.stringify(room.missingSeats||[]))accept(next,false);
+  else if(notice.startsWith('Σύνδεση:')){notice='';render();}
+ }catch(err){
+  failures=Math.min(failures+1,4);
+  if(active)status('Σύνδεση: '+(err.message||'πρόβλημα'));
+ }finally{polling=false;schedulePoll();}
+}
+function markDisconnected(){
+ if(!roomCode||!seatToken||room?.selfSeat<0||!room)return;
+ // Best-effort hint. If unload blocks it, the server's 25s heartbeat
+ // timeout still pauses the room; the saved game is never deleted.
+ try{fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({action:'disconnect',code:roomCode,token:seatToken}),
+  keepalive:true,cache:'no-store'}).catch(()=>{});}catch(_){}
+}
+function setPresence(visible){
+ const next=!!visible&&document.visibilityState==='visible'&&parentActive;
+ if(next===active)return;
+ active=next;
+ if(active){failures=0;void poll();}
+ else{schedulePoll();markDisconnected();}
+}
+$('settingsToggle').addEventListener('click',()=>showSettings($('settingsPanel').hidden));
+document.addEventListener('click',e=>{if(!$('settingsPanel').hidden&&!e.target.closest('.hero'))showSettings(false);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')showSettings(false);});
+$('createRoom').addEventListener('click',createRoom);
+$('openRoom').addEventListener('click',openRoom);
+$('shareRoom').addEventListener('click',share);
+$('leaveRoom').addEventListener('click',leave);
+$('new').addEventListener('click',async()=>{
+ if(!await GameDialog.confirm('Νέα παρτίδα από την αρχή; Τα σκορ του δωματίου θα μηδενιστούν.'))return;
+ const data=await perform('restart',{});
+ if(data)showSettings(false);
+});
+$('joinCode').addEventListener('keydown',e=>{if(e.key==='Enter')openRoom();});
+$('playerName').addEventListener('input',()=>{
+ try{localStorage.setItem(NAME,$('playerName').value.slice(0,22));}catch(_){}
+});
+let saved={};
+try{saved=JSON.parse(localStorage.getItem(KEY)||'null')||{};$('playerName').value=localStorage.getItem(NAME)||'';}catch(_){}
+const invited=new URLSearchParams(location.search).get('room')?.toUpperCase();
+roomCode=/^[A-HJ-NP-Z2-9]{6}$/.test(invited||'')?invited:(saved.code||'');
+seatToken=roomCode===saved.code?(saved.token||''):'';
+if(roomCode){$('joinCode').value=roomCode;void poll();}
+window.addEventListener('message',e=>{
+ if(e.origin!==location.origin)return;
+ if(e.data?.type==='tichufunnyonline:visibility'){
+  parentActive=!!e.data.active;
+  setPresence(parentActive);
+ }
+});
+document.addEventListener('visibilitychange',()=>setPresence(parentActive));
+window.addEventListener('pagehide',()=>{if(active)markDisconnected();active=false;schedulePoll();});
+window.addEventListener('pageshow',()=>setPresence(parentActive));
+active=document.visibilityState==='visible';
+render();
+})();
+
+</script>
+</body>
+</html>
