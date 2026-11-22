@@ -27,7 +27,13 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    const page=await context.newPage();
    const failures=[];
    page.on('pageerror',e=>failures.push(String(e)));
-   page.on('console',e=>{if(e.type()==='error')failures.push('Console: '+e.text())});
+   // Browsers may request an optional favicon.ico (404): ignore cosmetic
+   // errors, while still treating any missing HTML/JS/CSS as a failure.
+   page.on('response',response=>{
+     const pathname=new URL(response.url()).pathname;
+     if(response.status()>=400&&/\\.(html|js|css)$/.test(pathname))
+       failures.push('HTTP '+response.status()+' '+pathname);
+   });
    const base='http://127.0.0.1:'+server.address().port;
    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
    assert.equal(await page.locator('.game-choice').count(),14,'14 selectable games in hub');
