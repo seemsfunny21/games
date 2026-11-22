@@ -47,6 +47,25 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.ok(count>0,'Interactive gameplay exists '+game);
     const status=await page.locator('#score').innerText();
     assert.ok(status.length>0,'Score/status exists '+game);
+    // Game instructions live in a single accessible gear dialog on every page.
+    const settings=page.getByRole('button',{name:'Οδηγίες παιχνιδιού'});
+    assert.equal(await settings.count(),1,'One settings gear on '+game);
+    await settings.click();
+    assert.ok(await page.getByRole('dialog',{name:'Οδηγίες παιχνιδιού'}).isVisible(),'Help opens for '+game);
+    await page.getByRole('button',{name:'Κλείσιμο'}).click();
+    const dimensions=await page.evaluate(()=>({
+      pageScroll:document.documentElement.scrollHeight>window.innerHeight+2,
+      play:(()=>{const r=document.querySelector('#play').getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom};})(),
+      height:innerHeight,width:innerWidth
+    }));
+    assert.equal(dimensions.pageScroll,false,'No page vertical scrolling on '+mode+' '+game);
+    assert.ok(dimensions.play.bottom<=dimensions.height+2,'Game play fits viewport on '+game);
+    if(game==='space-invaders'){
+      const arrows=await page.locator('.edge-control').evaluateAll(nodes=>nodes.map(n=>({label:n.textContent,left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})));
+      assert.equal(arrows.length,2,'Galaxy has only left/right on-screen arrows');
+      assert.ok(arrows[0].left<6&&arrows[1].right>dimensions.width-6,'Galaxy arrows dock at opposite screen edges');
+      assert.equal(await page.getByRole('button',{name:/ΠΥΡ/}).count(),0,'Galaxy never displays a fire control');
+    }
     assert.equal(failures.length,0,'Runtime exceptions for '+game+': '+failures.join('; '));
     // Exercise an actual input on puzzle/board/card games, then validate state.
     if(game==='battleship')await page.locator('.battleship-board').first().locator('button:not([disabled])').first().click();
@@ -67,7 +86,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v3-fresh-online-offline-fallback');
+     const cache=await caches.open('games-shell-v4-compact-gear-edge-controls');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
