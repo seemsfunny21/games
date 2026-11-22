@@ -61,6 +61,11 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.equal(await page.locator('.campaign-difficulty button').count(),3,'All three difficulty options: '+game);
     assert.equal(await page.locator('.campaign-level').count(),20,'Twenty stages visible in gear: '+game);
     assert.ok(await page.getByRole('button',{name:'Πίστα 2 κλειδωμένη'}).isDisabled(),'Stage two must be locked until victory: '+game);
+    const initiallyLocked=page.getByRole('button',{name:'Πίστα 2 κλειδωμένη'});
+    assert.equal(await initiallyLocked.innerText(),'2','Locked stage shows its plain number: '+game);
+    const lockedColors=await initiallyLocked.evaluate(e=>({background:getComputedStyle(e).backgroundColor,text:getComputedStyle(e).color}));
+    assert.equal(lockedColors.background,'rgb(39, 48, 61)','Locked stage is dark grey: '+game);
+
 
     await page.getByRole('button',{name:'Κλείσιμο'}).click();
     const dimensions=await page.evaluate(()=>({
@@ -106,6 +111,11 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
       await page.waitForFunction(()=>G.activeProgress.stage===2,null,{timeout:4000});
       await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).click();
       assert.equal(await page.getByRole('button',{name:'Πίστα 2 διαθέσιμη'}).count(),1,'New stage becomes selectable');
+      const doneStage=page.getByRole('button',{name:'Πίστα 1 ολοκληρωμένη'});
+      assert.equal(await doneStage.innerText(),'1','Completed stage displays the number, no checkmark');
+      assert.equal(await doneStage.evaluate(e=>getComputedStyle(e).backgroundColor),'rgb(248, 251, 255)','Completed stage turns white');
+      assert.ok(await doneStage.isEnabled(),'Completed stage can be replayed');
+
       await page.getByRole('button',{name:'Πίστα 1 ολοκληρωμένη'}).click();
       assert.equal(await page.evaluate(()=>G.activeProgress.stage),1,'Previously completed stage remains replayable');
       await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).click();
