@@ -90,6 +90,31 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
       assert.equal(rows,8,'Memory Match board uses eight grid rows');
     }
     if(game==='flow-connect'){
+      // A single held drag should connect same-colour endpoints without multiple taps.
+      const cells=page.locator('.flow-board [data-cell]');
+      const box0=await cells.nth(0).boundingBox();
+      const center=b=>({x:b.x+b.width/2,y:b.y+b.height/2});
+      await page.mouse.move(center(box0).x,center(box0).y);
+      await page.mouse.down();
+      for(let i=1;i<=5;i++){const b=await cells.nth(i).boundingBox();const p=center(b);await page.mouse.move(p.x,p.y,{steps:5});}
+      await page.mouse.up();
+      assert.ok((await page.locator('#score').innerText()).includes('1/5'),'One finger drag completes the first Flow pair');
+    }
+    if(game==='maze-chase'){
+      const coords=await page.locator('.maze-dpad button').evaluateAll(a=>a.map(b=>({c:b.className,x:b.getBoundingClientRect().x,y:b.getBoundingClientRect().y,w:b.getBoundingClientRect().width,h:b.getBoundingClientRect().height})));
+      assert.equal(coords.length,4,'Maze has four directional controls');
+      const down=coords.find(b=>b.c.includes('down'));
+      const left=coords.find(b=>b.c.includes('left'));
+      const right=coords.find(b=>b.c.includes('right'));
+      assert.ok(down.y>left.y+50&&down.y>right.y+50,'Maze down arrow sits well below horizontal arrows');
+      assert.ok(left.w>=50&&right.w>=50,'Maze buttons are thumb-sized');
+    }
+    if(game==='frogger'){
+      const coords=await page.locator('.frogger-control-row > button').evaluateAll(a=>a.map(b=>({left:b.getBoundingClientRect().left,right:b.getBoundingClientRect().right})));
+      assert.equal(coords.length,2,'Frogger left/right arrows are separate from up/down');
+      assert.ok(coords[0].left<18&&coords[1].right>dimensions.width-18,'Frogger arrows are near opposite screen edges');
+    }
+    if(game==='flow-connect'){
       assert.equal(await page.locator('#play .flow-endpoint').count(),10,'Five clearly numbered endpoint pairs');
       assert.equal(await page.locator('#play .flow-endpoint').first().innerText(),'1','Endpoint has identifying number');
     }
@@ -127,7 +152,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    await page.waitForFunction(async()=>{
      if(!('serviceWorker' in navigator))return false;
      const registration=await navigator.serviceWorker.ready;
-     const cache=await caches.open('games-shell-v5-gameplay-eight-improvements');
+     const cache=await caches.open('games-shell-v6-touch-controls');
      const keys=await cache.keys();
      return !!registration.active&&keys.length>=30;
    },null,{timeout:15000});
