@@ -6,6 +6,17 @@ window.G={
  clear:key=>{try{localStorage.removeItem("games:"+location.pathname+":"+key)}catch{}},
  rand:n=>Math.floor(Math.random()*n),
  shuffle:a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a},
+ stageRandom:(tag,stage,difficulty)=>{
+  const input=String(tag)+":"+String(stage)+":"+String(difficulty);
+  let state=2166136261;
+  for(const ch of input){state=Math.imul(state^ch.charCodeAt(0),16777619)>>>0;}
+  return n=>{state^=state<<13;state^=state>>>17;state^=state<<5;return n?((state>>>0)%n):(state>>>0)/4294967296;};
+ },
+ shuffleStage:(array,tag,stage,difficulty)=>{
+  const next=G.stageRandom(tag,stage,difficulty),a=[...array];
+  for(let i=a.length-1;i>0;i--){const j=next(i+1);[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+ },
  btn:(label,fn,cls="")=>{const b=document.createElement("button");b.type="button";b.className="btn "+cls;b.textContent=label;if(fn)b.addEventListener("click",fn);return b},
  el:(tag,cls,text)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(text!==undefined)x.textContent=text;return x},
  score:value=>{const node=document.getElementById("score");if(!node)return;node.dataset.fullScore=String(value);const compact=String(value).replace(/\s*·\s*Ρεκόρ:\s*[^·]+/g,"");const p=window.G.activeProgress;const valueToShow=p?compact+" · "+p.shortLabel:compact;if(node.textContent!==valueToShow)node.textContent=valueToShow},
