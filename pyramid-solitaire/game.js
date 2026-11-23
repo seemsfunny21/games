@@ -1,5 +1,26 @@
 (()=>{const {el,btn,shuffle,card}=G;let s;const P=G.progress(start);const suits=["♠","♥","♦","♣"],name=n=>n===1?"A":n===11?"J":n===12?"Q":n===13?"K":String(n);
-const deck=(stage=P.stage,difficulty=P.difficulty)=>G.shuffleStage(Array.from({length:52},(_,i)=>({v:i%13+1,s:suits[Math.floor(i/13)],gone:false})),"pyramid",stage,difficulty);window.PyramidLevels={deck};
+function deck(stage=P.stage,difficulty=P.difficulty){
+ const ranks=Array.from({length:24},(_,i)=>{
+  const v=1+Math.floor(i/4),s=suits[i%4];
+  return [{v,s,gone:false},{v:13-v,s,gone:false}];
+ });
+ const paired=G.shuffleStage(ranks,"pyramid-pairs",stage,difficulty);
+ const kingPositions=new Set(G.shuffleStage(Array.from({length:28},(_,i)=>i),"pyramid-kings",stage,difficulty).slice(0,4));
+ const kings=G.shuffleStage(suits.map(s=>({v:13,s,gone:false})),"pyramid-kings-suits",stage,difficulty);
+ const pyramid=new Array(28),drawOrder=[];
+ let pairIndex=0,kingIndex=0;
+ // Place one member of each complementary pair in pyramid removal order,
+ // with its match in the stock in exactly the order it must be drawn.
+ for(let n=0;n<28;n++){
+  if(kingPositions.has(n)){pyramid[27-n]=kings[kingIndex++];continue;}
+  const [a,b]=paired[pairIndex++];
+  const flip=G.stageRandom("pyramid-side",stage+n,difficulty)(2);
+  pyramid[27-n]=flip?b:a;
+  drawOrder.push(flip?a:b);
+ }
+ return [...pyramid,...drawOrder.reverse()];
+}
+window.PyramidLevels={deck};
 const idx=(r,c)=>r*(r+1)/2+c;function available(i){if(s.pyramid[i].gone)return false;let r=0;while(idx(r+1,0)<=i&&r<6)r++;let c=i-idx(r,0);return r===6||(s.pyramid[idx(r+1,c)].gone&&s.pyramid[idx(r+1,c+1)].gone);}
 function start(){const d=deck();s={pyramid:d.slice(0,28),stock:d.slice(28),waste:[],selected:null,moves:0,won:false,recycles:0};render();save();}
 function save(){G.store("round",s)}
@@ -9,7 +30,7 @@ if(obj.v===13){remove(zone,i);return;}
 if(s.selected){const before=s.selected,old=before.zone==="p"?s.pyramid[before.i]:topWaste();if(old&&!(before.zone===zone&&before.i===i)&&old.v+obj.v===13){removePair(before,{zone,i});return;}}
 s.selected={zone,i};render();G.msg("Επιλέχθηκε "+name(obj.v)+obj.s+" · Βρες δεύτερο φύλλο ώστε να κάνουν 13.");}
 function remove(zone,i){if(zone==="p")s.pyramid[i].gone=true;else s.waste.pop();s.selected=null;s.moves++;s.won=s.pyramid.every(x=>x.gone);save();render();if(s.won)P.win();}
-function removePair(a,b){if(a.zone==="p")s.pyramid[a.i].gone=true;else s.waste.pop();if(b.zone==="p")s.pyramid[b.i].gone=true;else s.waste.pop();s.selected=null;s.moves++;s.won=s.pyramid.every(x=>x.gone);save();render();}
+function removePair(a,b){if(a.zone==="p")s.pyramid[a.i].gone=true;else s.waste.pop();if(b.zone==="p")s.pyramid[b.i].gone=true;else s.waste.pop();s.selected=null;s.moves++;s.won=s.pyramid.every(x=>x.gone);save();render();if(s.won)P.win();}
 function draw(){if(s.stock.length)s.waste.push(s.stock.pop());else if(s.waste.length){const max={easy:99,normal:Math.max(2,4-Math.floor((P.stage-1)/7)),hard:Math.max(1,2-Math.floor((P.stage-1)/10))}[P.difficulty];if((s.recycles||0)>=max){G.msg("Δεν απομένουν άλλες ανακυκλώσεις σε αυτή τη δυσκολία.");return;}s.stock=s.waste.reverse();s.waste=[];s.recycles=(s.recycles||0)+1;}s.selected=null;save();render();}
 function render(){G.score("Πυραμίδα: "+s.pyramid.filter(x=>!x.gone).length+"/28 · Τράπουλα: "+s.stock.length+" · Κινήσεις: "+s.moves+" · Ανακυκλώσεις: "+(s.recycles||0));G.ctrl(btn("↻ Νέα παρτίδα",start),btn(s.stock.length?"Τράβηγμα φύλλου":"Ανακύκλωση",draw,"secondary"));const root=el("div");root.style.cssText="width:100%;display:flex;flex-direction:column;align-items:center;gap:9px";const pyramid=el("div");pyramid.style.cssText="display:grid;grid-template-columns:repeat(14,minmax(0,1fr));gap:3px;width:min(100%,570px);";let n=0;for(let r=0;r<7;r++){for(let c=0;c<=r;c++){const i=n++,x=s.pyramid[i],open=available(i);const b=el("button","playing-card"+("♥♦".includes(x.s)?" red":"")+(s.selected?.zone==="p"&&s.selected.i===i?" selected":"")+(x.gone?" hidden":""));b.style.cssText="width:100%;height:auto;aspect-ratio:.7;min-width:0;font-size:clamp(11px,2.6vw,18px);grid-column:"+(7-r+c*2)+"/span 2;grid-row:"+(r+1)+";z-index:"+(7-r);b.textContent=name(x.v)+x.s;b.disabled=!open||x.gone;b.onclick=()=>choose("p",i);pyramid.appendChild(b);}}root.appendChild(pyramid);const row=el("div","group");row.append(el("span","badge","Ανοιχτά φύλλα"));const w=topWaste();if(w){const b=card(name(w.v),w.s,()=>choose("w",0));if(s.selected?.zone==="w")b.classList.add("selected");row.appendChild(b);}else row.append(el("span","legend","—"));root.appendChild(row);G.render(root);G.msg(s.won?"🏆 Καθάρισες την πυραμίδα!":"Αφαίρεσε ρήγες μόνους τους ή δύο ελεύθερα φύλλα με άθροισμα 13.");}
 s=G.load("round");if(!s?.pyramid||s.pyramid.length!==28)start();else render();})();
