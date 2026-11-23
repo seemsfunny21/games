@@ -42,6 +42,8 @@ jobs:
         run: node tests/frogger-playthrough.cjs
       - name: Play all Pac-Man maze objectives and audit progression and ghost escalation
         run: node tests/maze-playthrough.cjs
+      - name: Simulate live physics victories for Galaxy Brick Breaker and Falling Blocks
+        run: node tests/arcade-autoplay.cjs
       - name: Verify Water Sort difficulty with independent optimal puzzle solver
         run: node tests/water-difficulty.cjs
       - name: Check Sudoku, Reversi and Quiz engines
