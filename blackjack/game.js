@@ -1,4 +1,27 @@
-(()=>{const {el,btn,shuffle,card}=G;let s;const P=G.progress(startRound);const SUITS=["♠","♥","♦","♣"];const make=(stage=P.stage,difficulty=P.difficulty)=>G.shuffleStage(Array.from({length:52},(_,i)=>({v:i%13+1,s:SUITS[Math.floor(i/13)]})),"blackjack",stage,difficulty);window.BlackjackLevels={deck:make};function value(cards){let v=cards.reduce((n,c)=>n+(c.v===1?11:Math.min(c.v,10)),0),aces=cards.filter(c=>c.v===1).length;while(v>21&&aces){v-=10;aces--;}return v;}const rank=n=>n===1?"A":n===11?"J":n===12?"Q":n===13?"K":String(n);
+(()=>{const {el,btn,shuffle,card}=G;let s;const P=G.progress(startRound);const SUITS=["♠","♥","♦","♣"];function make(stage=P.stage,difficulty=P.difficulty){
+ for(let attempt=1;attempt<=1200;attempt++){
+  const candidate=G.shuffleStage(Array.from({length:52},(_,i)=>({v:i%13+1,s:SUITS[Math.floor(i/13)]})),"blackjack-"+attempt,stage,difficulty);
+  const hits=winningHits(candidate,difficulty);
+  const minimum=hits[0];
+  const valid=difficulty==="easy"?minimum<=1:difficulty==="normal"?minimum>=1&&minimum<=2:minimum>=(stage<=10?2:3)&&minimum<=5;
+  if(hits.length&&valid)return candidate;
+ }
+ throw Error("Could not construct a playable Blackjack deal for "+difficulty+"/"+stage);
+}
+window.BlackjackLevels={deck:make};
+function winningHits(deck,difficulty){
+ const remain=deck.slice(),player=[remain.pop(),remain.pop()],dealer=[remain.pop(),remain.pop()],wins=[];
+ for(let hits=0;hits<=7;hits++){
+  const total=value(player);if(total>21)break;
+  const shoe=remain.slice(),house=dealer.slice();
+  while(value(house)<({easy:16,normal:17,hard:17}[difficulty]))house.push(shoe.pop());
+  if(value(house)>21||total>value(house))wins.push(hits);
+  if(total===21)break;
+  player.push(remain.pop());
+ }
+ return wins;
+}
+window.BlackjackLevels.winningHits=winningHits;function value(cards){let v=cards.reduce((n,c)=>n+(c.v===1?11:Math.min(c.v,10)),0),aces=cards.filter(c=>c.v===1).length;while(v>21&&aces){v-=10;aces--;}return v;}const rank=n=>n===1?"A":n===11?"J":n===12?"Q":n===13?"K":String(n);
 function startRound(){if(!s)s={wins:0,losses:0,ties:0};s.deck=make();s.player=[s.deck.pop(),s.deck.pop()];s.dealer=[s.deck.pop(),s.deck.pop()];s.phase="play";s.result="";if(value(s.player)===21)stand();else finish();}
 function finish(){G.store("round",s);render()}
 function hit(){if(s.phase!=="play")return;s.player.push(s.deck.pop());if(value(s.player)>21){s.phase="end";s.result="Κάηκες!";s.losses++;}else if(value(s.player)===21){stand();return;}finish();}
