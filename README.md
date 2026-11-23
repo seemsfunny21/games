@@ -1,10 +1,10 @@
-# Games — 24 παιχνίδια σε ένα repository
+# Games — 25 παιχνίδια σε ένα repository
 
-Ενιαία συλλογή [GitHub Pages](https://seemsfunny21.github.io/games/), με **24 αυτοτελή παιχνίδια** σε δικούς τους υποφακέλους. Το [Applications](https://seemsfunny21.github.io/applications/) λειτουργεί ως launcher και όλα τα παιχνίδια ανοίγουν πλέον από το `/games/<φάκελος>/`.
+Ενιαία συλλογή [GitHub Pages](https://seemsfunny21.github.io/games/), με **25 αυτοτελή παιχνίδια** σε δικούς τους υποφακέλους. Το [Applications](https://seemsfunny21.github.io/applications/) λειτουργεί ως launcher και όλα τα παιχνίδια ανοίγουν πλέον από το `/games/<φάκελος>/`.
 
-## 14 παιχνίδια με ενιαίο σύστημα πιστών
+## 15 παιχνίδια με ενιαίο σύστημα πιστών
 
-`battleship`, `pyramid-solitaire`, `blackjack`, `mahjong`, `flow-connect`, `puzzle-15`, `falling-blocks`, `brick-breaker`, `space-invaders`, `maze-chase`, `frogger`, `word-search`, `hangman`, `memory-match`.
+`battleship`, `pyramid-solitaire`, `blackjack`, `mahjong`, `flow-connect`, `puzzle-15`, `falling-blocks`, `brick-breaker`, `space-invaders`, `maze-chase`, `frogger`, `word-search`, `hangman`, `memory-match`, `water-sort`.
 
 - **20 διαφορετικά αρχικά επίπεδα** για καθεμία από τις τρεις δυσκολίες: Εύκολο / Κανονικό / Δύσκολο.
 - Οι πίστες είναι αριθμημένες 1–20 μέσα στο γρανάζι.
@@ -26,7 +26,7 @@
 
 ## Offline / online
 
-Το κεντρικό `sw.js` προφορτώνει τα στατικά αρχεία των 24 παιχνιδιών. Οι επιπλέον workers Sudoku, Reversi, Quiz και Monopoly έχουν *περιορισμένο scope* και χωριστά ονόματα cache ώστε να μην διαγράφουν αρχεία άλλων παιχνιδιών.
+Το κεντρικό `sw.js` προφορτώνει τα στατικά αρχεία των 25 παιχνιδιών. Οι επιπλέον workers Sudoku, Reversi, Quiz και Monopoly έχουν *περιορισμένο scope* και χωριστά ονόματα cache ώστε να μην διαγράφουν αρχεία άλλων παιχνιδιών.
 
 **TichuFunny Online**: απαιτεί σύνδεση και Supabase για τα πραγματικά δωμάτια. Η offline φόρτωση του περιβάλλοντος δεν σημαίνει ότι μπορεί να διεξαχθεί διαδικτυακή παρτίδα χωρίς σύνδεση.
 
@@ -37,8 +37,8 @@
 Το workflow `Games browser smoke tests` εκτελεί:
 
 1. Σύνταξη όλων των JS αρχείων.
-2. Mobile και desktop smoke tests των 14 αρχικών παιχνιδιών και των 10 μεταφερμένων (`tests/smoke.cjs`, `tests/migrated.cjs`).
-3. Ελέγχους 20 × 3 μοναδικών αρχικών διατάξεων στα 14 παιχνίδια (`tests/levels.cjs`).
+2. Mobile και desktop smoke tests των 15 παιχνιδιών με κοινό σύστημα πιστών και των 10 μεταφερμένων (`tests/smoke.cjs`, `tests/migrated.cjs`).
+3. Ελέγχους 20 × 3 μοναδικών αρχικών διατάξεων στα 15 παιχνίδια (`tests/levels.cjs`).
 4. Ελέγχους εγκυρότητας Sudoku, νόμιμων κινήσεων Reversi και βάσης Quiz (`tests/legacy-engines.cjs`).
 5. Regression tests για τις χειροκίνητες και αυτόματες θεμελιώσεις του Solitaire (`tests/solitaire-auto-foundation.cjs`).
 6. Δοκιμαστικές offline εκκινήσεις σε Chromium.
@@ -48,3 +48,7 @@
 ## Προσθήκη νέου παιχνιδιού
 
 Δημιούργησε `games/<νέο-όνομα>/index.html` και τα δικά του assets, πρόσθεσέ το στο `index.html` της συλλογής, στο offline `sw.js`, στο launcher `applications/index.html` και στους ελέγχους. Μη δημιουργείς δεύτερο ενεργό αντίγραφο μέσα στο Applications.
+
+## Water Sort (τελευταίο νέο παιχνίδι)
+
+Στο `water-sort/` υπάρχει παιχνίδι με μπουκάλια χρωματιστού νερού. Περιλαμβάνει 20 πίστες σε κάθε μία από τις 3 δυσκολίες, σταθερές και διαφορετικές αρχικές διατάξεις με επαληθευμένη διαδρομή λύσης, μεταφορά χρώματος με δύο αγγίγματα ή σύρσιμο, αναίρεση και κοινή αποθήκευση ξεκλειδωμένων πιστών.
