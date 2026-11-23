@@ -2,7 +2,7 @@
 const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),assert=require('node:assert/strict');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
-const games=['battleship','pyramid-solitaire','blackjack','mahjong','flow-connect','puzzle-15','falling-blocks','brick-breaker','space-invaders','maze-chase','frogger','word-search','hangman','memory-match'];
+const games=['battleship','pyramid-solitaire','blackjack','mahjong','flow-connect','puzzle-15','falling-blocks','brick-breaker','space-invaders','maze-chase','frogger','word-search','hangman','memory-match','water-sort'];
 const mime={'.html':'text/html; charset=utf-8','.js':'application/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.webmanifest':'application/manifest+json'};
 const server=http.createServer((req,res)=>{
   let pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -36,7 +36,7 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
    });
    const base='http://127.0.0.1:'+server.address().port;
    await page.goto(base+'/',{waitUntil:'domcontentloaded'});
-   assert.equal(await page.locator('.game-choice').count(),24,'24 selectable games in hub');
+   assert.equal(await page.locator('.game-choice').count(),25,'25 selectable games in hub');
    for(const game of games){
     failures.length=0;
     await page.goto(base+'/'+game+'/',{waitUntil:'load'});
@@ -95,6 +95,25 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     if(game==='mahjong')await page.locator('#play button:not([disabled])').first().click();
     if(game==='flow-connect')await page.locator('#play button').first().click();
     if(game==='word-search')await page.locator('#play button').first().click();
+    if(game==='water-sort'){
+      const initial=await page.evaluate(()=>WaterLevels.create('normal',1));
+      const [from,to]=initial.solution[0];
+      const bottles=page.locator('.water-bottle');
+      assert.equal(await bottles.count(),initial.colors+2,'Water Sort has correct number of bottles');
+      await bottles.nth(from).click();
+      assert.ok(await bottles.nth(from).getAttribute('aria-pressed')==='true','Water Sort source highlights when selected');
+      await bottles.nth(to).click();
+      assert.ok((await page.locator('#score').innerText()).includes('Κινήσεις: 1'),'Water Sort tap-to-pour works');
+      await page.getByRole('button',{name:'↶ Αναίρεση'}).click();
+      assert.ok((await page.locator('#score').innerText()).includes('Κινήσεις: 0'),'Water Sort undo restores starting state');
+      const src=await page.locator('.water-bottle').nth(from).boundingBox();
+      const dst=await page.locator('.water-bottle').nth(to).boundingBox();
+      await page.mouse.move(src.x+src.width/2,src.y+src.height/2);
+      await page.mouse.down();
+      await page.mouse.move(dst.x+dst.width/2,dst.y+dst.height/2,{steps:10});
+      await page.mouse.up();
+      assert.ok((await page.locator('#score').innerText()).includes('Κινήσεις: 1'),'Water Sort drag-to-pour works');
+    }
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
     await page.waitForTimeout(60);
     if(game==='maze-chase'){
