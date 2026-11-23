@@ -72,7 +72,7 @@ try{
  const sphere=(r,m,x,y,z,parent,s=24)=>add(new THREE.SphereGeometry(r,s,16),m,x,y,z,parent);
  const cylinder=(r1,r2,h,m,x,y,z,parent)=>add(new THREE.CylinderGeometry(r1,r2,h,24),m,x,y,z,parent);
  const wood=mat('#bc8b65'),floor=mat('#e4cba8'),wall=mat('#c8e6ea'),white=mat('#fff4dc'),leaf=mat('#6ab787');
- box(12,.3,10,floor,0,-.18,0);box(12,5,.24,wall,0,2.35,-5);box(.24,5,10,mat('#b8d9de'),-6,2.35,0);
+ box(12,.3,10,floor,0,-.18,0);box(12,5,.24,wall,0,2.35,-5); // Open-sided room: no side wall can occlude the orbiting camera.
  // Floor rug, window, wall decor
  const rug=add(new THREE.CylinderGeometry(2.8,2.8,.035,64),mat('#82c4c3'),0,.015,.8);rug.receiveShadow=true;
  box(2.5,2, .08,mat('#6da5c4'),2.7,2.75,-4.84);box(2.7,.13,.14,white,2.7,3.75,-4.72);box(2.7,.13,.14,white,2.7,1.77,-4.72);
@@ -128,7 +128,7 @@ try{
  window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
  const surface=renderer.domElement;
  surface.addEventListener('pointerdown',e=>{surface.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY}});
- surface.addEventListener('pointermove',e=>{if(!drag)return;orbit=Math.max(-1.12,Math.min(1.12,orbit+(e.clientX-drag.x)*.006));drag={x:e.clientX,y:e.clientY}});
+ surface.addEventListener('pointermove',e=>{if(!drag)return;orbit=Math.max(-1.0,Math.min(1.0,orbit+(e.clientX-drag.x)*.006));drag={x:e.clientX,y:e.clientY}});
  surface.addEventListener('pointerup',()=>drag=null);surface.addEventListener('pointercancel',()=>drag=null);
  surface.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(5,Math.min(13,zoom+Math.sign(e.deltaY)*.6))},{passive:false});
 }catch(error){console.error('3D initialization failed',error);sceneEl.innerHTML='<div style="position:absolute;top:45%;width:100%;text-align:center;padding:25px">Δεν ήταν δυνατή η φόρτωση του 3D. Χρειάζεται WebGL και σύνδεση για τη βιβλιοθήκη Three.js.</div>'}
