@@ -2,7 +2,7 @@
 function initialBoard(stage,difficulty){
  const d={easy:0,normal:1,hard:2}[difficulty],board=Array.from({length:20},()=>Array(10).fill(0));
  if(stage===1&&difficulty==="easy")return board;
- const layers=1+Math.floor((stage-1)/7),gap=(stage-1+d*2)%7;
+ const layers=1+Math.floor((stage-1)/7),gap=(stage*3+d*2)%7;
  // Every prefilled row leaves the SAME four-cell corridor.
  // A horizontal I piece can reach and clear the bottom row, then the next:
  // no covered-up, unreachable single holes as in the previous generator.
