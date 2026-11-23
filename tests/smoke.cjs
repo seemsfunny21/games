@@ -120,6 +120,16 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
         }
         await page.waitForFunction(()=>G.activeProgress.stage===2,null,{timeout:4000});
         assert.ok(await page.locator('#score').innerText().then(t=>t.includes('Πίστα 2')),'Water Sort truly advances after solving every bottle');
+        await page.getByRole('button',{name:'Οδηγίες παιχνιδιού'}).click();
+        await page.getByRole('button',{name:'Δύσκολο'}).click();
+        await page.getByRole('button',{name:'Πίστα 1 διαθέσιμη'}).click();
+        assert.equal(await page.locator('.water-bottle').count(),9,'Hard Water Sort has seven mixed colours and two empty bottles');
+        assert.ok((await page.locator('#score').innerText()).includes('Ελάχιστες: 21'),'Hard difficulty shows genuine optimal move target');
+        const positions=await page.locator('.water-bottle').evaluateAll(nodes=>nodes.map(n=>{
+          const r=n.getBoundingClientRect(),p=document.querySelector('#play').getBoundingClientRect();
+          return r.top>=p.top-2&&r.bottom<=p.bottom+2&&r.left>=p.left-2&&r.right<=p.right+2;
+        }));
+        assert.ok(positions.every(Boolean),'All nine hard-mode bottles fit within mobile game area');
       }
     }
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
