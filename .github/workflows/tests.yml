@@ -36,6 +36,8 @@ jobs:
         run: node tests/migrated.cjs
       - name: Audit unique 20-level layouts across all difficulties
         run: node tests/levels.cjs
+      - name: Reject adjacent stages with almost unchanged maps or boards
+        run: node tests/level-distance.cjs
       - name: Actually complete 600 stages through legal game UI actions
         run: node tests/stage-playthrough.cjs
       - name: Actually cross 60 Frogger levels with safe user-control routes
