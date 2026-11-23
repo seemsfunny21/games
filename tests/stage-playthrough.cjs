@@ -53,10 +53,11 @@ const server=http.createServer((req,res)=>{
        return 32;
       }
       if(game==='mahjong'){
-       for(let row=0;row<8;row++)for(let col=0;col<4;col++){
-        const a=row*8+col,b=row*8+7-col;
+       const pairs=MahjongLevels.solveOrder(stage,diff);
+       if(pairs.length!==32)throw Error('Mahjong requires 32 removal pairs');
+       for(const [a,b] of pairs){
         const tiles=info().tiles;
-        if(tiles[a]!==tiles[b])throw Error('Mahjong guaranteed pair absent');
+        if(tiles[a]!==tiles[b])throw Error('Mahjong planned pair has mismatched symbols');
         click('#play .grid-board button',a);click('#play .grid-board button',b);
        }
        return 64;
