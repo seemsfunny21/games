@@ -8,6 +8,7 @@ function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;c
 let pet=restore()||defaults(),ready=!!localStorage.getItem(KEY);
 let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=8.5,drag=null;
 const $=id=>document.getElementById(id), sceneEl=$('scene');
+$('needsToggle').addEventListener('click',()=>{const collapsed=$('needs').classList.toggle('collapsed');$('needsToggle').textContent=collapsed?'▾ Ανάγκες':'▴ Απόκρυψη';$('needsToggle').setAttribute('aria-expanded',String(!collapsed))});
 function save(){try{localStorage.setItem(KEY,JSON.stringify(pet))}catch(e){toast('Δεν ήταν δυνατή η αποθήκευση. Έλεγξε τον διαθέσιμο χώρο.')}}
 function advance(now=Date.now()){
  const elapsed=Math.max(0,Math.min(MAX_OFFLINE,now-pet.last));
@@ -127,7 +128,7 @@ try{
  window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
  const surface=renderer.domElement;
  surface.addEventListener('pointerdown',e=>{surface.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY}});
- surface.addEventListener('pointermove',e=>{if(!drag)return;orbit+=(e.clientX-drag.x)*.006;drag={x:e.clientX,y:e.clientY}});
+ surface.addEventListener('pointermove',e=>{if(!drag)return;orbit=Math.max(-1.12,Math.min(1.12,orbit+(e.clientX-drag.x)*.006));drag={x:e.clientX,y:e.clientY}});
  surface.addEventListener('pointerup',()=>drag=null);surface.addEventListener('pointercancel',()=>drag=null);
  surface.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(5,Math.min(13,zoom+Math.sign(e.deltaY)*.6))},{passive:false});
 }catch(error){console.error('3D initialization failed',error);sceneEl.innerHTML='<div style="position:absolute;top:45%;width:100%;text-align:center;padding:25px">Δεν ήταν δυνατή η φόρτωση του 3D. Χρειάζεται WebGL και σύνδεση για τη βιβλιοθήκη Three.js.</div>'}
