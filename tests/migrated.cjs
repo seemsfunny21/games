@@ -33,7 +33,7 @@ const server=http.createServer((req,res)=>{
       failures.push('Missing asset: '+resp.status()+' '+url.pathname);
    });
    await page.goto(base+'/',{waitUntil:'load'});
-   assert.equal(await page.locator('.game-choice').count(),24,'24 games in central hub');
+   assert.equal(await page.locator('.game-choice').count(),25,'25 games in central hub');
    for(const [name,selector] of Object.entries(other)){
     failures.length=0;
     await page.goto(base+'/'+name+'/',{waitUntil:'load'});
