@@ -85,6 +85,16 @@ body.game-screen .foot{display:none}
 .edge-control.edge-left{left:max(2px,env(safe-area-inset-left,0px))}
 .edge-control.edge-right{right:max(2px,env(safe-area-inset-right,0px))}
 .edge-control:active{background:#267db9ed!important}
+/* Galaxy: compact thumb controls below the playfield; no canvas obstruction. */
+body.game-screen.galaxy-game .panel{padding-bottom:62px}
+body.game-screen.galaxy-game .edge-control{
+ width:46px;height:46px;min-height:46px;
+ bottom:max(7px,env(safe-area-inset-bottom,0px));
+ font-size:22px!important;border-radius:11px;
+}
+body.game-screen.galaxy-game .edge-control.edge-left{left:max(5px,env(safe-area-inset-left,0px))}
+body.game-screen.galaxy-game .edge-control.edge-right{right:max(5px,env(safe-area-inset-right,0px))}
+
 @media(max-height:580px){
  .game-topbar{min-height:30px}
  .game-topbar .back{padding:3px 5px}
