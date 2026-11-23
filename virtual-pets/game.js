@@ -70,7 +70,7 @@ function memoryGame(){
  if(!ready){adoption();return}if(pet.sleeping){toast('Ξύπνησέ το πρώτα.');return}
  if(mini)stopMini(false);
  const icons=['🌻','💧','🦜','⭐','🌿','💚'];
- const pairs=[...icons.slice(0,4),...icons.slice(0,4)].sort(()=>Math.random()-.5);
+ const pairs=[...icons.slice(0,4),...icons.slice(0,4)];for(let i=pairs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pairs[i],pairs[j]]=[pairs[j],pairs[i]]}
  const wrap=document.createElement('div');wrap.className='memory-grid';
  const status=document.createElement('p');status.textContent='Βρες τα 4 ζευγάρια!';
  const box=document.createElement('div');box.append(status,wrap);
@@ -113,7 +113,7 @@ function settings(){
  const info=document.createElement('p');info.textContent='🪙 '+pet.coins+' νομίσματα · Επίπεδο '+pet.level+' · Ημέρα '+ageDays();p.append(info);
  modal('Ρυθμίσεις',p,[{text:'Εξαγωγή backup',action:()=>{const blob=new Blob([JSON.stringify(pet,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='virtual-pet-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Το αντίγραφο ασφαλείας ετοιμάστηκε.')}},
  {text:'Αλλαγή ονόματος',action:()=>{const input=document.createElement('input');input.value=pet.name;input.maxLength=20;modal('✏️ Όνομα',input,[{text:'Αποθήκευση',action:()=>{if(!input.value.trim())return;pet.name=input.value.trim().slice(0,20);save();refresh();closeModal()}},{text:'Άκυρο',action:closeModal}]);input.focus()}},
- {text:'Εισαγωγή backup',action:()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',async()=>{try{const raw=JSON.parse(await input.files[0].text());if(raw.version!==1||typeof raw.name!=='string'||!Number.isFinite(raw.born))throw Error('bad backup');const confirmed=window.confirm('Επαναφορά αποθηκευμένου κατοικιδίου; Η τωρινή πρόοδος θα αντικατασταθεί.');if(!confirmed)return;localStorage.setItem(KEY,JSON.stringify(raw));location.reload()}catch(e){toast('Μη έγκυρο αντίγραφο ασφαλείας.')}});input.click()}},
+ {text:'Εισαγωγή backup',action:()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',async()=>{try{const raw=JSON.parse(await input.files[0].text());if(raw.version!==1||typeof raw.name!=='string'||!Number.isFinite(raw.born))throw Error('bad backup');modal('Επαναφορά backup','Θα αντικατασταθεί η τωρινή πρόοδος. Συνέχεια;',[{text:'Επαναφορά',danger:true,action:()=>{localStorage.setItem(KEY,JSON.stringify(raw));location.reload()}},{text:'Άκυρο',action:closeModal}])}catch(e){toast('Μη έγκυρο αντίγραφο ασφαλείας.')}});input.click()}},
  {text:'Κλείσιμο',action:closeModal}])
 }
 $('training').addEventListener('click',training);
