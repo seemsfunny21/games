@@ -1,13 +1,13 @@
 (()=>{
 "use strict";
 const {el,btn}=G;
-const palette=["#ff647e","#53d4ff","#ffd260","#73eab0","#ba9cff","#ff9b64"];
+const palette=["#ff647e","#53d4ff","#ffd260","#54e6a5","#9e83ff","#ff9b64","#b0ed49","#ee5dd1"];
 const P=G.progress(start);
 let s,root,board,pointer=null;
 const copy=tubes=>tubes.map(t=>t.slice());
 function isComplete(t){return t.length===4&&t.every(v=>v===t[0]);}
 function valid(saved){
- if(!saved||saved.version!==1||!Array.isArray(saved.tubes)||!Number.isInteger(saved.colors))return false;
+ if(!saved||saved.version!==2||!Array.isArray(saved.tubes)||!Number.isInteger(saved.colors))return false;
  const puzzle=WaterLevels.create(P.difficulty,P.stage),counts=Array(saved.colors).fill(0);
  if(saved.colors!==puzzle.colors||saved.tubes.length!==puzzle.tubes.length)return false;
  for(const bottle of saved.tubes){
@@ -19,7 +19,7 @@ function valid(saved){
 function save(){G.store("round",s);}
 function start(){
  const puzzle=WaterLevels.create(P.difficulty,P.stage);
- s={version:1,colors:puzzle.colors,tubes:copy(puzzle.tubes),selected:-1,moves:0,undo:[],finished:false};
+ s={version:2,colors:puzzle.colors,tubes:copy(puzzle.tubes),selected:-1,moves:0,undo:[],finished:false};
  save();render();
 }
 function messageDefault(){G.msg("Πάτα το πρώτο μπουκάλι και μετά το δεύτερο ή σύρε το χρώμα.");}
@@ -102,7 +102,7 @@ function render(){
  board.addEventListener("lostpointercapture",()=>{pointer=null;});
  root.append(note,board);
  G.render(root);
- G.score("Χρώματα: "+s.colors+" · Ολοκληρωμένα: "+s.tubes.filter(isComplete).length+"/"+s.colors+" · Κινήσεις: "+s.moves);
+ G.score("Χρώματα: "+s.colors+" · Ολοκληρωμένα: "+s.tubes.filter(isComplete).length+"/"+s.colors+" · Κινήσεις: "+s.moves+" · Ελάχιστες: "+WaterLevels.create(P.difficulty,P.stage).minMoves);
  if(!s.finished)messageDefault();
 }
 const previous=G.load("round");
