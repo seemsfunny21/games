@@ -6,7 +6,7 @@ const clamp=(n)=>Math.max(0,Math.min(100,n));
 const safe=(n,fallback)=>Number.isFinite(n)?n:fallback;
 function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));return d}catch(e){return null}}
 let pet=restore()||defaults(),ready=!!localStorage.getItem(KEY);
-let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=8.5,drag=null;
+let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=11.5,drag=null;
 const $=id=>document.getElementById(id), sceneEl=$('scene');
 $('needsToggle').addEventListener('click',()=>{const collapsed=$('needs').classList.toggle('collapsed');$('needsToggle').textContent=collapsed?'▾ Ανάγκες':'▴ Απόκρυψη';$('needsToggle').setAttribute('aria-expanded',String(!collapsed))});
 function save(){try{localStorage.setItem(KEY,JSON.stringify(pet))}catch(e){toast('Δεν ήταν δυνατή η αποθήκευση. Έλεγξε τον διαθέσιμο χώρο.')}}
@@ -160,16 +160,25 @@ try{
   const flap=flying?Math.sin(t*20)*.85:Math.sin(t*2)*.04;
   wingL.rotation.z=flap;wingR.rotation.z=-flap;
   tail.rotation.x=Math.sin(t*(flying?12:2))*.13;
-  camera.position.set(Math.sin(orbit)*zoom,4.4+(zoom-8.5)*.22,Math.cos(orbit)*zoom);
+  camera.position.set(Math.sin(orbit)*zoom,4.4+(zoom-11.5)*.18,Math.cos(orbit)*zoom);
   camera.lookAt(0,1.45,0);renderer.render(scene,camera);
   if(now-lastUI>10000){lastUI=now;if(ready){advance();save();refresh()}}
  }
  function resize(){const w=sceneEl.clientWidth,h=sceneEl.clientHeight;camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
  window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
+ $('zoomOut').addEventListener('click',()=>{zoom=Math.min(22,zoom+2)});
+ $('zoomIn').addEventListener('click',()=>{zoom=Math.max(5,zoom-2)});
  const surface=renderer.domElement;
- surface.addEventListener('pointerdown',e=>{surface.setPointerCapture(e.pointerId);drag={x:e.clientX,y:e.clientY}});
- surface.addEventListener('pointermove',e=>{if(!drag)return;orbit+=(e.clientX-drag.x)*.006;drag={x:e.clientX,y:e.clientY}});
- surface.addEventListener('pointerup',()=>drag=null);surface.addEventListener('pointercancel',()=>drag=null);
- surface.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(5,Math.min(13,zoom+Math.sign(e.deltaY)*.6))},{passive:false});
+ const pointers=new Map();let pinchDistance=0;
+ surface.addEventListener('pointerdown',e=>{surface.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});drag={x:e.clientX,y:e.clientY};if(pointers.size>1)pinchDistance=0});
+ surface.addEventListener('pointermove',e=>{
+  if(!pointers.has(e.pointerId))return;
+  pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(pointers.size===2){const [a,b]=[...pointers.values()],distance=Math.hypot(a.x-b.x,a.y-b.y);if(pinchDistance>0)zoom=Math.max(5,Math.min(22,zoom*pinchDistance/Math.max(1,distance)));pinchDistance=distance;drag=null}
+  else if(drag){orbit+=(e.clientX-drag.x)*.006;drag={x:e.clientX,y:e.clientY}}
+ });
+ const endPointer=e=>{pointers.delete(e.pointerId);pinchDistance=0;drag=null};
+ surface.addEventListener('pointerup',endPointer);surface.addEventListener('pointercancel',endPointer);
+ surface.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(5,Math.min(22,zoom+Math.sign(e.deltaY)*.8))},{passive:false});
 }catch(error){console.error('3D initialization failed',error);sceneEl.innerHTML='<div style="position:absolute;top:45%;width:100%;text-align:center;padding:25px">Δεν ήταν δυνατή η φόρτωση του 3D. Χρειάζεται WebGL και σύνδεση για τη βιβλιοθήκη Three.js.</div>'}
 window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else if(ready){advance();save();refresh()}});
