@@ -1,12 +1,16 @@
 (()=>{const {el,btn,rand}=G;const forms=[[[1,1,1,1]],[[1,1],[1,1]],[[0,1,0],[1,1,1]],[[1,0,0],[1,1,1]],[[0,0,1],[1,1,1]],[[0,1,1],[1,1,0]],[[1,1,0],[0,1,1]]];const palette=["#4ec9ee","#ffd86f","#bb87fa","#658eff","#ff9a57","#5de3a4","#fa6987"];let s,canvas,ctx,timer;const P=G.progress(start);
 function initialBoard(stage,difficulty){
- const d={easy:0,normal:1,hard:2}[difficulty],b=Array.from({length:20},()=>Array(10).fill(0));
- const lines=stage===1&&d!==2?0:Math.min(3,(d===0?1:d===1?1:2)+(stage%2));
- for(let r=0;r<lines;r++){
-  const y=19-r,hole=(stage*3+r*4+d)%10;
-  for(let x=0;x<10;x++)if(x!==hole)b[y][x]=1+((stage+r*3+x+d)%7);
+ const d={easy:0,normal:1,hard:2}[difficulty],board=Array.from({length:20},()=>Array(10).fill(0));
+ if(stage===1&&difficulty==="easy")return board;
+ const layers=1+Math.floor((stage-1)/7),gap=(stage-1+d*2)%7;
+ // Every prefilled row leaves the SAME four-cell corridor.
+ // A horizontal I piece can reach and clear the bottom row, then the next:
+ // no covered-up, unreachable single holes as in the previous generator.
+ for(let row=0;row<layers;row++)for(let x=0;x<10;x++){
+  if(x>=gap&&x<gap+4)continue;
+  board[19-row][x]=1+((stage*3+d*5+x+row)%7);
  }
- return b;
+ return board;
 }
 window.FallingLevels={initial:initialBoard};
 function fresh(){return {shape:rand(7),x:3,y:0,rot:0};}function shape(p){let v=forms[p.shape].map(r=>[...r]);for(let a=0;a<p.rot%4;a++)v=v[0].map((_,i)=>v.map(row=>row[i]).reverse());return v;}
