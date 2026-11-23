@@ -59,7 +59,7 @@ function brickAutoplay(api){
    const target=targets[Math.min((Math.floor(t/400)%3),targets.length-1)];
    const travel=Math.max(15,(455-(38+target.r*27))/Math.max(1,Math.abs(ball.vy)));
    const desiredVelocity=Math.max(-5,Math.min(5,(target.x-landing)/travel));
-   const desiredPaddle=Math.max(50,Math.min(350,landing-desiredVelocity*15));
+   const desiredPaddle=Math.max(s.pw/2,Math.min(400-s.pw/2,landing-desiredVelocity*15));
    s.paddle=desiredPaddle;
   }
   api.tick();
