@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 
 const KEY='my-virtual-pet-3d-v1', DAY=86400000, MAX_OFFLINE=14*DAY;
-const defaults=()=>({version:1,name:'Πίκο',born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0});
+const defaults=()=>({version:1,name:'Πίκο',born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0,trained:0});
 const clamp=(n)=>Math.max(0,Math.min(100,n));
 const safe=(n,fallback)=>Number.isFinite(n)?n:fallback;
 function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));return d}catch(e){return null}}
@@ -45,7 +45,24 @@ function act(type){
  if(type!=='sleep'&&pet.sleeping)pet.sleeping=false;
  pet.actions++;pet.last=Date.now();save();refresh();
 }
-function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
+function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:type.startsWith('train-')?3600:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
+function training(){
+ if(!ready){adoption();return}
+ const wrap=document.createElement('div');const info=document.createElement('p');info.textContent='Εντολές που γνωρίζει: Έλα · Πέτα · Στο κλαδί. Κάθε εκτέλεση δίνει +3 XP και +1 νόμισμα. Εκπαιδεύσεις: '+pet.trained;wrap.append(info);
+ modal('🎓 Εκπαίδευση',wrap,[
+  {text:'🦜 Έλα',action:()=>train('come')},
+  {text:'🪽 Πέτα',action:()=>train('fly')},
+  {text:'🌿 Στο κλαδί',action:()=>train('perch')},
+  {text:'Κλείσιμο',action:closeModal}
+ ]);
+}
+function train(command){
+ advance();if(pet.sleeping){toast('Ξύπνησέ το πρώτα για εκπαίδευση.');return}
+ if(pet.energy<12){toast('Χρειάζεται περισσότερη ενέργεια για εκπαίδευση.');return}
+ pet.energy=clamp(pet.energy-4);pet.happy=clamp(pet.happy+3);pet.coins++;pet.trained=(pet.trained||0)+1;award(3);
+ animate('train-'+command);save();refresh();closeModal();
+ toast(command==='come'?'🦜 Έρχεται κοντά σου!':command==='fly'?'🪽 Πετάει με την εντολή σου!':'🌿 Επιστρέφει στο κλαδί!');
+}
 function settings(){
  const p=document.createElement('div'),text=document.createElement('p');text.textContent='Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή. Το κατοικίδιο συνεχίζει να έχει ανάγκες όσο λείπεις (έως 14 ημέρες υπολογισμού ανά επιστροφή).';p.append(text);
  const info=document.createElement('p');info.textContent='🪙 '+pet.coins+' νομίσματα · Επίπεδο '+pet.level+' · Ημέρα '+ageDays();p.append(info);
@@ -53,6 +70,7 @@ function settings(){
  {text:'Αλλαγή ονόματος',action:()=>{const n=prompt('Νέο όνομα',pet.name);if(n&&n.trim()){pet.name=n.trim().slice(0,20);save();refresh();closeModal()}}},
  {text:'Κλείσιμο',action:closeModal}])
 }
+$('training').addEventListener('click',training);
 document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));
 $('settings').addEventListener('click',settings);
 if(!ready)adoption();else{advance();save();refresh();}
@@ -152,6 +170,19 @@ try{
    const progress=(now-anim.start)/(anim.until-anim.start);
    position.set(Math.sin(progress*Math.PI*2)*1.15,2.7+Math.sin(progress*Math.PI*3)*.55,Math.cos(progress*Math.PI*2)*.65);
    facing=progress*Math.PI*2;flying=true;roam.until=now+2000;
+  }else if(active.startsWith('train-')){
+   const progress=Math.max(0,Math.min(1,(now-anim.start)/(anim.until-anim.start)));
+   const motion=smooth(progress<.5?progress*2:(1-progress)*2);
+   if(active==='train-come'){
+    position.set(0,2.55-.65*motion,1.9*motion);facing=0;flying=progress<.3||progress>.7;
+   }else if(active==='train-fly'){
+    position.set(Math.sin(progress*Math.PI*2)*1.6,2.55+Math.sin(progress*Math.PI)*1.55,Math.sin(progress*Math.PI*2)*.7);
+    facing=progress*Math.PI*2;flying=true;
+   }else{
+    position.set(Math.sin(progress*Math.PI)*.85,2.55+Math.sin(progress*Math.PI)*.65,Math.sin(progress*Math.PI)*.5);
+    flying=progress<.8;
+   }
+   roam={kind:'perch',start:now,until:now+1600,from:home.clone(),to:home.clone()};
   }else if(active==='pet'){
    position.copy(home);position.y+=Math.sin(t*8)*.08;facing=Math.sin(t*8)*.2;roam.until=now+2000;
   }else{
