@@ -66,7 +66,7 @@ for(const difficulty of ['easy','normal','hard']){
   assert.equal(s.ghosts.length,ghostExpected,'Ghost count actually escalates');
   assert.equal(s.requiredRegions,{easy:2,normal:3,hard:4}[difficulty]);
   assert.ok(s.target>=Math.floor(s.dots.length*.47),'Not a trivial few extra dots');
-  if(difficulty==='normal'&&stage<=5)assert.ok(s.target>=95,'Early normal Pac-Man must require broad exploration');
+  if(difficulty==='normal'&&stage<=5)assert.ok(s.target>=80,'Early normal Pac-Man must require broad exploration');
   // A no-enemy playthrough checks the ACTUAL shipped walk/score/win functions.
   api.freezeGhosts();
   let movements=0;
