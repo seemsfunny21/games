@@ -1,0 +1,64 @@
+/* Water Sort — compact glass bottles matching the shared Premium Blue theme. */
+body.game-screen .play{overflow:hidden}
+body.game-screen .water-layout{
+ display:flex;flex-direction:column;justify-content:center;align-items:center;
+ width:min(100%,590px);height:100%;max-height:100%;min-height:0;gap:7px;
+ padding:0 4px;touch-action:manipulation;
+}
+.water-instruction{flex:0 0 auto;margin:0;color:#b7d9f4;font-size:clamp(10px,2.5vw,12px);text-align:center;line-height:1.2}
+.water-board{
+ flex:1 1 auto;min-height:0;width:100%;display:grid;
+ grid-template-columns:repeat(4,minmax(0,1fr));
+ grid-auto-rows:minmax(0,auto);align-content:center;justify-items:center;
+ align-items:center;column-gap:clamp(3px,2.3vw,20px);
+ row-gap:clamp(5px,1.7dvh,16px);touch-action:none;
+ -webkit-user-select:none;user-select:none;
+}
+.water-bottle{
+ box-sizing:border-box;display:flex;flex-direction:column;align-items:center;
+ justify-content:flex-end;gap:4px;width:min(100%,90px);min-width:0;
+ margin:0;padding:5px 3px 3px;border:1px solid transparent;
+ border-radius:14px;background:transparent;color:#cee9ff;cursor:pointer;
+ touch-action:none;-webkit-tap-highlight-color:transparent;
+}
+.water-bottle:disabled{opacity:1}
+.water-bottle:focus-visible{outline:2px solid #b3f4ff;outline-offset:1px}
+.water-glass{
+ position:relative;display:block;isolation:isolate;width:72%;
+ height:clamp(84px,min(22dvh,26vw),180px);
+ overflow:visible;border:3px solid #9ad1ffb8;border-top:0;
+ border-radius:4px 4px 16px 16px;
+ background:linear-gradient(90deg,#163a5d66,#7cc9ff18 29%,#badfff20 70%,#10335480);
+ box-shadow:inset 0 0 11px #8bcafd22,0 7px 17px #030e1c80;
+ transform-origin:center bottom;transition:transform .16s ease,filter .16s ease;
+}
+.water-glass:before{
+ content:"";position:absolute;left:-5px;right:-5px;top:-5px;height:8px;
+ border:2px solid #b1ddff;border-radius:50%;background:#092c4a;
+ z-index:2;box-shadow:0 2px 7px #80ccff66;
+}
+.water-glass:after{
+ content:"";position:absolute;bottom:4px;left:5px;width:20%;height:78%;
+ border-left:2px solid #ffffff5e;border-radius:40%;z-index:3;pointer-events:none;
+}
+.water-liquid{position:absolute;inset:5px 2px 2px;overflow:hidden;border-radius:0 0 11px 11px;pointer-events:none}
+.water-layer{
+ position:absolute;display:block;left:0;right:0;height:25%;
+ background:linear-gradient(95deg,#ffffff40,var(--water-color) 28%,var(--water-color) 68%,#04152b42);
+ box-shadow:inset 0 1px 1px #ffffff4c,inset 0 -2px 3px #072b5166;
+}
+.water-layer:last-child{border-radius:4px 4px 0 0}
+.water-glare{position:absolute;top:9px;bottom:7px;right:7px;width:3px;border-radius:2px;background:#c6e5ff59;pointer-events:none}
+.water-label{font-size:clamp(11px,2.8vw,14px);font-weight:850;line-height:1.15;color:#aacbea}
+.water-bottle.selected .water-glass{transform:translateY(-8px) rotate(-4deg);filter:drop-shadow(0 0 13px #5fc5ffbb);border-color:#d1f0ff}
+.water-bottle.selected .water-label{color:#fff}
+.water-bottle.complete .water-glass{border-color:#bbffe7;filter:drop-shadow(0 0 10px #52eab059)}
+.water-bottle.finished .water-glass{border-color:#9cf5d2}
+@media(max-height:580px){
+ .water-layout{gap:3px!important}
+ .water-board{row-gap:4px}
+ .water-glass{height:clamp(65px,calc((100dvh - 160px)/2),128px)}
+ .water-instruction{display:none}
+ .water-bottle{padding:1px 2px;gap:1px}
+}
+@media(prefers-reduced-motion:reduce){.water-glass{transition:none}}
