@@ -1,19 +1,30 @@
 (()=>{const {el,btn,grid,shuffle}=G;const symbols=["🐉","🎋","🌸","☯️","🀄","💠","🌿","🌙","☀️","🏮","🍀","🎴","⭐","🐼","🪷","🌀","🦊","🌈","🍎","🦉","🍇","🎲","🚲","🦋","🐠","🧩","🪁","🥝","🍉","🦄","🎯","🚀"];let s;const P=G.progress(start);
-function construct(stage=P.stage,difficulty=P.difficulty){
+function plan(stage=P.stage,difficulty=P.difficulty){
  const available=difficulty==="easy"?symbols.slice(0,8):difficulty==="normal"?symbols.slice(0,16):symbols;
- const ids=available.flatMap(v=>Array(32/available.length).fill(symbols.indexOf(v)));
- const pairs=G.shuffleStage(ids,"mahjong-solvable",stage,difficulty);
- const board=Array(64);
- // Mirror each identical pair at opposite ends of a row.
- // Clearing from the outside inward always leaves two free matching tiles.
- for(let row=0;row<8;row++)for(let column=0;column<4;column++){
-  const color=pairs[row*4+column];
-  board[row*8+column]=color;board[row*8+7-column]=color;
+ const ids=G.shuffleStage(available.flatMap(v=>Array(32/available.length).fill(symbols.indexOf(v))),"mahjong-colors",stage,difficulty);
+ const next=G.stageRandom("mahjong-free-removals",stage,difficulty);
+ const rows=Array.from({length:8},(_,row)=>Array.from({length:8},(_,col)=>row*8+col));
+ const board=new Array(64),solution=[];
+ for(const color of ids){
+  const free=rows.flatMap(row=>row.length?[row[0],row[row.length-1]]:[]).filter((v,i,a)=>a.indexOf(v)===i);
+  const a=free[next(free.length)];
+  let choices=free.filter(i=>i!==a);
+  if(!choices.length)throw Error("Mahjong pair-generation exhausted");
+  const cross={easy:.25,normal:.60,hard:.90}[difficulty]+Math.min(.1,(stage-1)*.005);
+  if(next(1000)<cross*1000&&choices.some(i=>Math.floor(i/8)!==Math.floor(a/8))){
+   choices=choices.filter(i=>Math.floor(i/8)!==Math.floor(a/8));
+  }else if(choices.some(i=>Math.floor(i/8)===Math.floor(a/8))){
+   choices=choices.filter(i=>Math.floor(i/8)===Math.floor(a/8));
+  }
+  const b=choices[next(choices.length)];
+  board[a]=board[b]=color;solution.push([a,b]);
+  rows[Math.floor(a/8)].splice(rows[Math.floor(a/8)].indexOf(a),1);
+  rows[Math.floor(b/8)].splice(rows[Math.floor(b/8)].indexOf(b),1);
  }
- return board;
+ return {board,solution};
 }
-window.MahjongLevels={create:construct};
-function start(){s={tiles:construct(),selected:-1,moves:0,shuffles:0};save();render();}
+window.MahjongLevels={create:(stage,difficulty)=>plan(stage,difficulty).board,solveOrder:(stage,difficulty)=>plan(stage,difficulty).solution};
+function start(){s={tiles:plan().board,selected:-1,moves:0,shuffles:0};save();render();}
 function save(){G.store("round",s)}const free=i=>{if(s.tiles[i]===null)return false;const x=i%8;return x===0||x===7||s.tiles[i-1]===null||s.tiles[i+1]===null;};
 function tap(i){if(!free(i))return;if(s.selected===i){s.selected=-1;return render();}if(s.selected!==-1&&s.tiles[s.selected]===s.tiles[i]&&free(s.selected)){s.tiles[s.selected]=null;s.tiles[i]=null;s.selected=-1;s.moves++;save();render();if(s.tiles.every(v=>v===null))P.win();return;}s.selected=i;render();}
 function reshuffle(){const positions=s.tiles.map((v,i)=>v!==null?i:-1).filter(v=>v!==-1),values=shuffle(positions.map(i=>s.tiles[i]));positions.forEach((p,i)=>s.tiles[p]=values[i]);s.selected=-1;s.shuffles++;save();render();}
