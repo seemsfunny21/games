@@ -48,3 +48,10 @@
 .mini-targets{position:relative;flex:1;min-height:120px;overflow:hidden}.mini-star{position:absolute;transform:translate(-50%,-50%);border:0;background:transparent;font-size:clamp(38px,9vw,65px);filter:drop-shadow(0 0 12px #ffd26a);padding:10px;touch-action:manipulation}
 @media(max-width:650px){.mini-start{right:8px;top:calc(50% + 140px);padding:7px}.mini-start span{font-size:11px}.mini-game{inset:18% 5% 17%}}
 @media(max-height:470px){.mini-start{right:8px;top:calc(50% + 112px);padding:5px}.mini-start span{display:none}.mini-game{inset:8% 15% 19%}}
+
+/* Additional activities grouped in a compact vertical strip. */
+.extras{position:absolute;right:12px;top:calc(50% + 188px);z-index:3;display:flex;flex-direction:column;gap:5px}.extras button{border:1px solid #80b7ce99;border-radius:10px;background:#0a263c99;backdrop-filter:blur(4px);padding:7px 9px;font-size:12px;color:#edf7ff}
+.memory-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px auto;max-width:320px}.memory-grid button{font-size:24px;padding:14px 0;margin:0;min-height:60px}.memory-grid button.matched{background:#225a4b}
+.progress-list{text-align:left}.progress-list p{font-size:12px;margin:9px 0 4px}.skill-track{height:7px;background:#173a50;border-radius:8px;overflow:hidden}.skill-track>div{height:100%;background:#6ed5ac}
+@media(max-width:650px){.extras{right:8px;top:calc(50% + 183px)}.extras button{padding:6px;font-size:11px}}
+@media(max-height:600px){.extras{top:auto;bottom:105px;right:8px}.extras button span{display:none}.extras button{padding:5px}}
