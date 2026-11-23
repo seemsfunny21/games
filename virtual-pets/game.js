@@ -28,7 +28,7 @@ function ageDays(){return Math.max(1,Math.floor(Math.max(0,Date.now()-pet.born)/
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>el.classList.remove('show'),3200)}
 function modal(title,body,buttons){$('modalTitle').textContent=title;$('modalBody').replaceChildren();if(typeof body==='string'){const p=document.createElement('p');p.textContent=body;$('modalBody').append(p)}else $('modalBody').append(body);$('modalButtons').replaceChildren();for(const b of buttons){const btn=document.createElement('button');btn.textContent=b.text;btn.className=b.danger?'danger':'';btn.addEventListener('click',b.action);$('modalButtons').append(btn)}$('modal').hidden=false}
 function closeModal(){$('modal').hidden=true}
-function adoption(){const box=document.createElement('div'),p=document.createElement('p'),input=document.createElement('input');p.textContent='Καλώς ήρθες! Δώσε όνομα στο νέο κατοικίδιό σου.';input.maxLength=20;input.value=pet.name;input.setAttribute('aria-label','Όνομα παπαγάλου');box.append(p,input);modal('Υιοθεσία '+SPECIES[species].emoji,box,[{text:'Υιοθεσία',action:()=>{const name=input.value.trim();if(!name){input.focus();return}pet.name=name;ready=true;save();closeModal();refresh();toast('Καλώς ήρθες, '+pet.name+'!')}}]);input.focus()}
+function adoption(){const box=document.createElement('div'),p=document.createElement('p'),input=document.createElement('input');p.textContent='Καλώς ήρθες! Δώσε όνομα στο νέο κατοικίδιό σου.';input.maxLength=20;input.value=pet.name;input.setAttribute('aria-label','Όνομα κατοικιδίου');box.append(p,input);modal('Υιοθεσία '+SPECIES[species].emoji,box,[{text:'Υιοθεσία',action:()=>{const name=input.value.trim();if(!name){input.focus();return}pet.name=name;ready=true;save();closeModal();refresh();toast('Καλώς ήρθες, '+pet.name+'!')}}]);input.focus()}
 const labels=[['food','🌻 Τροφή','#e9b55d'],['water','💧 Νερό','#67c9ed'],['happy','💚 Ευτυχία','#8bd49e'],['energy','🌙 Ενέργεια','#d6b5f3'],['clean','✨ Καθαριότητα','#85d7c8'],['health','❤️ Υγεία','#ee9e9e']];
 function refresh(){
  $('petName').textContent=SPECIES[species].emoji+' '+pet.name;$('age').textContent='Ημέρα '+ageDays()+' · Lv '+pet.level;
@@ -39,7 +39,7 @@ function refresh(){
 function award(xp=2){pet.xp+=xp;while(pet.xp>=pet.level*25){pet.xp-=pet.level*25;pet.level++;pet.coins+=10;toast('Νέο επίπεδο '+pet.level+'! +10 νομίσματα')}}
 function act(type){
  if(!ready){adoption();return}
- advance();const before=pet[type];
+ advance();
  if(type==='feed'){if(pet.coins<2){toast('Χρειάζεσαι 2 νομίσματα για τροφή. Παίξε για να κερδίσεις!');return}pet.coins-=2;pet.food=clamp(pet.food+27);pet.clean=clamp(pet.clean-2);award(2);animate('eat');toast('🌻 Το '+pet.name+' τρώει!')}
  if(type==='water'){pet.water=clamp(pet.water+32);award(1);animate('drink');toast('💧 Ήπιε φρέσκο νερό!')}
  if(type==='play'){if(pet.energy<10){toast('Είναι κουρασμένο. Άφησέ το να κοιμηθεί.');return}pet.happy=clamp(pet.happy+18);pet.energy=clamp(pet.energy-9);pet.food=clamp(pet.food-3);pet.clean=clamp(pet.clean-3);pet.coins+=4;award(6);animate('play');toast('🪀 Παίξατε! +4 νομίσματα · +6 XP')}
@@ -50,7 +50,7 @@ function act(type){
 }
 function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:type.startsWith('train-')?3600:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
 // Short touch-friendly mini-game. Catch moving stars before the countdown ends.
-let mini=null, memoryRound=null;
+let mini=null;
 function stopMini(reward=true){
  if(!mini)return;
  const game=mini;mini=null;clearInterval(game.timer);
@@ -60,19 +60,19 @@ function stopMini(reward=true){
 function startMini(){
  if(!ready){adoption();return}
  if(mini)return;
- advance();if(pet.sleeping){toast('Ξύπνησε το παπαγαλάκι για να παίξετε.');return}
+ advance();if(pet.sleeping){toast('Ξύπνησε το κατοικίδιο για να παίξετε.');return}
  // Accessible even at low energy, but it costs a little energy to play.
  pet.energy=clamp(pet.energy-3);save();refresh();
  const panel=$('miniGame'),field=$('miniTargets');field.replaceChildren();panel.hidden=false;
- mini={score:0,end:Date.now()+20000,timer:0};
- function spawn(){if(!mini)return;field.replaceChildren();const star=document.createElement('button');star.type='button';star.className='mini-star';star.textContent='⭐';star.setAttribute('aria-label','Πιάσε το αστέρι');star.style.left=(10+Math.random()*78)+'%';star.style.top=(12+Math.random()*68)+'%';star.addEventListener('click',()=>{if(!mini)return;mini.score++;$('miniScore').textContent=mini.score;animate('play');spawn()});field.append(star)}
+ mini={score:0,end:Date.now()+20000,timer:0,lastHit:0};
+ function spawn(){if(!mini)return;field.replaceChildren();const star=document.createElement('button');star.type='button';star.className='mini-star';star.textContent='⭐';star.setAttribute('aria-label','Πιάσε το αστέρι');star.style.left=(10+Math.random()*78)+'%';star.style.top=(12+Math.random()*68)+'%';star.addEventListener('click',()=>{if(!mini||Date.now()>=mini.end){stopMini(true);return}if(Date.now()-mini.lastHit<180)return;mini.lastHit=Date.now();mini.score++;$('miniScore').textContent=mini.score;animate('play');spawn()});field.append(star)}
  $('miniScore').textContent='0';$('miniTime').textContent='20';spawn();
  mini.timer=setInterval(()=>{if(!mini)return;const left=Math.max(0,Math.ceil((mini.end-Date.now())/1000));$('miniTime').textContent=left;if(left===0)stopMini(true)},200);
 }
 function memoryGame(){
- if(!ready){adoption();return}if(pet.sleeping){toast('Ξύπνησέ το πρώτα.');return}
- if(mini)stopMini(false);
- const icons=['🌻','💧','🦜','⭐','🌿','💚'];
+ if(!ready){adoption();return}advance();if(pet.sleeping){toast('Ξύπνησέ το πρώτα.');return}
+ if(mini)stopMini(true);
+ const icons=['🌻','💧',SPECIES[species].emoji,'⭐','🌿','💚'];
  const pairs=[...icons.slice(0,4),...icons.slice(0,4)];for(let i=pairs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pairs[i],pairs[j]]=[pairs[j],pairs[i]]}
  const wrap=document.createElement('div');wrap.className='memory-grid';
  const status=document.createElement('p');status.textContent='Βρες τα 4 ζευγάρια!';
@@ -89,7 +89,7 @@ function memoryGame(){
 }
 function progressPanel(){
  const box=document.createElement('div');box.className='progress-list';
- const entries=[['🦜 Έλα',pet.trainingSkills?.come||0],['🪽 Πέτα',pet.trainingSkills?.fly||0],[species==='parrot'?'🌿 Στο κλαδί':'🏠 Στη θέση σου',pet.trainingSkills?.perch||0]];
+ const entries=[['🐾 Έλα',pet.trainingSkills?.come||0],[species==='parrot'?'🪽 Πέτα':'🐾 Τρέξε',pet.trainingSkills?.fly||0],[species==='parrot'?'🌿 Στο κλαδί':'🏠 Στη θέση σου',pet.trainingSkills?.perch||0]];
  for(const [name,value] of entries){const p=document.createElement('p');p.textContent=name+' · '+value+'/100';const bar=document.createElement('div');bar.className='skill-track';const fill=document.createElement('div');fill.style.width=value+'%';bar.append(fill);box.append(p,bar)}
  const stats=document.createElement('p');stats.textContent='🎓 Εκπαιδεύσεις: '+pet.trained+' · ⭐ Ρεκόρ αστεριών: '+(pet.bestStars||0)+' · 🧠 Καλύτερη μνήμη: '+(pet.bestMemory||0)+' νομίσματα';box.append(stats);
  modal('🏆 Πρόοδος',box,[{text:'Κλείσιμο',action:closeModal}]);
@@ -101,8 +101,8 @@ function choosePet(){
 }
 function switchPet(id){
  if(!SPECIES[id]||id===species){closeModal();return}
- if(mini)stopMini(false);save();species=id;localStorage.setItem(SPECIES_KEY,id);
- pet=restore()||defaults();ready=!!localStorage.getItem(storageKey());advance();save();refresh();closeModal();
+ if(mini)stopMini(true);if(ready)save();species=id;localStorage.setItem(SPECIES_KEY,id);
+ pet=restore()||defaults();ready=!!localStorage.getItem(storageKey());if(ready){advance();save()}refresh();closeModal();
  if(birdModels){for(const [key,model] of Object.entries(birdModels))model.visible=key===species}
  if(habitats){for(const key of ['parrot','dog','cat'])habitats[key].visible=key===species;habitats.seeds.visible=species==='parrot'}
  anim={type:'idle',start:0,until:0};if(!ready)adoption();else toast(SPECIES[id].emoji+' Καλώς ήρθες, '+pet.name+'!');
@@ -111,7 +111,7 @@ function training(){
  if(!ready){adoption();return}
  const wrap=document.createElement('div');const info=document.createElement('p');info.textContent='Εντολές: Έλα · '+(species==='parrot'?'Πέτα · Στο κλαδί':'Τρέξε · Στη θέση σου')+'. Κάθε εκτέλεση δίνει +3 XP και +1 νόμισμα. Εκπαιδεύσεις: '+pet.trained;wrap.append(info);
  modal('🎓 Εκπαίδευση',wrap,[
-  {text:'🦜 Έλα',action:()=>train('come')},
+  {text:'🐾 Έλα',action:()=>train('come')},
   {text:species==='parrot'?'🪽 Πέτα':'🐾 Τρέξε',action:()=>train('fly')},
   {text:species==='parrot'?'🌿 Στο κλαδί':'🏠 Στη θέση σου',action:()=>train('perch')},
   {text:'Κλείσιμο',action:closeModal}
@@ -122,7 +122,7 @@ function train(command){
  if(pet.energy<12){toast('Χρειάζεται περισσότερη ενέργεια για εκπαίδευση.');return}
  pet.energy=clamp(pet.energy-4);pet.happy=clamp(pet.happy+3);pet.coins++;pet.trained=(pet.trained||0)+1;pet.trainingSkills=pet.trainingSkills||{come:0,fly:0,perch:0};pet.trainingSkills[command]=Math.min(100,(pet.trainingSkills[command]||0)+10);award(3);
  animate('train-'+command);save();refresh();closeModal();
- toast(command==='come'?'🦜 Έρχεται κοντά σου!':command==='fly'?'🪽 Πετάει με την εντολή σου!':'🌿 Επιστρέφει στο κλαδί!');
+ toast(command==='come'?'🐾 Έρχεται κοντά σου!':command==='fly'?(species==='parrot'?'🪽 Πετάει με την εντολή σου!':'🐾 Τρέχει με την εντολή σου!'):(species==='parrot'?'🌿 Επιστρέφει στο κλαδί!':'🏠 Επιστρέφει στη θέση του!'));
 }
 function settings(){
  const p=document.createElement('div'),text=document.createElement('p');text.textContent='Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή. Το κατοικίδιο συνεχίζει να έχει ανάγκες όσο λείπεις (έως 14 ημέρες υπολογισμού ανά επιστροφή).';p.append(text);
@@ -279,10 +279,10 @@ try{
   let flying=false,position=home.clone(),facing=0;
   if(species!=='parrot'){
    // Mammals stay on the floor: their paws are ~0.82 units below the model origin.
-   const ground=.82,elapsed=Math.max(0,now-anim.start),duration=Math.max(1,anim.until-anim.start);
+   const ground=.9,elapsed=Math.max(0,now-anim.start),duration=Math.max(1,anim.until-anim.start);
    const p=Math.min(1,elapsed/duration),go=smooth(p<.5?p*2:(1-p)*2);
    position.set(0,ground,0);
-   if(pet.sleeping){position.y=ground-.18;facing=0}
+   if(pet.sleeping){position.y=ground-.07;facing=0}
    else if(active==='eat'||active==='drink'){
     position.set((active==='eat'?-1.35:1.35)*go,ground,1.1*go);facing=go>0?Math.atan2(position.x,position.z):0;
    }else if(active==='play'||active==='train-fly'){
@@ -355,7 +355,7 @@ try{
   wingL.rotation.z=flap;wingR.rotation.z=-flap;
   tail.rotation.x=Math.sin(t*(flying?12:2))*.13;
   camera.position.set(Math.sin(orbit)*zoom,4.4+(zoom-11.5)*.18,Math.cos(orbit)*zoom);
-  camera.lookAt(0,1.45,0);renderer.render(scene,camera);
+  camera.lookAt(0,species==='parrot'?1.45:.85,0);renderer.render(scene,camera);
   if(now-lastUI>10000){lastUI=now;if(ready){advance();save();refresh();if(!pet.sleeping&&Math.random()<.09){const need=pet.water<35?'💧 Θέλω νερό!':pet.food<35?'🌻 Πεινάω!':pet.happy<35?'💚 Παίζουμε λίγο;':pet.energy<20?'🌙 Νυστάζω!':null;if(need)toast(need)}}}
  }
  function resize(){const w=sceneEl.clientWidth,h=sceneEl.clientHeight;camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
