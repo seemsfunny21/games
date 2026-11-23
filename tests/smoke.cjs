@@ -76,9 +76,13 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
     assert.equal(dimensions.pageScroll,false,'No page vertical scrolling on '+mode+' '+game);
     assert.ok(dimensions.play.bottom<=dimensions.height+2,'Game play fits viewport on '+game);
     if(game==='space-invaders'){
-      const arrows=await page.locator('.edge-control').evaluateAll(nodes=>nodes.map(n=>({label:n.textContent,left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})));
+      const arrows=await page.locator('.edge-control').evaluateAll(nodes=>nodes.map(n=>{
+        const r=n.getBoundingClientRect();return {label:n.textContent,left:r.left,right:r.right,top:r.top,width:r.width,height:r.height};
+      }));
       assert.equal(arrows.length,2,'Galaxy has only left/right on-screen arrows');
-      assert.ok(arrows[0].left<6&&arrows[1].right>dimensions.width-6,'Galaxy arrows dock at opposite screen edges');
+      assert.ok(arrows[0].left<9&&arrows[1].right>dimensions.width-9,'Galaxy arrows dock at opposite screen edges');
+      assert.ok(arrows.every(b=>b.width<=50&&b.height<=50),'Galaxy arrows are compact on '+mode);
+      assert.ok(arrows.every(b=>b.top>=dimensions.play.bottom+3),'Galaxy arrows do not overlap the playfield on '+mode);
       assert.equal(await page.getByRole('button',{name:/ΠΥΡ/}).count(),0,'Galaxy never displays a fire control');
     }
     assert.equal(failures.length,0,'Runtime exceptions for '+game+': '+failures.join('; '));
