@@ -62,3 +62,14 @@ body.game-screen .water-layout{
  .water-bottle{padding:1px 2px;gap:1px}
 }
 @media(prefers-reduced-motion:reduce){.water-glass{transition:none}}
+
+/* Seven or eight colours use three compact bottle rows on phones. */
+.water-board:has(.water-bottle:nth-child(9)) .water-glass{
+ height:clamp(76px,16dvh,138px);
+}
+@media(max-height:620px){
+ .water-board:has(.water-bottle:nth-child(9)) .water-glass{
+  height:clamp(62px,14dvh,104px);
+ }
+ .water-board:has(.water-bottle:nth-child(9)){row-gap:4px}
+}
