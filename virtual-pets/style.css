@@ -40,3 +40,11 @@
 .training-button{position:absolute;right:12px;top:calc(50% + 100px);z-index:3;border:1px solid #80b7ce99;border-radius:11px;background:#0a263c99;backdrop-filter:blur(4px);padding:8px 10px;font-size:13px;display:flex;align-items:center;gap:5px}
 @media(max-width:650px){.training-button{right:8px;top:calc(50% + 95px);padding:7px}.training-button span{font-size:11px}}
 @media(max-height:470px){.training-button{right:8px;top:calc(50% + 77px);padding:5px}.training-button span{display:none}}
+
+/* Standalone quick mini-game, separate from the existing care action. */
+.mini-start{position:absolute;right:12px;top:calc(50% + 145px);z-index:3;border:1px solid #80b7ce99;border-radius:11px;background:#0a263c99;backdrop-filter:blur(4px);padding:8px 10px;font-size:13px;display:flex;align-items:center;gap:5px}
+.mini-game{position:absolute;inset:18% 7% 17%;z-index:9;border:1px solid #78c5e8;border-radius:20px;background:#09273be8;backdrop-filter:blur(12px);padding:12px;display:flex;flex-direction:column;box-shadow:0 15px 60px #0009}
+.mini-game[hidden]{display:none}.mini-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}.mini-head button{background:#173e58;border:1px solid #6ca4c3;border-radius:8px;padding:5px 10px}
+.mini-targets{position:relative;flex:1;min-height:120px;overflow:hidden}.mini-star{position:absolute;transform:translate(-50%,-50%);border:0;background:transparent;font-size:clamp(38px,9vw,65px);filter:drop-shadow(0 0 12px #ffd26a);padding:10px;touch-action:manipulation}
+@media(max-width:650px){.mini-start{right:8px;top:calc(50% + 140px);padding:7px}.mini-start span{font-size:11px}.mini-game{inset:18% 5% 17%}}
+@media(max-height:470px){.mini-start{right:8px;top:calc(50% + 112px);padding:5px}.mini-start span{display:none}.mini-game{inset:8% 15% 19%}}
