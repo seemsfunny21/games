@@ -1,10 +1,10 @@
 import * as THREE from 'three';
 
 const KEY='my-virtual-pet-3d-v1', DAY=86400000, MAX_OFFLINE=14*DAY;
-const defaults=()=>({version:1,name:'Πίκο',born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0,trained:0});
+const defaults=()=>({version:1,name:'Πίκο',born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0,trained:0,trainingSkills:{come:0,fly:0,perch:0},bestStars:0,bestMemory:0,lastReward:0});
 const clamp=(n)=>Math.max(0,Math.min(100,n));
 const safe=(n,fallback)=>Number.isFinite(n)?n:fallback;
-function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));return d}catch(e){return null}}
+function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));if(v.trainingSkills&&typeof v.trainingSkills==='object'){for(const k of ['come','fly','perch'])d.trainingSkills[k]=Math.max(0,Math.min(100,Math.floor(Number(v.trainingSkills[k])||0)))}return d}catch(e){return null}}
 let pet=restore()||defaults(),ready=!!localStorage.getItem(KEY);
 let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=11.5,drag=null;
 const $=id=>document.getElementById(id), sceneEl=$('scene');
@@ -47,12 +47,12 @@ function act(type){
 }
 function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:type.startsWith('train-')?3600:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
 // Short touch-friendly mini-game. Catch moving stars before the countdown ends.
-let mini=null;
+let mini=null, memoryRound=null;
 function stopMini(reward=true){
  if(!mini)return;
  const game=mini;mini=null;clearInterval(game.timer);
  $('miniGame').hidden=true;$('miniTargets').replaceChildren();
- if(reward&&game.score>0){pet.coins+=game.score*2;pet.happy=clamp(pet.happy+Math.min(18,game.score*3));award(game.score*2);save();refresh();toast('⭐ '+game.score+' αστέρια · +'+(game.score*2)+' νομίσματα!')}
+ if(reward&&game.score>0){pet.bestStars=Math.max(pet.bestStars||0,game.score);pet.coins+=game.score*2;pet.happy=clamp(pet.happy+Math.min(18,game.score*3));award(game.score*2);save();refresh();toast('⭐ '+game.score+' αστέρια · +'+(game.score*2)+' νομίσματα!')}
 }
 function startMini(){
  if(!ready){adoption();return}
@@ -65,6 +65,31 @@ function startMini(){
  function spawn(){if(!mini)return;field.replaceChildren();const star=document.createElement('button');star.type='button';star.className='mini-star';star.textContent='⭐';star.setAttribute('aria-label','Πιάσε το αστέρι');star.style.left=(10+Math.random()*78)+'%';star.style.top=(12+Math.random()*68)+'%';star.addEventListener('click',()=>{if(!mini)return;mini.score++;$('miniScore').textContent=mini.score;animate('play');spawn()});field.append(star)}
  $('miniScore').textContent='0';$('miniTime').textContent='20';spawn();
  mini.timer=setInterval(()=>{if(!mini)return;const left=Math.max(0,Math.ceil((mini.end-Date.now())/1000));$('miniTime').textContent=left;if(left===0)stopMini(true)},200);
+}
+function memoryGame(){
+ if(!ready){adoption();return}if(pet.sleeping){toast('Ξύπνησέ το πρώτα.');return}
+ if(mini)stopMini(false);
+ const icons=['🌻','💧','🦜','⭐','🌿','💚'];
+ const pairs=[...icons.slice(0,4),...icons.slice(0,4)].sort(()=>Math.random()-.5);
+ const wrap=document.createElement('div');wrap.className='memory-grid';
+ const status=document.createElement('p');status.textContent='Βρες τα 4 ζευγάρια!';
+ const box=document.createElement('div');box.append(status,wrap);
+ let open=[],matched=0,moves=0,locked=false,finished=false;
+ pairs.forEach((symbol,i)=>{const btn=document.createElement('button');btn.textContent='❔';btn.setAttribute('aria-label','Κρυμμένη κάρτα '+(i+1));btn.addEventListener('click',()=>{
+  if(locked||finished||btn.dataset.done==='1'||open.some(x=>x.btn===btn))return;
+  btn.textContent=symbol;open.push({btn,symbol});if(open.length<2)return;
+  moves++;if(open[0].symbol===open[1].symbol){open.forEach(x=>{x.btn.dataset.done='1';x.btn.classList.add('matched')});open=[];matched++;status.textContent='Ζευγάρια '+matched+'/4 · Κινήσεις '+moves;
+   if(matched===4){finished=true;const reward=Math.max(4,16-moves);pet.coins+=reward;pet.bestMemory=Math.max(pet.bestMemory||0,reward);pet.happy=clamp(pet.happy+12);award(8);save();refresh();status.textContent='🎉 Μπράβο! +'+reward+' νομίσματα · +8 XP';}}
+  else{locked=true;setTimeout(()=>{if(!box.isConnected)return;open.forEach(x=>x.btn.textContent='❔');open=[];locked=false},750)}
+ });wrap.append(btn)});
+ modal('🧠 Παιχνίδι μνήμης',box,[{text:'Κλείσιμο',action:closeModal}]);
+}
+function progressPanel(){
+ const box=document.createElement('div');box.className='progress-list';
+ const entries=[['🦜 Έλα',pet.trainingSkills?.come||0],['🪽 Πέτα',pet.trainingSkills?.fly||0],['🌿 Στο κλαδί',pet.trainingSkills?.perch||0]];
+ for(const [name,value] of entries){const p=document.createElement('p');p.textContent=name+' · '+value+'/100';const bar=document.createElement('div');bar.className='skill-track';const fill=document.createElement('div');fill.style.width=value+'%';bar.append(fill);box.append(p,bar)}
+ const stats=document.createElement('p');stats.textContent='🎓 Εκπαιδεύσεις: '+pet.trained+' · ⭐ Ρεκόρ αστεριών: '+(pet.bestStars||0)+' · 🧠 Καλύτερη μνήμη: '+(pet.bestMemory||0)+' νομίσματα';box.append(stats);
+ modal('🏆 Πρόοδος',box,[{text:'Κλείσιμο',action:closeModal}]);
 }
 function training(){
  if(!ready){adoption();return}
@@ -79,7 +104,7 @@ function training(){
 function train(command){
  advance();if(pet.sleeping){toast('Ξύπνησέ το πρώτα για εκπαίδευση.');return}
  if(pet.energy<12){toast('Χρειάζεται περισσότερη ενέργεια για εκπαίδευση.');return}
- pet.energy=clamp(pet.energy-4);pet.happy=clamp(pet.happy+3);pet.coins++;pet.trained=(pet.trained||0)+1;award(3);
+ pet.energy=clamp(pet.energy-4);pet.happy=clamp(pet.happy+3);pet.coins++;pet.trained=(pet.trained||0)+1;pet.trainingSkills=pet.trainingSkills||{come:0,fly:0,perch:0};pet.trainingSkills[command]=Math.min(100,(pet.trainingSkills[command]||0)+10);award(3);
  animate('train-'+command);save();refresh();closeModal();
  toast(command==='come'?'🦜 Έρχεται κοντά σου!':command==='fly'?'🪽 Πετάει με την εντολή σου!':'🌿 Επιστρέφει στο κλαδί!');
 }
@@ -87,11 +112,14 @@ function settings(){
  const p=document.createElement('div'),text=document.createElement('p');text.textContent='Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή. Το κατοικίδιο συνεχίζει να έχει ανάγκες όσο λείπεις (έως 14 ημέρες υπολογισμού ανά επιστροφή).';p.append(text);
  const info=document.createElement('p');info.textContent='🪙 '+pet.coins+' νομίσματα · Επίπεδο '+pet.level+' · Ημέρα '+ageDays();p.append(info);
  modal('Ρυθμίσεις',p,[{text:'Εξαγωγή backup',action:()=>{const blob=new Blob([JSON.stringify(pet,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='virtual-pet-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Το αντίγραφο ασφαλείας ετοιμάστηκε.')}},
- {text:'Αλλαγή ονόματος',action:()=>{const n=prompt('Νέο όνομα',pet.name);if(n&&n.trim()){pet.name=n.trim().slice(0,20);save();refresh();closeModal()}}},
+ {text:'Αλλαγή ονόματος',action:()=>{const input=document.createElement('input');input.value=pet.name;input.maxLength=20;modal('✏️ Όνομα',input,[{text:'Αποθήκευση',action:()=>{if(!input.value.trim())return;pet.name=input.value.trim().slice(0,20);save();refresh();closeModal()}},{text:'Άκυρο',action:closeModal}]);input.focus()}},
+ {text:'Εισαγωγή backup',action:()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',async()=>{try{const raw=JSON.parse(await input.files[0].text());if(raw.version!==1||typeof raw.name!=='string'||!Number.isFinite(raw.born))throw Error('bad backup');const confirmed=window.confirm('Επαναφορά αποθηκευμένου κατοικιδίου; Η τωρινή πρόοδος θα αντικατασταθεί.');if(!confirmed)return;localStorage.setItem(KEY,JSON.stringify(raw));location.reload()}catch(e){toast('Μη έγκυρο αντίγραφο ασφαλείας.')}});input.click()}},
  {text:'Κλείσιμο',action:closeModal}])
 }
 $('training').addEventListener('click',training);
 $('miniStart').addEventListener('click',startMini);
+$('memoryStart').addEventListener('click',memoryGame);
+$('progressStart').addEventListener('click',progressPanel);
 $('miniClose').addEventListener('click',()=>stopMini(true));
 document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));
 $('settings').addEventListener('click',settings);
@@ -231,7 +259,7 @@ try{
   tail.rotation.x=Math.sin(t*(flying?12:2))*.13;
   camera.position.set(Math.sin(orbit)*zoom,4.4+(zoom-11.5)*.18,Math.cos(orbit)*zoom);
   camera.lookAt(0,1.45,0);renderer.render(scene,camera);
-  if(now-lastUI>10000){lastUI=now;if(ready){advance();save();refresh()}}
+  if(now-lastUI>10000){lastUI=now;if(ready){advance();save();refresh();if(!pet.sleeping&&Math.random()<.09){const need=pet.water<35?'💧 Θέλω νερό!':pet.food<35?'🌻 Πεινάω!':pet.happy<35?'💚 Παίζουμε λίγο;':pet.energy<20?'🌙 Νυστάζω!':null;if(need)toast(need)}}}
  }
  function resize(){const w=sceneEl.clientWidth,h=sceneEl.clientHeight;camera.aspect=w/Math.max(1,h);camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
  window.addEventListener('resize',resize);resize();requestAnimationFrame(frame);
