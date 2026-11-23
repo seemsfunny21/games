@@ -10,3 +10,9 @@
 #toast{bottom:83px}
 @media(max-width:650px){#needsToggle{top:54px;left:8px;font-size:11px;padding:5px 8px}.needs{top:86px;width:min(190px,60vw);max-height:calc(100vh - 160px)}.actions{bottom:5px;gap:3px;padding:4px}.actions button{padding:5px 7px;font-size:17px}.actions button span{font-size:10px}#toast{bottom:75px}}
 @media(max-height:470px){#needsToggle{top:8px;left:auto;right:54px}.needs{top:40px;left:8px;max-height:calc(100vh - 98px);width:180px}.actions button{padding:4px 9px}.hint{display:none}}
+
+/* v3: Transparent needs overlay, visible by default; preserve legibility. */
+.needs{background:rgba(7,25,42,.25);border:1px solid rgba(132,206,237,.3);box-shadow:none;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);padding:9px 11px}
+.needs .track{background:rgba(10,31,46,.32)}
+.needs .line,.needs .pet-name,#status{text-shadow:0 1px 4px #061525,0 0 3px #061525}
+#needsToggle{background:rgba(12,42,63,.42);border-color:rgba(126,200,229,.42)}
