@@ -1,34 +1,193 @@
 "use strict";
-const KEY="games-arrival-predictions-v1", $=id=>document.getElementById(id), now=()=>Date.now();
-const monday=t=>{const d=new Date(t);d.setHours(0,0,0,0);d.setDate(d.getDate()-(d.getDay()+6)%7);return d.getTime()};
-let db;try{db=JSON.parse(localStorage.getItem(KEY))}catch{};if(!db||!Array.isArray(db.players))db={players:[],events:[],tickets:[],votes:[],lastWeek:monday(now())};
-let active=localStorage.getItem(KEY+"-active")||"",picks=[],tab="events";
-const save=()=>localStorage.setItem(KEY,JSON.stringify(db)),message=(s,bad=false)=>{$("message").textContent=s;$("message").className="msg "+(bad?"error":"ok")};
-function week(){let w=monday(now());if(!Number.isFinite(db.lastWeek))db.lastWeek=w;if(w>db.lastWeek){const n=Math.floor((w-db.lastWeek)/604800000);for(const p of db.players)p.chips+=100*n;db.lastWeek=w;save()}}
-function player(){return db.players.find(p=>p.id===active)}
-function uid(){return crypto.randomUUID?crypto.randomUUID():String(now())+Math.random()}
-function createPlayer(){let name=prompt("Όνομα παίκτη");if(!name||!name.trim())return;name=name.trim().slice(0,40);if(db.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))return message("Το όνομα υπάρχει ήδη.",true);const p={id:uid(),name,chips:100};db.players.push(p);active=p.id;localStorage.setItem(KEY+"-active",active);save();render()}
-function status(e){if(e.settled)return "Ολοκληρώθηκε";if(now()<e.at)return "Ανοιχτό";if(now()<e.at+86400000)return "Ψηφοφορία";return "Αναμονή εκκαθάρισης"}
-function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n}
-function btn(label,fn,disabled=false){const b=el("button",label,"action secondary");b.disabled=disabled;b.onclick=fn;return b}
-function row(parent,...children){const r=el("div",undefined,"line");children.forEach(c=>r.append(c));parent.append(r);return r}
-function card(parent,title,subtitle){const c=el("div",undefined,"event");c.append(el("strong",title),el("div",subtitle,"muted"));parent.append(c);return c}
-function createEvent(){if(!player())return message("Πρόσθεσε πρώτα παίκτη.",true);const name=$("name").value.trim(),at=new Date($("date").value).getTime();if(!name||!Number.isFinite(at)||at<=now())return message("Συμπλήρωσε όνομα και μελλοντική ώρα.",true);db.events.push({id:uid(),name,at,creator:active,settled:false,result:null});$("name").value="";save();render();message("Το γεγονός δημιουργήθηκε.")}
-function addPick(id,side){if(!player())return message("Διάλεξε παίκτη.",true);const e=db.events.find(x=>x.id===id);if(!e||status(e)!=="Ανοιχτό")return message("Το γεγονός έχει κλείσει.",true);if(db.tickets.some(t=>t.player===active&&t.picks.some(p=>p.id===id)))return message("Έχεις ήδη ποντάρει σε αυτό το γεγονός.",true);if(picks.some(p=>p.id===id))return message("Το γεγονός υπάρχει ήδη στο δελτίο.",true);picks.push({id,side});tab="ticket";render()}
-function place(){const p=player(),stake=Number($("stake").value);if(!p||!picks.length||!Number.isSafeInteger(stake)||stake<1||stake>p.chips)return message("Μη έγκυρο ποντάρισμα ή ανεπαρκείς μάρκες.",true);if(picks.some(k=>db.tickets.some(t=>t.player===active&&t.picks.some(x=>x.id===k.id))||status(db.events.find(e=>e.id===k.id))!=="Ανοιχτό"))return message("Ένα γεγονός έχει κλείσει ή έχει ήδη παιχτεί.",true);if(!confirm("Οριστική υποβολή δελτίου "+stake+" μαρκών;"))return;p.chips-=stake;db.tickets.push({id:uid(),player:active,stake,picks:picks.map(x=>({...x})),created:now(),settled:false,paid:0});picks=[];save();render();message("Το δελτίο καταχωρίστηκε οριστικά.")}
-function vote(id,side){if(!player())return message("Διάλεξε παίκτη.",true);const e=db.events.find(x=>x.id===id);if(!e||status(e)!=="Ψηφοφορία")return message("Η ψηφοφορία δεν είναι ενεργή.",true);if(db.votes.some(v=>v.event===id&&v.player===active))return message("Έχεις ήδη ψηφίσει.",true);db.votes.push({event:id,player:active,side});save();render();message("Η ψήφος καταχωρίστηκε.")}
-function settle(){// Finalize completed votes, then settle closed pools exactly once.
-let changed=false;for(const e of db.events){if(e.settled||now()<e.at+86400000)continue;const vs=db.votes.filter(v=>v.event===e.id),yes=vs.filter(v=>v.side==="yes").length,no=vs.length-yes;e.result=vs.length>=2&&yes!==no?(yes>no?"yes":"no"):null;e.settled=true;changed=true}
-const ready=t=>t.picks.every(k=>db.events.find(e=>e.id===k.id)?.settled);
-const groupKey=t=>t.picks.length===1?"single:"+t.picks[0].id:"multi:"+t.picks.map(p=>p.id).sort().join("|");
-const groups=new Map();for(const t of db.tickets){if(t.settled||!ready(t))continue;const key=groupKey(t);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(t)}
-// Only settle pools once every ticket in that pool is ready.
-for(const [key,ts] of groups){if(db.tickets.some(t=>!t.settled&&groupKey(t)===key&&!ready(t)))continue;const all=db.tickets.filter(t=>groupKey(t)===key);const pending=all.filter(t=>!t.settled);if(!pending.length)continue;const pool=pending.reduce((s,t)=>s+t.stake,0);const cancelled=pending.some(t=>t.picks.some(k=>db.events.find(e=>e.id===k.id).result===null));const winners=cancelled?[]:pending.filter(t=>t.picks.every(k=>db.events.find(e=>e.id===k.id).result===k.side));const total=winners.reduce((s,t)=>s+t.stake,0);const paid=new Map();if(cancelled||!total){for(const t of pending)paid.set(t.id,t.stake)}else{let used=0;const fractions=winners.map(t=>{const exact=pool*t.stake/total,base=Math.floor(exact);used+=base;paid.set(t.id,base);return {t,frac:exact-base}}).sort((a,b)=>b.frac-a.frac||a.t.id.localeCompare(b.t.id));for(let i=0;i<pool-used;i++)paid.set(fractions[i].t.id,paid.get(fractions[i].t.id)+1)}for(const t of pending){t.paid=paid.get(t.id)||0;t.settled=true;db.players.find(p=>p.id===t.player).chips+=t.paid;changed=true}}
-if(changed)save()}
-function render(){week();settle();if(!db.players.some(p=>p.id===active))active=db.players[0]?.id||"";$("player").replaceChildren(...db.players.map(p=>{const o=el("option",p.name);o.value=p.id;return o}));$("player").value=active;$("balance").textContent=(player()?.chips??0)+" 🪙";for(const b of $("tabs").querySelectorAll("button"))b.className="action"+(b.dataset.tab===tab?"":" secondary");for(const id of ["events","ticket","votes","ranking"])$(id).classList.toggle("hidden",id!==tab);
-const list=$("eventList");list.replaceChildren();for(const e of [...db.events].reverse()){const s=status(e),c=card(list,e.name,new Date(e.at).toLocaleString("el-GR")+" · "+s);if(s==="Ανοιχτό")row(c,btn("✓ Θα έρθει",()=>addPick(e.id,"yes")),btn("✕ Δεν θα έρθει",()=>addPick(e.id,"no")));if(e.settled)c.append(el("div",e.result===null?"Ακυρώθηκε":e.result==="yes"?"Αποτέλεσμα: Ήρθε":"Αποτέλεσμα: Δεν ήρθε","muted"))}
-const box=$("picks");box.replaceChildren();if(!picks.length)box.append(el("p","Επίλεξε γεγονότα από τα ανοιχτά στοιχήματα.","muted"));for(const k of picks){const e=db.events.find(x=>x.id===k.id);row(box,el("span",e.name+" — "+(k.side==="yes"?"ΝΑΙ":"ΟΧΙ")),btn("Αφαίρεση",()=>{picks=picks.filter(x=>x!==k);render()}))}
-const my=$("myTickets");my.replaceChildren();for(const t of db.tickets.filter(t=>t.player===active).reverse())card(my,t.stake+" μάρκες · "+t.picks.length+" επιλογές",t.settled?"Επιστροφή: "+t.paid+" μάρκες":"Σε αναμονή αποτελέσματος");
-const votes=$("voteList");votes.replaceChildren();for(const e of db.events.filter(e=>status(e)==="Ψηφοφορία")){const c=card(votes,e.name,"Λήξη: "+new Date(e.at+86400000).toLocaleString("el-GR"));const voted=db.votes.some(v=>v.event===e.id&&v.player===active);row(c,btn("Ήρθε",()=>vote(e.id,"yes"),voted),btn("Δεν ήρθε",()=>vote(e.id,"no"),voted));if(voted)c.append(el("small","Η ψήφος σου καταχωρίστηκε."))}
-const rank=$("leaderboard");rank.replaceChildren();for(const [i,p] of [...db.players].sort((a,b)=>b.chips-a.chips).entries())card(rank,(i+1)+". "+p.name,p.chips+" μάρκες")}
-$("addPlayer").onclick=createPlayer;$("create").onclick=createEvent;$("place").onclick=place;$("player").onchange=e=>{active=e.target.value;picks=[];localStorage.setItem(KEY+"-active",active);render()};$("tabs").onclick=e=>{const b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render()}};render();setInterval(render,60000);
+const API="https://zrbmsziipzabnniqcpav.supabase.co/functions/v1/arrival-game";
+const KEY="games-arrival-session-v2";
+const $=id=>document.getElementById(id);
+let token=localStorage.getItem(KEY)||"",state=null,tab="events",pending=[],authMode="login",busy=false,removeConfirm="";
+const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+const statusText={open:"Ανοιχτό",locked:"Έκλεισε στις 09:00",voting:"Ψηφοφορία",pending:"Εκκαθάριση",settled:"Ολοκληρώθηκε",cancelled:"Ακυρώθηκε"};
+function msg(text="",bad=false){$("message").textContent=text;$("message").className="msg "+(bad?"error":"ok");}
+function button(text,fn,disabled=false,secondary=true){const b=node("button",text,"action"+(secondary?" secondary":""));b.disabled=disabled||busy;b.addEventListener("click",fn);return b;}
+function card(title,subtitle){const c=node("article",undefined,"card");c.append(node("div",title,"card-title"),node("div",subtitle,"card-sub"));return c;}
+function line(parent,...children){const r=node("div",undefined,"row");for(const c of children)r.append(c);parent.append(r);return r;}
+function localDate(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/Athens",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
+function tomorrow(day){const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10);}
+function dateLabel(s){if(!s)return "";const [y,m,d]=s.split("-");return d+"/"+m+"/"+y;}
+function eventById(id){return state?.events.find(e=>e.id===id);}
+function chosen(ids){return new Set(state?.tickets.flatMap(t=>t.picks.map(p=>p.event_id))||[]);}
+async function api(action,extra={}){
+ const headers={"Content-Type":"application/json"};
+ if(token)headers["x-arrival-session"]=token;
+ let response,body;
+ try{response=await fetch(API,{method:"POST",headers,body:JSON.stringify({action,...extra}),cache:"no-store"});
+ body=await response.json();}catch{throw new Error("Αποτυχία σύνδεσης. Έλεγξε το Internet και δοκίμασε ξανά.");}
+ if(!response.ok){
+   if(response.status===401&&action!=="login"){token="";state=null;localStorage.removeItem(KEY);render();}
+   throw new Error(body?.error||"Η ενέργεια απέτυχε.");
+ }
+ return body;
+}
+async function perform(action,params={},success=""){
+ if(busy)return;
+ busy=true;msg("Επεξεργασία…");try{
+  const res=await api(action,params);
+  if(res.state)state=res.state;else if(token)state=await api("state");
+  busy=false;render();msg(success||"Η αλλαγή αποθηκεύτηκε.");
+ }catch(e){busy=false;render();msg(e.message,true);}
+}
+function renderAuth(){
+ $("authPanel").classList.toggle("hidden",!!token&&!!state);
+ $("appPanel").classList.toggle("hidden",!token||!state);
+ $("authTitle").textContent=authMode==="login"?"Σύνδεση παίκτη":"Νέος παίκτης";
+ $("authSubmit").textContent=authMode==="login"?"Σύνδεση":"Εγγραφή · 1.000 μάρκες";
+ $("authToggle").textContent=authMode==="login"?"Δεν έχω λογαριασμό · Εγγραφή":"Έχω λογαριασμό · Σύνδεση";
+ $("authHint").textContent=authMode==="login"?"Ένας λογαριασμός σε κινητό και υπολογιστή.":"Κάθε νέος παίκτης ξεκινά με 1.000 εικονικές μάρκες.";
+}
+function render(){
+ renderAuth();
+ if(!state||!token)return;
+ $("playerName").textContent=state.player.nickname;
+ $("balance").textContent=Number(state.player.chips).toLocaleString("el-GR");
+ $("rescueBox").classList.toggle("hidden",Number(state.player.chips)>=10);
+ $("rescue").disabled=!state.player.rescue_eligible||busy;
+ $("rescue").textContent=state.player.rescue_eligible?"+100 μάρκες":"Διαθέσιμες από αύριο";
+ for(const b of $("tabs").querySelectorAll("[data-tab]"))b.className="action"+(b.dataset.tab===tab?"":" secondary");
+ for(const s of ["events","ticket","votes","ranking","workers"])$(s).classList.toggle("hidden",tab!==s);
+ renderWorkers();renderEvents();renderTicket();renderVotes();renderRanking();
+}
+function renderWorkers(){
+ const selected=$("eventWorker").value;
+ const workerSelect=$("eventWorker");workerSelect.replaceChildren();
+ if(!state.workers.length){const opt=node("option","Πρόσθεσε εργαζόμενο πρώτα");opt.value="";workerSelect.append(opt);}
+ for(const w of state.workers){const o=node("option",w.name);o.value=w.id;workerSelect.append(o);}
+ if(state.workers.some(w=>w.id===selected))workerSelect.value=selected;
+ const list=$("workerList");list.replaceChildren();
+ for(const w of state.workers){
+  const c=card(w.name,"Ενεργός εργαζόμενος");
+  const b=button(removeConfirm===w.id?"Επιβεβαίωση αφαίρεσης":"Αφαίρεση",()=>{
+   if(removeConfirm!==w.id){removeConfirm=w.id;render();return;}
+   removeConfirm="";perform("worker",{operation:"remove",worker_id:w.id},"Ο εργαζόμενος αφαιρέθηκε.");
+  });
+  line(c,b);list.append(c);
+ }
+}
+function renderEvents(){
+ const day=state.now.slice(0,10);
+ $("eventDate").min=day;
+ $("eventDate").max=(()=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+30);return d.toISOString().slice(0,10);})();
+ const initial=state.now.slice(11,13)>="09"?tomorrow(day):day;
+ if(!$("eventDate").value||$("eventDate").value<initial)$("eventDate").value=initial;
+ $("openEvent").disabled=!state.workers.length||busy;
+ const list=$("eventList");list.replaceChildren();
+ const ordered=[...state.events].sort((a,b)=>(a.status==="open"?0:1)-(b.status==="open"?0:1)||b.date.localeCompare(a.date));
+ if(!ordered.length)list.append(node("p","Δεν υπάρχουν ακόμη γεγονότα. Άνοιξε το πρώτο!","muted"));
+ for(const e of ordered.slice(0,120)){
+  const c=card(e.name,dateLabel(e.date)+" · "+statusText[e.status]);
+  c.append(node("span",e.status==="open"?"Στοιχήματα έως 09:00":"Κλειστά στοιχήματα","tag"+(e.status==="open"?" good":"")));
+  if(e.already_bet)c.append(node("span","Έχεις ήδη ποντάρει","tag good"));
+  if(e.totals&&e.status!=="open")c.append(node("div","Προβλέψεις: ΘΑ ΕΡΘΕΙ "+e.totals.yes+" · ΔΕΝ ΘΑ ΕΡΘΕΙ "+e.totals.no,"muted"));
+  if(e.status==="settled"||e.status==="cancelled")c.append(node("div",e.result==="yes"?"Αποτέλεσμα: Ήρθε":e.result==="no"?"Αποτέλεσμα: Δεν ήρθε":"Ακύρωση · Επιστροφή σύμφωνα με τους κανόνες","muted"));
+  if(e.status==="open"&&!e.already_bet){
+   const active=pending.some(p=>p.id===e.id);
+   const r=node("div",undefined,"buttons");
+   r.style.marginTop="9px";
+   r.append(button("✓ ΘΑ ΕΡΘΕΙ",()=>addPick(e.id,"yes"),active),button("✕ ΔΕΝ ΘΑ ΕΡΘΕΙ",()=>addPick(e.id,"no"),active));
+   c.append(r);
+  }
+  list.append(c);
+ }
+}
+function addPick(id,side){
+ if(pending.some(x=>x.id===id)){msg("Έχεις ήδη επιλέξει αυτό το γεγονός.",true);return;}
+ if(pending.length>=5){msg("Μέχρι 5 γεγονότα σε κάθε δελτίο.",true);return;}
+ pending.push({id,side});tab="ticket";render();msg("Η πρόβλεψη μπήκε στο δελτίο. Μπορείς να προσθέσεις κι άλλες.");
+}
+function renderTicket(){
+ const box=$("picks");box.replaceChildren();
+ if(!pending.length)box.append(node("p","Δεν έχεις επιλέξει γεγονότα. Πήγαινε στα Γεγονότα.","muted"));
+ for(const p of pending){
+  const e=eventById(p.id);
+  const r=node("div",undefined,"ticket-pick");
+  r.append(node("span",(e?.name||"Εργαζόμενος")+" · "+(p.side==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+" · "+dateLabel(e?.date)));
+  r.append(button("×",()=>{pending=pending.filter(x=>x.id!==p.id);render();}));
+  box.append(r);
+ }
+ $("placeTicket").disabled=!pending.length||busy;
+ const my=$("myTickets");my.replaceChildren();
+ if(!state.tickets.length)my.append(node("p","Δεν έχεις ακόμη δελτία.","muted"));
+ for(const t of state.tickets.slice(0,50)){
+  const c=card((t.picks.length>1?"Συνδυαστικό":"Μονό")+" · "+t.stake+" μάρκες",t.settled?"Επιστροφή: "+t.paid+" μάρκες":"Αναμονή αποτελέσματος");
+  for(const p of t.picks){const e=eventById(p.event_id);c.append(node("div",(e?.name||"Εργαζόμενος")+" · "+(p.prediction==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+" · "+dateLabel(e?.date),"muted"));}
+  my.append(c);
+ }
+}
+function renderVotes(){
+ const list=$("voteList");list.replaceChildren();
+ const available=state.events.filter(e=>["voting","pending","settled","cancelled"].includes(e.status));
+ if(!available.length)list.append(node("p","Δεν υπάρχουν ακόμη ψηφοφορίες.","muted"));
+ for(const e of available.slice(0,60)){
+  const c=card(e.name,dateLabel(e.date)+" · "+statusText[e.status]);
+  if(e.status==="voting"){
+   if(e.voted)c.append(node("div","Η ψήφος σου έχει καταχωριστεί. Τα αποτελέσματα παραμένουν κρυφά.","muted"));
+   else{
+    const r=node("div",undefined,"buttons");r.style.marginTop="8px";
+    r.append(button("✓ ΉΡΘΕ",()=>perform("vote",{event_id:e.id,side:"yes"},"Η ψήφος καταχωρίστηκε.")),
+      button("✕ ΔΕΝ ΗΡΘΕ",()=>perform("vote",{event_id:e.id,side:"no"},"Η ψήφος καταχωρίστηκε.")));
+    c.append(r);
+   }
+  }else if(e.status==="pending")c.append(node("div","Αναμονή αυτόματης εκκαθάρισης.","muted"));
+  else c.append(node("div",e.result==="yes"?"Αποτέλεσμα: Ήρθε":e.result==="no"?"Αποτέλεσμα: Δεν ήρθε":"Ακυρώθηκε (ισοψηφία ή λιγότερες από 3 ψήφοι).","muted"));
+  list.append(c);
+ }
+}
+function renderRanking(){
+ const list=$("leaderboard");list.replaceChildren();
+ state.players.forEach((p,i)=>{
+  const c=card((i+1)+". "+p.nickname,Number(p.chips).toLocaleString("el-GR")+" μάρκες");
+  if(p.id===state.player.id)c.append(node("span","Εσύ","tag good"));
+  list.append(c);
+ });
+}
+async function authSubmit(){
+ if(busy)return;
+ const nickname=$("nickname").value.trim(),pin=$("pin").value;
+ if(!nickname||!/^\d{4,8}$/.test(pin)){msg("Συμπλήρωσε ψευδώνυμο και PIN 4–8 ψηφίων.",true);return;}
+ busy=true;msg("Σύνδεση…");
+ try{
+  const result=await api(authMode==="login"?"login":"register",{nickname,pin});
+  token=result.token;localStorage.setItem(KEY,token);
+  state=await api("state");
+  $("pin").value="";busy=false;render();msg("Καλώς ήρθες!");
+ }catch(e){busy=false;render();msg(e.message,true);}
+}
+$("authSubmit").onclick=authSubmit;
+$("authToggle").onclick=()=>{authMode=authMode==="login"?"register":"login";renderAuth();msg("");};
+$("pin").addEventListener("keydown",e=>{if(e.key==="Enter")authSubmit();});
+$("logout").onclick=async()=>{try{await api("logout");}catch{}token="";state=null;pending=[];localStorage.removeItem(KEY);render();msg("Αποσυνδέθηκες.");};
+$("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render();msg("");}});
+$("openEvent").onclick=()=>{
+ const stake=Number($("eventStake").value);
+ if(!Number.isSafeInteger(stake)||stake<10){msg("Ελάχιστο ποντάρισμα 10 μάρκες.",true);return;}
+ perform("open",{worker_id:$("eventWorker").value,date:$("eventDate").value,side:$("eventSide").value,stake},"Το γεγονός άνοιξε και το ποντάρισμα κλειδώθηκε.");
+};
+$("placeTicket").onclick=()=>{
+ const stake=Number($("ticketStake").value);
+ if(!Number.isSafeInteger(stake)||stake<10||!pending.length){msg("Ελάχιστο ποντάρισμα 10 μάρκες και μία πρόβλεψη.",true);return;}
+ const selections=[...pending];
+ perform("ticket",{ids:selections.map(x=>x.id),sides:selections.map(x=>x.side),stake},"Το δελτίο καταχωρίστηκε οριστικά.").then(()=>{
+   if(state&&selections.every(x=>state.tickets.some(t=>t.picks.some(p=>p.event_id===x.id)))){pending=[];render();}
+ });
+};
+$("addWorker").onclick=()=>{
+ const name=$("newWorker").value.trim();
+ if(name.length<2){msg("Συμπλήρωσε όνομα εργαζομένου.",true);return;}
+ perform("worker",{operation:"add",name},"Ο εργαζόμενος προστέθηκε.").then(()=>{$("newWorker").value="";});
+};
+$("rescue").onclick=()=>perform("rescue",{},"Προστέθηκαν 100 μάρκες.");
+async function refresh(){
+ if(!token||busy||document.visibilityState==="hidden")return;
+ try{state=await api("state");render();}catch(e){if(!token)msg("Η σύνδεσή σου έληξε.",true);else msg(e.message,true);}
+}
+render();
+if(token)refresh();
+setInterval(refresh,45000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")refresh();});
