@@ -99,18 +99,19 @@ button:disabled{opacity:.45;cursor:not-allowed}
  </nav>
  <section id="events">
   <h3>Άνοιξε νέο γεγονός</h3>
-  <p class="muted">Διάλεξε εργαζόμενο και πόνταρε υποχρεωτικά τουλάχιστον 10 μάρκες. Το ποντάρισμα είναι οριστικό.</p>
+  <p class="muted">Για αύριο επιλέγουμε μέχρι 3 εργαζομένους, έως τις 12:00 το μεσημέρι. Το άνοιγμα από παίκτη απαιτεί 10+ μάρκες. Αν δεν έχει επιλεγεί κανείς, στις 11:30 το πρόγραμμα διαλέγει αυτόματα έναν, χωρίς ποντάρισμα.</p>
+  <div id="eventCreationInfo" class="muted small" aria-live="polite"></div>
   <div class="field"><label for="eventWorker">Εργαζόμενος</label><select id="eventWorker"></select></div>
-  <div class="field"><label for="eventDate">Ημερομηνία</label><input id="eventDate" type="date"></div>
+  <div class="field"><label for="eventDate">Αυριανή ημερομηνία</label><input id="eventDate" type="date" disabled></div>
   <div class="field"><label for="eventSide">Η πρόβλεψή σου</label><select id="eventSide"><option value="no">ΔΕΝ ΘΑ ΕΡΘΕΙ</option><option value="yes">ΘΑ ΕΡΘΕΙ</option></select></div>
   <div class="field"><label for="eventStake">Μάρκες</label><input id="eventStake" type="number" min="10" step="1" value="10"></div>
   <button class="action" id="openEvent" style="width:100%">Άνοιγμα γεγονότος & οριστικό ποντάρισμα</button>
-  <h3>Γεγονότα παικτών</h3>
+  <h3>Ενεργά γεγονότα</h3>
   <div id="eventList"></div>
  </section>
  <section id="ticket" class="hidden">
   <h3>Το δελτίο μου</h3>
-  <p class="muted">Επίλεξε από τα ανοιχτά γεγονότα 1 πρόβλεψη για μονό ή 2–5 για συνδυαστικό. Κάθε παίκτης ποντάρει μόνο μία φορά ανά γεγονός.</p>
+  <p class="muted">Η συμμετοχή λήγει στις 09:00 της ημέρας του γεγονότος. Επίλεξε 1 πρόβλεψη για μονό ή 2–5 για συνδυαστικό. Κάθε παίκτης ποντάρει μόνο μία φορά ανά γεγονός.</p>
   <div id="picks"></div>
   <div class="field"><label for="ticketStake">Συνολικό ποντάρισμα (μάρκες)</label><input id="ticketStake" type="number" min="10" step="1" value="10"></div>
   <button class="action" id="placeTicket" style="width:100%">Καταχώριση οριστικού δελτίου</button>
@@ -118,7 +119,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
  </section>
  <section id="votes" class="hidden">
   <h3>Ψηφοφορίες</h3>
-  <p class="muted">Από τις 10:00 έως τις 10:00 της επόμενης ημέρας. Μία ψήφος ανά παίκτη, ελάχιστο 3 ψήφοι. Τα ενδιάμεσα αποτελέσματα είναι κρυφά.</p>
+  <p class="muted">Στις 10:00 της ημέρας του γεγονότος ξεκινά η επιβεβαίωση «Ήρθε / Δεν ήρθε», μέχρι τις 10:00 της επόμενης ημέρας. Μία ψήφος ανά παίκτη, ελάχιστο 3 ψήφοι. Τα ενδιάμεσα αποτελέσματα είναι κρυφά.</p>
   <div id="voteList"></div>
  </section>
  <section id="ranking" class="hidden">
@@ -133,7 +134,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
  </section>
 </section>
 <div id="message" class="msg" role="status" aria-live="polite"></div>
-<p class="foot"><a href="../">← Επιστροφή στα παιχνίδια</a> · Εικονικές μάρκες · 09:00 κλείσιμο στοιχημάτων</p>
+<p class="foot"><a href="../">← Επιστροφή στα παιχνίδια</a> · Εικονικές μάρκες · 08:30 υπενθύμιση · 09:00 λήξη πονταρισμάτων · 10:00 επιβεβαίωση</p>
 </main>
 <script src="./game.js"></script>
 <script src="./push.js"></script>
