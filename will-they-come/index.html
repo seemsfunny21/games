@@ -49,6 +49,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 .ticket-pick button{padding:5px 10px;min-height:34px}
 .auth{max-width:420px;margin:10px auto}
 .chip{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;background:#153c63;border:1px solid #3d7ba9;border-radius:14px}
+.push-area{margin:10px 0;padding:10px 12px}
+.push-area .bar{align-items:center}
+.push-area .row{gap:6px}
+.push-area button{padding:7px 10px;min-height:36px;font-size:12px}
+#pushMessage:not(:empty){margin-top:6px}
+#pushMessage.error{color:#ffc1c1}
 @media(max-width:490px){.panel{padding:10px}.tabs button{font-size:10.5px;padding:9px 0}.bar{gap:7px}.wrap{padding:8px 8px 30px}}
 </style>
 </head>
@@ -73,6 +79,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
    <div class="row"><span class="chip"><span id="balance" class="stat">0</span> 🪙</span><button class="action secondary" id="logout">Έξοδος</button></div>
  </div>
  <div id="rescueBox" class="notice hidden"><span>Έμεινες με λιγότερες από 10 μάρκες.</span> <button class="action" id="rescue">+100 μάρκες</button></div>
+ <div id="pushPanel" class="notice hidden push-area">
+  <div class="bar">
+    <div><strong>🔔 Νέα στοιχήματα</strong><div id="pushStatus" class="muted small">Έλεγχος ειδοποιήσεων…</div></div>
+    <div class="row">
+      <button class="action secondary" id="pushEnable">Ενεργοποίηση</button>
+      <button class="action secondary hidden" id="pushDisable">Απενεργοποίηση</button>
+      <button class="action secondary hidden" id="pushTest">Δοκιμή</button>
+    </div>
+  </div>
+  <div id="pushMessage" class="muted small" aria-live="polite"></div>
+</div>
  <nav class="tabs" id="tabs">
    <button class="action" data-tab="events">Γεγονότα</button>
    <button class="action secondary" data-tab="ticket">Δελτίο</button>
@@ -119,5 +136,6 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <p class="foot"><a href="../">← Επιστροφή στα παιχνίδια</a> · Εικονικές μάρκες · 09:00 κλείσιμο στοιχημάτων</p>
 </main>
 <script src="./game.js"></script>
+<script src="./push.js"></script>
 </body>
 </html>
