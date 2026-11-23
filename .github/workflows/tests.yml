@@ -38,6 +38,8 @@ jobs:
         run: node tests/levels.cjs
       - name: Actually complete 600 stages through legal game UI actions
         run: node tests/stage-playthrough.cjs
+      - name: Actually cross 60 Frogger levels with safe user-control routes
+        run: node tests/frogger-playthrough.cjs
       - name: Verify Water Sort difficulty with independent optimal puzzle solver
         run: node tests/water-difficulty.cjs
       - name: Check Sudoku, Reversi and Quiz engines
