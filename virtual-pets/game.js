@@ -105,6 +105,19 @@ try{
  tail=new THREE.Group();bird.add(tail);tail.position.set(0,-.34,-.5);
  for(let i=-1;i<=1;i++){const f=sphere(.15,blue,i*.16,-.3,-.22,tail);f.scale.set(.55,2.7,.55);f.rotation.x=-.3}
  for(const x of [-.27,.27]){cylinder(.045,.045,.36,feet,x,-.62,.12,bird);for(let i=-1;i<=1;i++){const toe=cylinder(.035,.035,.25,feet,x+i*.075,-.78,.19,bird);toe.rotation.x=Math.PI/2}}
+ // Floating 3D sleep symbols: face the camera and drift upward above the head.
+ const sleepSymbols=[];
+ const zCanvas=document.createElement('canvas');zCanvas.width=256;zCanvas.height=128;
+ const zCtx=zCanvas.getContext('2d');
+ zCtx.clearRect(0,0,256,128);zCtx.font='bold 92px system-ui, sans-serif';zCtx.textAlign='center';zCtx.textBaseline='middle';
+ zCtx.lineWidth=11;zCtx.strokeStyle='#173d59';zCtx.strokeText('Zzz',128,63);
+ zCtx.fillStyle='#e8faff';zCtx.fillText('Zzz',128,63);
+ const zTexture=new THREE.CanvasTexture(zCanvas);zTexture.colorSpace=THREE.SRGBColorSpace;
+ for(let k=0;k<3;k++){
+  const material=new THREE.SpriteMaterial({map:zTexture,transparent:true,depthWrite:false,opacity:0});
+  const symbol=new THREE.Sprite(material);symbol.scale.set(1.18,.59,1);symbol.visible=false;
+  scene.add(symbol);sleepSymbols.push(symbol);
+ }
  // Motion system: perched idle, occasional hops, short flights, and bowl visits.
  // The bird is animated in world space; its original perch position is the home pose.
  const home=new THREE.Vector3(0,2.55,0);
@@ -154,6 +167,10 @@ try{
    facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
   }
   bird.position.copy(position);bird.position.y+=Math.sin(t*2.5)*.025;
+  for(let k=0;k<sleepSymbols.length;k++){
+   const symbol=sleepSymbols[k];symbol.visible=pet.sleeping;
+   if(pet.sleeping){const phase=((now/2600)+k/3)%1;symbol.position.set(bird.position.x+.45+phase*.32,bird.position.y+1.36+phase*1.25,bird.position.z+.12);symbol.material.opacity=Math.min(1,phase*5,(1-phase)*4)*.92;const scale=.68+phase*.55;symbol.scale.set(scale*1.55,scale*.78,1)}
+  }
   bird.rotation.y=facing+Math.sin(t*.6)*.09;
   head.rotation.z=active==='pet'?Math.sin(t*9)*.18:Math.sin(t*1.9)*.055;
   head.rotation.x=active==='eat'||active==='drink'?.3:pet.sleeping?.2:Math.sin(t*1.4)*.05;
