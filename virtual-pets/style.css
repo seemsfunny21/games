@@ -55,3 +55,7 @@
 .progress-list{text-align:left}.progress-list p{font-size:12px;margin:9px 0 4px}.skill-track{height:7px;background:#173a50;border-radius:8px;overflow:hidden}.skill-track>div{height:100%;background:#6ed5ac}
 @media(max-width:650px){.extras{right:8px;top:calc(50% + 183px)}.extras button{padding:6px;font-size:11px}}
 @media(max-height:600px){.extras{top:auto;bottom:105px;right:8px}.extras button span{display:none}.extras button{padding:5px}}
+
+.pet-select{position:absolute;top:76px;right:12px;z-index:4;border:1px solid #80b7ce88;background:#0a263c99;border-radius:10px;padding:7px 10px;font-size:12px;backdrop-filter:blur(4px)}
+.species-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.species-picker button{margin:0;padding:12px 5px;font-size:12px}
+@media(max-width:650px){.pet-select{top:64px;right:8px;padding:6px;font-size:11px}}
