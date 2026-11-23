@@ -104,6 +104,7 @@ function switchPet(id){
  if(mini)stopMini(false);save();species=id;localStorage.setItem(SPECIES_KEY,id);
  pet=restore()||defaults();ready=!!localStorage.getItem(storageKey());advance();save();refresh();closeModal();
  if(birdModels){for(const [key,model] of Object.entries(birdModels))model.visible=key===species}
+ if(habitats){for(const key of ['parrot','dog','cat'])habitats[key].visible=key===species;habitats.seeds.visible=species==='parrot'}
  anim={type:'idle',start:0,until:0};if(!ready)adoption();else toast(SPECIES[id].emoji+' Καλώς ήρθες, '+pet.name+'!');
 }
 function training(){
@@ -142,7 +143,7 @@ $('settings').addEventListener('click',settings);
 if(!ready)adoption();else{advance();save();refresh();}
 
 // Original procedurally modeled parrot and room; actual THREE.js 3D geometry.
-let scene,camera,renderer,bird,wingL,wingR,head,tail,eyeL,eyeR,body,bowlFood,bowlWater,perch,birdModels=null;
+let scene,camera,renderer,bird,wingL,wingR,head,tail,eyeL,eyeR,body,bowlFood,bowlWater,perch,birdModels=null,habitats=null;
 try{
  scene=new THREE.Scene();scene.background=new THREE.Color('#a4d4e8');scene.fog=new THREE.Fog('#a4d4e8',26,65);
  camera=new THREE.PerspectiveCamera(40,1,.1,100);
@@ -158,19 +159,50 @@ try{
  // Wall-free 360-degree play space. No room geometry can pass in front of the camera.
  box(70,.3,70,floor,0,-.18,0);
  const rug=add(new THREE.CylinderGeometry(2.8,2.8,.035,64),mat('#82c4c3'),0,.015,.8);rug.receiveShadow=true;
- // Perch and branch
+ // Perch and branch (parrot habitat only)
+ const perchStart=scene.children.length;
  cylinder(.14,.18,2.0,wood,0,1.02,0);cylinder(.14,.14,2.2,wood,0,2.0,0).rotation.z=Math.PI/2;
  cylinder(.62,.7,.15,wood,0,.05,0);
+ const perchObjects=scene.children.slice(perchStart),parrotHabitat=new THREE.Group();scene.add(parrotHabitat);for(const item of perchObjects)parrotHabitat.attach(item);
  // Food and water bowls
  const bowl=(x,color)=>{const base=cylinder(.5,.55,.22,mat(color),x,.13,1.7);const top=cylinder(.38,.38,.01,mat('#f0f0d7'),x,.255,1.7);return {base,top}};
  bowlFood=bowl(-1.35,'#ffb960');bowlWater=bowl(1.35,'#64bfe4');
- for(let i=0;i<8;i++)sphere(.065,mat('#b88c3c'),-1.35+(i%4-.5)*.12,.29,1.7+Math.floor(i/4)*.15);
+ const seeds=new THREE.Group();scene.add(seeds);
+ for(let i=0;i<8;i++)sphere(.065,mat('#b88c3c'),-1.35+(i%4-.5)*.12,.29,1.7+Math.floor(i/4)*.15,seeds);
  const water=add(new THREE.CylinderGeometry(.36,.36,.015,24),mat('#3f9dce',.25),1.35,.285,1.7);
  // Toy
  sphere(.34,mat('#f6a8b6'),2.8,.34,1.7);sphere(.12,mat('#fff0a5'),2.75,.53,1.45);
  // Plant
  cylinder(.38,.28,.65,mat('#ce9778'),-4.6,.33,-3.2);
  for(let i=0;i<5;i++){const l=sphere(.48,leaf,-4.6+Math.sin(i*2.4)*.45,1.2+i*.12,-3.2+Math.cos(i*2.4)*.35);l.scale.set(.65,1.3,.5)}
+ // Species-specific spaces: floor-level beds and play objects, no walls to obstruct orbit camera.
+ const dogHabitat=new THREE.Group(),catHabitat=new THREE.Group();scene.add(dogHabitat,catHabitat);
+ const bed=(group,outer,inner)=>{
+  const base=add(new THREE.CylinderGeometry(1.22,1.22,.18,48),mat(outer),0,.16,-.65,group);
+  const cushion=add(new THREE.CylinderGeometry(.94,.94,.12,48),mat(inner),0,.31,-.65,group);
+  const ring=add(new THREE.TorusGeometry(1.06,.17,12,48),mat(outer),0,.35,-.65,group);ring.rotation.x=Math.PI/2;
+  return {base,cushion,ring};
+ };
+ bed(dogHabitat,'#467fbc','#b7d6ef');
+ // Doghouse, bone and ball in the back of the scene.
+ box(2.15,1.55,1.4,mat('#b47a4f'),-3.45,.9,-2.5,dogHabitat);
+ const roof=add(new THREE.ConeGeometry(1.62,1.05,4),mat('#864d42'),-3.45,2.18,-2.5,dogHabitat);roof.rotation.y=Math.PI/4;
+ box(.8,.95,.04,mat('#40372e'),-3.45,.61,-1.78,dogHabitat);
+ for(const x of [-.22,.22])sphere(.17,mat('#fff3da'),2.9,.22,-.45+x,dogHabitat);
+ const bone=add(new THREE.CylinderGeometry(.1,.1,.75,12),mat('#fff3da'),2.9,.22,-.45,dogHabitat);bone.rotation.x=Math.PI/2;
+ sphere(.34,mat('#eeaa5d'),2.5,.36,1.0,dogHabitat);
+ bed(catHabitat,'#b87f9b','#f1c7d7');
+ // Cat scratching post, climbing platform and yarn ball.
+ cylinder(.19,.21,1.55,mat('#d5b189'),-3.25,.86,-2.1,catHabitat);
+ cylinder(.8,.8,.14,mat('#ad6c91'),-3.25,1.68,-2.1,catHabitat);
+ cylinder(.72,.72,.13,mat('#ad6c91'),-3.25,.1,-2.1,catHabitat);
+ for(let i=0;i<7;i++){const stripe=add(new THREE.TorusGeometry(.215,.023,7,24),mat('#8f7154'),-3.25,.38+i*.17,-2.1,catHabitat);stripe.rotation.x=Math.PI/2}
+ sphere(.31,mat('#e1a7c8'),2.65,.33,.5,catHabitat);
+ for(let i=0;i<4;i++){const yarn=add(new THREE.TorusGeometry(.305,.016,7,32),mat('#f7e4f1'),2.65,.33,.5,catHabitat);yarn.rotation.set(i*.58,i*.8,i*.35)}
+ // Hide species-only objects when another animal is selected.
+ habitats={parrot:parrotHabitat,dog:dogHabitat,cat:catHabitat,seeds};
+ for(const key of ['parrot','dog','cat'])habitats[key].visible=key===species;
+ seeds.visible=species==='parrot';
  // Bird group
  bird=new THREE.Group();scene.add(bird);bird.position.set(0,2.55,0);
  const parrotModel=new THREE.Group();bird.add(parrotModel);
