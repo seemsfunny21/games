@@ -29,7 +29,7 @@ function adoption(){const box=document.createElement('div'),p=document.createEle
 const labels=[['food','🌻 Τροφή','#e9b55d'],['water','💧 Νερό','#67c9ed'],['happy','💚 Ευτυχία','#8bd49e'],['energy','🌙 Ενέργεια','#d6b5f3'],['clean','✨ Καθαριότητα','#85d7c8'],['health','❤️ Υγεία','#ee9e9e']];
 function refresh(){
  $('petName').textContent=pet.name;$('age').textContent='Ημέρα '+ageDays()+' · Lv '+pet.level;
- for(const [key] of labels){const el=document.querySelector('[data-meter="'+key+'"]');if(!el)continue;const value=Math.round(pet[key]);el.textContent=value+'%';el.classList.toggle('low',value<20);el.setAttribute('aria-label',key+' '+value+'%')}
+ for(const [key] of labels){const elements=document.querySelectorAll('[data-meter="'+key+'"]');const value=Math.round(pet[key]);for(const el of elements){el.textContent=value+'%';el.classList.toggle('low',value<20);el.setAttribute('aria-label',key+' '+value+'%')}}
  const critical=pet.water<20?'Χρειάζεται επειγόντως νερό!':pet.food<20?'Πεινάει πολύ!':pet.health<30?'Χρειάζεται ξεκούραση και φροντίδα.':null;
  $('status').textContent=critical|| (pet.sleeping?'💤 Κοιμάται και ανακτά ενέργεια.':'🪙 '+pet.coins+' νομίσματα · ✦ '+pet.xp+' XP · '+(pet.happy>65?'Είναι χαρούμενο!':'Θέλει λίγη παρέα.'));
 }
@@ -155,12 +155,12 @@ try{
   }else if(active==='pet'){
    position.copy(home);position.y+=Math.sin(t*8)*.08;facing=Math.sin(t*8)*.2;roam.until=now+2000;
   }else{
-   if(now>=roam.until)chooseRoam(now);
+   if(now>=roam.until){if(Math.hypot(bird.position.x,bird.position.z)>.45){roam={kind:'fly',start:now,until:now+2400,from:bird.position.clone(),to:home.clone()}}else chooseRoam(now)}
    const progress=smooth((now-roam.start)/(roam.until-roam.start));
    position.lerpVectors(roam.from,roam.to,progress);
    if(roam.kind==='fly'){flying=true;position.y+=Math.sin(Math.PI*progress)*.5}
    else position.y+=Math.sin(Math.PI*progress)*.17;
-   if(now>roam.until-150&&roam.kind==='fly'){roam.to.copy(home)}
+   
    // Periodically return to the perch, rather than drifting indefinitely.
    if(Math.hypot(position.x,position.z)>2.5){roam.to.copy(home)}
    facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
