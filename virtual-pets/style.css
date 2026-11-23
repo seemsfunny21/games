@@ -16,3 +16,7 @@
 .needs .track{background:rgba(10,31,46,.32)}
 .needs .line,.needs .pet-name,#status{text-shadow:0 1px 4px #061525,0 0 3px #061525}
 #needsToggle{background:rgba(12,42,63,.42);border-color:rgba(126,200,229,.42)}
+
+.zoom-controls{position:absolute;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:7px;z-index:2}
+.zoom-controls button{width:35px;height:35px;border:1px solid #80b7ce99;background:#0a263c88;backdrop-filter:blur(4px);border-radius:11px;font-size:22px;line-height:1}
+@media(max-height:470px){.zoom-controls{right:8px;top:50%}.zoom-controls button{width:30px;height:30px;font-size:19px}}
