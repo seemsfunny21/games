@@ -36,3 +36,7 @@
 .health-pill{bottom:96px}
 @media(max-width:650px){.pet-info{top:69px;max-width:42vw}.health-pill{bottom:87px}#toast{bottom:140px}}
 @media(max-height:470px){.pet-info{top:46px;max-width:30vw}.health-pill{bottom:76px}#toast{bottom:117px}}
+
+.training-button{position:absolute;right:12px;top:calc(50% + 100px);z-index:3;border:1px solid #80b7ce99;border-radius:11px;background:#0a263c99;backdrop-filter:blur(4px);padding:8px 10px;font-size:13px;display:flex;align-items:center;gap:5px}
+@media(max-width:650px){.training-button{right:8px;top:calc(50% + 95px);padding:7px}.training-button span{font-size:11px}}
+@media(max-height:470px){.training-button{right:8px;top:calc(50% + 77px);padding:5px}.training-button span{display:none}}
