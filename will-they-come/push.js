@@ -62,7 +62,8 @@ async function toggleOn(){
  if(!supported()){say("Η συσκευή δεν υποστηρίζει push.",true);return;}
  // Request permission within a direct click handler before any unrelated await.
  let permission=Notification.permission;
- if(permission==="default")permission=await Notification.requestPermission();
+ try{if(permission==="default")permission=await Notification.requestPermission();}
+ catch{say("Άνοιξε το παιχνίδι απευθείας στον Chrome και επίτρεψε τις ειδοποιήσεις.",true);draw();return;}
  if(permission!=="granted"){say("Πρέπει να επιτρέψεις τις ειδοποιήσεις από τον browser.",true);draw();return;}
  working=true;draw();say("Ενεργοποίηση ειδοποιήσεων…");
  try{
@@ -121,5 +122,5 @@ window.arrivalPushUI={
  },
  disableForLogout:()=>disable(true)
 };
-if(typeof state!=="undefined"&&typeof token!=="undefined")window.arrivalPushUI.renderState(token,state);
+if(typeof state!=="undefined")window.arrivalPushUI.renderState(token(),state);
 })();
