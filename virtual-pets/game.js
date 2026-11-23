@@ -46,6 +46,26 @@ function act(type){
  pet.actions++;pet.last=Date.now();save();refresh();
 }
 function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:type.startsWith('train-')?3600:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
+// Short touch-friendly mini-game. Catch moving stars before the countdown ends.
+let mini=null;
+function stopMini(reward=true){
+ if(!mini)return;
+ const game=mini;mini=null;clearInterval(game.timer);
+ $('miniGame').hidden=true;$('miniTargets').replaceChildren();
+ if(reward&&game.score>0){pet.coins+=game.score*2;pet.happy=clamp(pet.happy+Math.min(18,game.score*3));award(game.score*2);save();refresh();toast('⭐ '+game.score+' αστέρια · +'+(game.score*2)+' νομίσματα!')}
+}
+function startMini(){
+ if(!ready){adoption();return}
+ if(mini)return;
+ advance();if(pet.sleeping){toast('Ξύπνησε το παπαγαλάκι για να παίξετε.');return}
+ // Accessible even at low energy, but it costs a little energy to play.
+ pet.energy=clamp(pet.energy-3);save();refresh();
+ const panel=$('miniGame'),field=$('miniTargets');field.replaceChildren();panel.hidden=false;
+ mini={score:0,end:Date.now()+20000,timer:0};
+ function spawn(){if(!mini)return;field.replaceChildren();const star=document.createElement('button');star.type='button';star.className='mini-star';star.textContent='⭐';star.setAttribute('aria-label','Πιάσε το αστέρι');star.style.left=(10+Math.random()*78)+'%';star.style.top=(12+Math.random()*68)+'%';star.addEventListener('click',()=>{if(!mini)return;mini.score++;$('miniScore').textContent=mini.score;animate('play');spawn()});field.append(star)}
+ $('miniScore').textContent='0';$('miniTime').textContent='20';spawn();
+ mini.timer=setInterval(()=>{if(!mini)return;const left=Math.max(0,Math.ceil((mini.end-Date.now())/1000));$('miniTime').textContent=left;if(left===0)stopMini(true)},200);
+}
 function training(){
  if(!ready){adoption();return}
  const wrap=document.createElement('div');const info=document.createElement('p');info.textContent='Εντολές που γνωρίζει: Έλα · Πέτα · Στο κλαδί. Κάθε εκτέλεση δίνει +3 XP και +1 νόμισμα. Εκπαιδεύσεις: '+pet.trained;wrap.append(info);
@@ -71,6 +91,8 @@ function settings(){
  {text:'Κλείσιμο',action:closeModal}])
 }
 $('training').addEventListener('click',training);
+$('miniStart').addEventListener('click',startMini);
+$('miniClose').addEventListener('click',()=>stopMini(true));
 document.querySelectorAll('[data-action]').forEach(b=>b.addEventListener('click',()=>act(b.dataset.action)));
 $('settings').addEventListener('click',settings);
 if(!ready)adoption();else{advance();save();refresh();}
@@ -228,4 +250,4 @@ try{
  surface.addEventListener('pointerup',endPointer);surface.addEventListener('pointercancel',endPointer);
  surface.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(5,Math.min(22,zoom+Math.sign(e.deltaY)*.8))},{passive:false});
 }catch(error){console.error('3D initialization failed',error);sceneEl.innerHTML='<div style="position:absolute;top:45%;width:100%;text-align:center;padding:25px">Δεν ήταν δυνατή η φόρτωση του 3D. Χρειάζεται WebGL και σύνδεση για τη βιβλιοθήκη Three.js.</div>'}
-window.addEventListener('pagehide',save);document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else if(ready){advance();save();refresh()}});
+window.addEventListener('pagehide',()=>{stopMini(false);save()});document.addEventListener('visibilitychange',()=>{if(document.hidden){stopMini(false);save()}else if(ready){advance();save();refresh()}});
