@@ -59,3 +59,10 @@
 .pet-select{position:absolute;top:76px;right:12px;z-index:4;border:1px solid #80b7ce88;background:#0a263c99;border-radius:10px;padding:7px 10px;font-size:12px;backdrop-filter:blur(4px)}
 .species-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.species-picker button{margin:0;padding:12px 5px;font-size:12px}
 @media(max-width:650px){.pet-select{top:64px;right:8px;padding:6px;font-size:11px}}
+
+/* QA: keep dialogs above all controls and make the mobile action stack predictable. */
+.modal{z-index:30;overflow-y:auto;overscroll-behavior:contain}.dialog{max-height:calc(100dvh - 36px);overflow-y:auto}
+.mini-game{z-index:20}.pet-select{z-index:4}
+@media(max-height:600px){.training-button,.mini-start,.extras{top:auto;bottom:auto}.training-button{right:8px;top:35%}.mini-start{right:8px;top:47%}.extras{right:8px;top:59%;bottom:auto}.extras button{min-height:27px}.pet-select{top:45px;right:8px}.pet-info{top:45px;max-width:33vw}}
+@media(max-height:400px){.training-button{top:33%}.mini-start{top:46%}.extras{top:59%}.extras button{padding:3px 6px}.pet-select{top:38px}}
+@media(max-width:400px){.actions{width:calc(100% - 12px);gap:2px}.actions button{min-width:0;padding:5px 2px}.actions button span{font-size:9px}.pet-info{max-width:43vw}}
