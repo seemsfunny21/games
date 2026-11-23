@@ -59,8 +59,11 @@ function renderWorkers(){
  const selected=$("eventWorker").value;
  const workerSelect=$("eventWorker");workerSelect.replaceChildren();
  if(!state.workers.length){const opt=node("option","Πρόσθεσε εργαζόμενο πρώτα");opt.value="";workerSelect.append(opt);}
- for(const w of state.workers){const o=node("option",w.name);o.value=w.id;workerSelect.append(o);}
- if(state.workers.some(w=>w.id===selected))workerSelect.value=selected;
+ const next=tomorrow(state.now.slice(0,10));
+ const occupied=new Set(state.events.filter(e=>e.date===next).map(e=>e.worker_id));
+ const openWorkers=state.workers.filter(w=>!occupied.has(w.id));
+ for(const w of openWorkers){const o=node("option",w.name);o.value=w.id;workerSelect.append(o);}
+ if(openWorkers.some(w=>w.id===selected))workerSelect.value=selected;
  const list=$("workerList");list.replaceChildren();
  for(const w of state.workers){
   const c=card(w.name,"Ενεργός εργαζόμενος");
@@ -73,16 +76,29 @@ function renderWorkers(){
 }
 function renderEvents(){
  const day=state.now.slice(0,10);
- $("eventDate").min=day;
- $("eventDate").max=(()=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+30);return d.toISOString().slice(0,10);})();
- const initial=state.now.slice(11,13)>="09"?tomorrow(day):day;
- if(!$("eventDate").value||$("eventDate").value<initial)$("eventDate").value=initial;
- $("openEvent").disabled=!state.workers.length||busy;
+ const target=tomorrow(day);
+ const count=state.events.filter(e=>e.date===target).length;
+ const unusedWorkers=state.workers.filter(w=>!state.events.some(e=>e.date===target&&e.worker_id===w.id));
+ const beforeNoon=state.now.slice(11,13)<"12";
+ $("eventDate").min=target;
+ $("eventDate").max=target;
+ $("eventDate").value=target;
+ $("eventDate").disabled=true;
+ const canCreate=beforeNoon&&count<3&&unusedWorkers.length>0;
+ $("openEvent").disabled=!canCreate||busy;
+ $("eventCreationInfo").textContent=count>=3
+  ?"Έχουν επιλεγεί και οι 3 εργαζόμενοι για αύριο."
+  :!beforeNoon
+    ?"Η προσθήκη νέων γεγονότων για αύριο έκλεισε στις 12:00. Μπορείς να ποντάρεις στα υπάρχοντα έως τις 09:00 αύριο."
+    :count===0
+      ?"Δεν έχει προταθεί εργαζόμενος για αύριο. Αν δεν προτείνει κανείς, το πρόγραμμα επιλέγει έναν στις 11:30."
+      :count+"/3 εργαζόμενοι για αύριο · Μπορείς να προσθέσεις άλλον μέχρι τις 12:00.";
  const list=$("eventList");list.replaceChildren();
  const ordered=[...state.events].sort((a,b)=>(a.status==="open"?0:1)-(b.status==="open"?0:1)||b.date.localeCompare(a.date));
  if(!ordered.length)list.append(node("p","Δεν υπάρχουν ακόμη γεγονότα. Άνοιξε το πρώτο!","muted"));
  for(const e of ordered.slice(0,120)){
   const c=card(e.name,dateLabel(e.date)+" · "+statusText[e.status]);
+  if(e.source==="system")c.append(node("span","🎲 Αυτόματη επιλογή","tag good"));
   c.append(node("span",e.status==="open"?"Στοιχήματα έως 09:00":"Κλειστά στοιχήματα","tag"+(e.status==="open"?" good":"")));
   if(e.already_bet)c.append(node("span","Έχεις ήδη ποντάρει","tag good"));
   if(e.totals&&e.status!=="open")c.append(node("div","Προβλέψεις: ΘΑ ΕΡΘΕΙ "+e.totals.yes+" · ΔΕΝ ΘΑ ΕΡΘΕΙ "+e.totals.no,"muted"));
