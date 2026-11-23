@@ -1,15 +1,18 @@
 import * as THREE from 'three';
 
-const KEY='my-virtual-pet-3d-v1', DAY=86400000, MAX_OFFLINE=14*DAY;
-const defaults=()=>({version:1,name:'Πίκο',born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0,trained:0,trainingSkills:{come:0,fly:0,perch:0},bestStars:0,bestMemory:0,lastReward:0});
+const BASE_KEY='my-virtual-pet-3d-v1', SPECIES_KEY='my-virtual-pet-3d-species', DAY=86400000, MAX_OFFLINE=14*DAY;
+const SPECIES={parrot:{name:'Πίκο',label:'Παπαγαλάκι',emoji:'🦜'},dog:{name:'Μπρούνο',label:'Σκυλάκι',emoji:'🐶'},cat:{name:'Μίλο',label:'Γατάκι',emoji:'🐱'}};
+let species=SPECIES[localStorage.getItem(SPECIES_KEY)]?localStorage.getItem(SPECIES_KEY):'parrot';
+const storageKey=()=>species==='parrot'?BASE_KEY:BASE_KEY+'-'+species;
+const defaults=()=>({version:1,name:SPECIES[species].name,born:Date.now(),last:Date.now(),food:85,water:85,happy:80,energy:85,clean:90,health:100,coins:20,xp:0,level:1,sleeping:false,actions:0,trained:0,trainingSkills:{come:0,fly:0,perch:0},bestStars:0,bestMemory:0,lastReward:0});
 const clamp=(n)=>Math.max(0,Math.min(100,n));
 const safe=(n,fallback)=>Number.isFinite(n)?n:fallback;
-function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));if(v.trainingSkills&&typeof v.trainingSkills==='object'){for(const k of ['come','fly','perch'])d.trainingSkills[k]=Math.max(0,Math.min(100,Math.floor(Number(v.trainingSkills[k])||0)))}return d}catch(e){return null}}
-let pet=restore()||defaults(),ready=!!localStorage.getItem(KEY);
+function restore(){try{const raw=localStorage.getItem(storageKey());if(!raw)return null;const v=JSON.parse(raw);if(v.version!==1||typeof v.name!=='string')return null;const d=defaults();for(const k of Object.keys(d)){if(k in v&&typeof v[k]===typeof d[k])d[k]=v[k]}d.name=d.name.slice(0,20);for(const k of ['food','water','happy','energy','clean','health'])d[k]=clamp(safe(d[k],75));d.last=safe(d.last,Date.now());d.born=safe(d.born,Date.now());d.coins=Math.max(0,Math.floor(safe(d.coins,0)));d.xp=Math.max(0,Math.floor(safe(d.xp,0)));if(v.trainingSkills&&typeof v.trainingSkills==='object'){for(const k of ['come','fly','perch'])d.trainingSkills[k]=Math.max(0,Math.min(100,Math.floor(Number(v.trainingSkills[k])||0)))}return d}catch(e){return null}}
+let pet=restore()||defaults(),ready=!!localStorage.getItem(storageKey());
 let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=11.5,drag=null;
 const $=id=>document.getElementById(id), sceneEl=$('scene');
 
-function save(){try{localStorage.setItem(KEY,JSON.stringify(pet))}catch(e){toast('Δεν ήταν δυνατή η αποθήκευση. Έλεγξε τον διαθέσιμο χώρο.')}}
+function save(){try{localStorage.setItem(storageKey(),JSON.stringify(pet))}catch(e){toast('Δεν ήταν δυνατή η αποθήκευση. Έλεγξε τον διαθέσιμο χώρο.')}}
 function advance(now=Date.now()){
  const elapsed=Math.max(0,Math.min(MAX_OFFLINE,now-pet.last));
  if(elapsed<1000)return;
@@ -25,10 +28,10 @@ function ageDays(){return Math.max(1,Math.floor(Math.max(0,Date.now()-pet.born)/
 function toast(message){const el=$('toast');el.textContent=message;el.classList.add('show');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>el.classList.remove('show'),3200)}
 function modal(title,body,buttons){$('modalTitle').textContent=title;$('modalBody').replaceChildren();if(typeof body==='string'){const p=document.createElement('p');p.textContent=body;$('modalBody').append(p)}else $('modalBody').append(body);$('modalButtons').replaceChildren();for(const b of buttons){const btn=document.createElement('button');btn.textContent=b.text;btn.className=b.danger?'danger':'';btn.addEventListener('click',b.action);$('modalButtons').append(btn)}$('modal').hidden=false}
 function closeModal(){$('modal').hidden=true}
-function adoption(){const box=document.createElement('div'),p=document.createElement('p'),input=document.createElement('input');p.textContent='Καλώς ήρθες! Δώσε όνομα στο παπαγαλάκι σου.';input.maxLength=20;input.value=pet.name;input.setAttribute('aria-label','Όνομα παπαγάλου');box.append(p,input);modal('Υιοθεσία 🦜',box,[{text:'Υιοθεσία',action:()=>{const name=input.value.trim();if(!name){input.focus();return}pet.name=name;ready=true;save();closeModal();refresh();toast('Καλώς ήρθες, '+pet.name+'!')}}]);input.focus()}
+function adoption(){const box=document.createElement('div'),p=document.createElement('p'),input=document.createElement('input');p.textContent='Καλώς ήρθες! Δώσε όνομα στο νέο κατοικίδιό σου.';input.maxLength=20;input.value=pet.name;input.setAttribute('aria-label','Όνομα παπαγάλου');box.append(p,input);modal('Υιοθεσία '+SPECIES[species].emoji,box,[{text:'Υιοθεσία',action:()=>{const name=input.value.trim();if(!name){input.focus();return}pet.name=name;ready=true;save();closeModal();refresh();toast('Καλώς ήρθες, '+pet.name+'!')}}]);input.focus()}
 const labels=[['food','🌻 Τροφή','#e9b55d'],['water','💧 Νερό','#67c9ed'],['happy','💚 Ευτυχία','#8bd49e'],['energy','🌙 Ενέργεια','#d6b5f3'],['clean','✨ Καθαριότητα','#85d7c8'],['health','❤️ Υγεία','#ee9e9e']];
 function refresh(){
- $('petName').textContent=pet.name;$('age').textContent='Ημέρα '+ageDays()+' · Lv '+pet.level;
+ $('petName').textContent=SPECIES[species].emoji+' '+pet.name;$('age').textContent='Ημέρα '+ageDays()+' · Lv '+pet.level;
  for(const [key] of labels){const elements=document.querySelectorAll('[data-meter="'+key+'"]');const value=Math.round(pet[key]);for(const el of elements){el.textContent=value+'%';el.classList.toggle('low',value<20);el.setAttribute('aria-label',key+' '+value+'%')}}
  const critical=pet.water<20?'Χρειάζεται επειγόντως νερό!':pet.food<20?'Πεινάει πολύ!':pet.health<30?'Χρειάζεται ξεκούραση και φροντίδα.':null;
  $('status').textContent=critical|| (pet.sleeping?'💤 Κοιμάται και ανακτά ενέργεια.':'🪙 '+pet.coins+' νομίσματα · ✦ '+pet.xp+' XP · '+(pet.happy>65?'Είναι χαρούμενο!':'Θέλει λίγη παρέα.'));
@@ -37,7 +40,7 @@ function award(xp=2){pet.xp+=xp;while(pet.xp>=pet.level*25){pet.xp-=pet.level*25
 function act(type){
  if(!ready){adoption();return}
  advance();const before=pet[type];
- if(type==='feed'){if(pet.coins<2){toast('Χρειάζεσαι 2 νομίσματα για τροφή. Παίξε για να κερδίσεις!');return}pet.coins-=2;pet.food=clamp(pet.food+27);pet.clean=clamp(pet.clean-2);award(2);animate('eat');toast('🌻 Το '+pet.name+' τρώει σπόρους!')}
+ if(type==='feed'){if(pet.coins<2){toast('Χρειάζεσαι 2 νομίσματα για τροφή. Παίξε για να κερδίσεις!');return}pet.coins-=2;pet.food=clamp(pet.food+27);pet.clean=clamp(pet.clean-2);award(2);animate('eat');toast('🌻 Το '+pet.name+' τρώει!')}
  if(type==='water'){pet.water=clamp(pet.water+32);award(1);animate('drink');toast('💧 Ήπιε φρέσκο νερό!')}
  if(type==='play'){if(pet.energy<10){toast('Είναι κουρασμένο. Άφησέ το να κοιμηθεί.');return}pet.happy=clamp(pet.happy+18);pet.energy=clamp(pet.energy-9);pet.food=clamp(pet.food-3);pet.clean=clamp(pet.clean-3);pet.coins+=4;award(6);animate('play');toast('🪀 Παίξατε! +4 νομίσματα · +6 XP')}
  if(type==='pet'){pet.happy=clamp(pet.happy+9);award(1);animate('pet');toast('💚 Του άρεσε το χάδι!')}
@@ -86,18 +89,30 @@ function memoryGame(){
 }
 function progressPanel(){
  const box=document.createElement('div');box.className='progress-list';
- const entries=[['🦜 Έλα',pet.trainingSkills?.come||0],['🪽 Πέτα',pet.trainingSkills?.fly||0],['🌿 Στο κλαδί',pet.trainingSkills?.perch||0]];
+ const entries=[['🦜 Έλα',pet.trainingSkills?.come||0],['🪽 Πέτα',pet.trainingSkills?.fly||0],[species==='parrot'?'🌿 Στο κλαδί':'🏠 Στη θέση σου',pet.trainingSkills?.perch||0]];
  for(const [name,value] of entries){const p=document.createElement('p');p.textContent=name+' · '+value+'/100';const bar=document.createElement('div');bar.className='skill-track';const fill=document.createElement('div');fill.style.width=value+'%';bar.append(fill);box.append(p,bar)}
  const stats=document.createElement('p');stats.textContent='🎓 Εκπαιδεύσεις: '+pet.trained+' · ⭐ Ρεκόρ αστεριών: '+(pet.bestStars||0)+' · 🧠 Καλύτερη μνήμη: '+(pet.bestMemory||0)+' νομίσματα';box.append(stats);
  modal('🏆 Πρόοδος',box,[{text:'Κλείσιμο',action:closeModal}]);
 }
+function choosePet(){
+ const box=document.createElement('div');box.className='species-picker';
+ for(const [id,kind] of Object.entries(SPECIES)){const btn=document.createElement('button');btn.textContent=kind.emoji+' '+kind.label+(id===species?' ✓':'');btn.addEventListener('click',()=>switchPet(id));box.append(btn)}
+ modal('🐾 Τα κατοικίδιά μου',box,[{text:'Κλείσιμο',action:closeModal}]);
+}
+function switchPet(id){
+ if(!SPECIES[id]||id===species){closeModal();return}
+ if(mini)stopMini(false);save();species=id;localStorage.setItem(SPECIES_KEY,id);
+ pet=restore()||defaults();ready=!!localStorage.getItem(storageKey());advance();save();refresh();closeModal();
+ if(birdModels){for(const [key,model] of Object.entries(birdModels))model.visible=key===species}
+ anim={type:'idle',start:0,until:0};if(!ready)adoption();else toast(SPECIES[id].emoji+' Καλώς ήρθες, '+pet.name+'!');
+}
 function training(){
  if(!ready){adoption();return}
- const wrap=document.createElement('div');const info=document.createElement('p');info.textContent='Εντολές που γνωρίζει: Έλα · Πέτα · Στο κλαδί. Κάθε εκτέλεση δίνει +3 XP και +1 νόμισμα. Εκπαιδεύσεις: '+pet.trained;wrap.append(info);
+ const wrap=document.createElement('div');const info=document.createElement('p');info.textContent='Εντολές: Έλα · '+(species==='parrot'?'Πέτα · Στο κλαδί':'Τρέξε · Στη θέση σου')+'. Κάθε εκτέλεση δίνει +3 XP και +1 νόμισμα. Εκπαιδεύσεις: '+pet.trained;wrap.append(info);
  modal('🎓 Εκπαίδευση',wrap,[
   {text:'🦜 Έλα',action:()=>train('come')},
-  {text:'🪽 Πέτα',action:()=>train('fly')},
-  {text:'🌿 Στο κλαδί',action:()=>train('perch')},
+  {text:species==='parrot'?'🪽 Πέτα':'🐾 Τρέξε',action:()=>train('fly')},
+  {text:species==='parrot'?'🌿 Στο κλαδί':'🏠 Στη θέση σου',action:()=>train('perch')},
   {text:'Κλείσιμο',action:closeModal}
  ]);
 }
@@ -113,10 +128,11 @@ function settings(){
  const info=document.createElement('p');info.textContent='🪙 '+pet.coins+' νομίσματα · Επίπεδο '+pet.level+' · Ημέρα '+ageDays();p.append(info);
  modal('Ρυθμίσεις',p,[{text:'Εξαγωγή backup',action:()=>{const blob=new Blob([JSON.stringify(pet,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='virtual-pet-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Το αντίγραφο ασφαλείας ετοιμάστηκε.')}},
  {text:'Αλλαγή ονόματος',action:()=>{const input=document.createElement('input');input.value=pet.name;input.maxLength=20;modal('✏️ Όνομα',input,[{text:'Αποθήκευση',action:()=>{if(!input.value.trim())return;pet.name=input.value.trim().slice(0,20);save();refresh();closeModal()}},{text:'Άκυρο',action:closeModal}]);input.focus()}},
- {text:'Εισαγωγή backup',action:()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',async()=>{try{const raw=JSON.parse(await input.files[0].text());if(raw.version!==1||typeof raw.name!=='string'||!Number.isFinite(raw.born))throw Error('bad backup');modal('Επαναφορά backup','Θα αντικατασταθεί η τωρινή πρόοδος. Συνέχεια;',[{text:'Επαναφορά',danger:true,action:()=>{localStorage.setItem(KEY,JSON.stringify(raw));location.reload()}},{text:'Άκυρο',action:closeModal}])}catch(e){toast('Μη έγκυρο αντίγραφο ασφαλείας.')}});input.click()}},
+ {text:'Εισαγωγή backup',action:()=>{const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.addEventListener('change',async()=>{try{const raw=JSON.parse(await input.files[0].text());if(raw.version!==1||typeof raw.name!=='string'||!Number.isFinite(raw.born))throw Error('bad backup');modal('Επαναφορά backup','Θα αντικατασταθεί η τωρινή πρόοδος. Συνέχεια;',[{text:'Επαναφορά',danger:true,action:()=>{localStorage.setItem(storageKey(),JSON.stringify(raw));location.reload()}},{text:'Άκυρο',action:closeModal}])}catch(e){toast('Μη έγκυρο αντίγραφο ασφαλείας.')}});input.click()}},
  {text:'Κλείσιμο',action:closeModal}])
 }
 $('training').addEventListener('click',training);
+$('petSelect').addEventListener('click',choosePet);
 $('miniStart').addEventListener('click',startMini);
 $('memoryStart').addEventListener('click',memoryGame);
 $('progressStart').addEventListener('click',progressPanel);
@@ -126,7 +142,7 @@ $('settings').addEventListener('click',settings);
 if(!ready)adoption();else{advance();save();refresh();}
 
 // Original procedurally modeled parrot and room; actual THREE.js 3D geometry.
-let scene,camera,renderer,bird,wingL,wingR,head,tail,eyeL,eyeR,body,bowlFood,bowlWater,perch;
+let scene,camera,renderer,bird,wingL,wingR,head,tail,eyeL,eyeR,body,bowlFood,bowlWater,perch,birdModels=null;
 try{
  scene=new THREE.Scene();scene.background=new THREE.Color('#a4d4e8');scene.fog=new THREE.Fog('#a4d4e8',26,65);
  camera=new THREE.PerspectiveCamera(40,1,.1,100);
@@ -157,21 +173,47 @@ try{
  for(let i=0;i<5;i++){const l=sphere(.48,leaf,-4.6+Math.sin(i*2.4)*.45,1.2+i*.12,-3.2+Math.cos(i*2.4)*.35);l.scale.set(.65,1.3,.5)}
  // Bird group
  bird=new THREE.Group();scene.add(bird);bird.position.set(0,2.55,0);
+ const parrotModel=new THREE.Group();bird.add(parrotModel);
  const green=mat('#39b96d'),mint=mat('#68d996'),blue=mat('#2f9cc5'),beak=mat('#f7b850'),black=mat('#122537',.3),iris=mat('#fff8e9'),feet=mat('#e39d64');
- body=sphere(.62,green,0,0,0,bird);body.scale.set(.86,1.1,.77);
- sphere(.43,mint,0,-.06,.45,bird).scale.set(.9,1.15,.35);
- head=new THREE.Group();head.position.set(0,.78,.12);bird.add(head);
+ body=sphere(.62,green,0,0,0,parrotModel);body.scale.set(.86,1.1,.77);
+ sphere(.43,mint,0,-.06,.45,parrotModel).scale.set(.9,1.15,.35);
+ head=new THREE.Group();head.position.set(0,.78,.12);parrotModel.add(head);
  sphere(.55,green,0,0,0,head);
  sphere(.17,beak,0,-.12,.56,head).scale.set(1, .65,1.35);
  const eye=(x)=>{sphere(.16,iris,x,.12,.43,head);sphere(.092,black,x,.12,.56,head);sphere(.028,white,x-.025,.155,.635,head)};
  eye(-.25);eye(.25);
  for(let i=0;i<3;i++){const crest=sphere(.095,mint,(i-1)*.15,.54+i*.035,-.05,head);crest.scale.set(.7,2.1,.7);crest.rotation.z=(i-1)*-.35}
- wingL=new THREE.Group();wingR=new THREE.Group();bird.add(wingL,wingR);
+ wingL=new THREE.Group();wingR=new THREE.Group();parrotModel.add(wingL,wingR);
  wingL.position.set(-.5,.1,0);wingR.position.set(.5,.1,0);
  for(const [wing,sign] of [[wingL,-1],[wingR,1]]){const feather=sphere(.31,blue,sign*.17,-.22,0,wing);feather.scale.set(.75,1.7,.5);feather.rotation.z=sign*-.4;for(let i=0;i<3;i++){const tip=sphere(.12,mat(i===0?'#2389bd':'#4ec5c7'),sign*(.2+i*.07),-.57+i*.06,-.05,wing);tip.scale.set(.65,1.5,.6)}}
- tail=new THREE.Group();bird.add(tail);tail.position.set(0,-.34,-.5);
+ tail=new THREE.Group();parrotModel.add(tail);tail.position.set(0,-.34,-.5);
  for(let i=-1;i<=1;i++){const f=sphere(.15,blue,i*.16,-.3,-.22,tail);f.scale.set(.55,2.7,.55);f.rotation.x=-.3}
- for(const x of [-.27,.27]){cylinder(.045,.045,.36,feet,x,-.62,.12,bird);for(let i=-1;i<=1;i++){const toe=cylinder(.035,.035,.25,feet,x+i*.075,-.78,.19,bird);toe.rotation.x=Math.PI/2}}
+ for(const x of [-.27,.27]){cylinder(.045,.045,.36,feet,x,-.62,.12,parrotModel);for(let i=-1;i<=1;i++){const toe=cylinder(.035,.035,.25,feet,x+i*.075,-.78,.19,parrotModel);toe.rotation.x=Math.PI/2}}
+ // Distinct, lightweight procedural 3D models sharing the same movement system.
+ function makeMammal(kind){
+  const group=new THREE.Group();bird.add(group);
+  const cat=kind==='cat',coat=mat(cat?'#e8a25f':'#c68b5e'),light=mat(cat?'#ffe0ae':'#f5d2a5'),dark=mat('#322f37'),pink=mat('#e58d9d'),inner=mat(cat?'#e7a2aa':'#ae745d');
+  const torso=sphere(.68,coat,0,-.04,-.14,group);torso.scale.set(.83,.79,1.3);
+  const chest=sphere(.36,light,0,-.13,.39,group);chest.scale.set(.85,1.13,.48);
+  const skull=sphere(cat?.48:.52,coat,0,.48,.55,group);skull.scale.set(1,.91,.93);
+  const muzzle=sphere(.26,light,0,.25,.94,group);muzzle.scale.set(1,.63,.65);
+  sphere(.105,dark,0,.33,1.12,group);
+  for(const side of [-1,1]){
+   sphere(.105,dark,side*.22,.56,.94,group);
+   sphere(.033,mat('#ffffff'),side*.19,.59,1.025,group);
+   if(cat){const ear=add(new THREE.ConeGeometry(.24,.5,3),coat,side*.35,1.0,.48,group);ear.rotation.z=-side*.12;
+    const earIn=add(new THREE.ConeGeometry(.12,.31,3),inner,side*.35,1.04,.63,group);earIn.rotation.z=-side*.12}
+   else{const ear=sphere(.23,coat,side*.46,.69,.47,group);ear.scale.set(.64,1.3,.54);ear.rotation.z=side*.38}
+   for(const z of [-.57,.42]){const leg=sphere(.19,coat,side*.4,-.57,z,group);leg.scale.set(.78,1.5,.82);sphere(.18,light,side*.4,-.82,z+.1,group).scale.set(1,.5,1.35)}
+  }
+  if(cat){const tailBase=new THREE.Group();tailBase.position.set(0,.04,-.96);group.add(tailBase);const t1=cylinder(.11,.12,.85,coat,0,.32,-.17,tailBase);t1.rotation.x=-.65;const t2=sphere(.15,coat,0,.78,-.42,tailBase);t2.scale.set(.8,1.5,.8);group.userData.tail=tailBase;
+   for(const side of [-1,1]){for(let i=0;i<3;i++){const w=add(new THREE.CylinderGeometry(.009,.009,.47,6),light,side*(.25+i*.035),.23+i*.055,1.12,group);w.rotation.z=side*.95}}
+  }else{const tailBase=new THREE.Group();tailBase.position.set(0,.05,-.96);group.add(tailBase);const t=sphere(.19,coat,0,.32,-.13,tailBase);t.scale.set(.78,1.7,.8);t.rotation.x=-.6;group.userData.tail=tailBase}
+  return group;
+ }
+ const dogModel=makeMammal('dog'),catModel=makeMammal('cat');
+ birdModels={parrot:parrotModel,dog:dogModel,cat:catModel};
+ for(const [key,model] of Object.entries(birdModels))model.visible=key===species;
  // Floating 3D sleep symbols: face the camera and drift upward above the head.
  const sleepSymbols=[];
  const zCanvas=document.createElement('canvas');zCanvas.width=256;zCanvas.height=128;
@@ -192,7 +234,7 @@ try{
  const smooth=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
  const mix=(a,b,t)=>a+(b-a)*t;
  function chooseRoam(now){
-  const roll=Math.random(),flight=roll>.7&&pet.energy>20;
+  const roll=Math.random(),flight=species==='parrot'&&roll>.7&&pet.energy>20;
   const target=flight?new THREE.Vector3((Math.random()-.5)*3.6,2.5+Math.random()*1.5,(Math.random()-.5)*2.5):new THREE.Vector3((Math.random()-.5)*.9,2.55,(Math.random()-.5)*.22);
   roam={kind:flight?'fly':'hop',start:now,until:now+(flight?3200:1700),from:bird.position.clone(),to:target};
  }
@@ -212,14 +254,14 @@ try{
    const travel=progress<.29?smooth(progress/.29):progress>.75?smooth((1-progress)/.25):1;
    position.lerpVectors(home,destination,travel);
    position.y+=Math.sin(Math.PI*travel)*.38;
-   flying=progress<.29||progress>.75;
+   flying=species==='parrot'&&(progress<.29||progress>.75);
    facing=progress<.75?Math.atan2(bowlX,1.38):0;
    if(progress>.29&&progress<.75){position.y+=Math.sin(t*10)*.035;head.rotation.x=.35}
    roam.until=now+2500;
   }else if(active==='play'){
    const progress=(now-anim.start)/(anim.until-anim.start);
    position.set(Math.sin(progress*Math.PI*2)*1.15,2.7+Math.sin(progress*Math.PI*3)*.55,Math.cos(progress*Math.PI*2)*.65);
-   facing=progress*Math.PI*2;flying=true;roam.until=now+2000;
+   facing=progress*Math.PI*2;flying=species==='parrot';roam.until=now+2000;
   }else if(active.startsWith('train-')){
    const progress=Math.max(0,Math.min(1,(now-anim.start)/(anim.until-anim.start)));
    const motion=smooth(progress<.5?progress*2:(1-progress)*2);
@@ -227,10 +269,10 @@ try{
     position.set(0,2.55-.65*motion,1.9*motion);facing=0;flying=progress<.3||progress>.7;
    }else if(active==='train-fly'){
     position.set(Math.sin(progress*Math.PI*2)*1.6,2.55+Math.sin(progress*Math.PI)*1.55,Math.sin(progress*Math.PI*2)*.7);
-    facing=progress*Math.PI*2;flying=true;
+    facing=progress*Math.PI*2;flying=species==='parrot';
    }else{
     position.set(Math.sin(progress*Math.PI)*.85,2.55+Math.sin(progress*Math.PI)*.65,Math.sin(progress*Math.PI)*.5);
-    flying=progress<.8;
+    flying=species==='parrot'&&progress<.8;
    }
    roam={kind:'perch',start:now,until:now+1600,from:home.clone(),to:home.clone()};
   }else if(active==='pet'){
@@ -239,17 +281,19 @@ try{
    if(now>=roam.until){if(Math.hypot(bird.position.x,bird.position.z)>.45){roam={kind:'fly',start:now,until:now+2400,from:bird.position.clone(),to:home.clone()}}else chooseRoam(now)}
    const progress=smooth((now-roam.start)/(roam.until-roam.start));
    position.lerpVectors(roam.from,roam.to,progress);
-   if(roam.kind==='fly'){flying=true;position.y+=Math.sin(Math.PI*progress)*.5}
+   if(roam.kind==='fly'){flying=species==='parrot';position.y+=Math.sin(Math.PI*progress)*.5}
    else position.y+=Math.sin(Math.PI*progress)*.17;
    
    // Periodically return to the perch, rather than drifting indefinitely.
    if(Math.hypot(position.x,position.z)>2.5){roam.to.copy(home)}
    facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
   }
+  if(species!=='parrot')position.y-=.85;
   bird.position.copy(position);bird.position.y+=Math.sin(t*2.5)*.025;
+  if(birdModels&&species!=='parrot'){const model=birdModels[species];model.userData.tail.rotation.z=Math.sin(t*(active==='play'?12:5))*.28;model.rotation.z=active==='pet'?Math.sin(t*7)*.06:0}
   for(let k=0;k<sleepSymbols.length;k++){
    const symbol=sleepSymbols[k];symbol.visible=pet.sleeping;
-   if(pet.sleeping){const phase=((now/2600)+k/3)%1;symbol.position.set(bird.position.x+.45+phase*.32,bird.position.y+1.36+phase*1.25,bird.position.z+.12);symbol.material.opacity=Math.min(1,phase*5,(1-phase)*4)*.92;const scale=.68+phase*.55;symbol.scale.set(scale*1.55,scale*.78,1)}
+   if(pet.sleeping){const phase=((now/2600)+k/3)%1;symbol.position.set(bird.position.x+.45+phase*.32,bird.position.y+(species==='parrot'?1.36:1.1)+phase*1.25,bird.position.z+.12);symbol.material.opacity=Math.min(1,phase*5,(1-phase)*4)*.92;const scale=.68+phase*.55;symbol.scale.set(scale*1.55,scale*.78,1)}
   }
   bird.rotation.y=facing+Math.sin(t*.6)*.09;
   head.rotation.z=active==='pet'?Math.sin(t*9)*.18:Math.sin(t*1.9)*.055;
