@@ -44,6 +44,7 @@ function renderAuth(){
 }
 function render(){
  renderAuth();
+ if(window.arrivalPushUI)window.arrivalPushUI.renderState(token,state);
  if(!state||!token)return;
  $("playerName").textContent=state.player.nickname;
  $("balance").textContent=Number(state.player.chips).toLocaleString("el-GR");
@@ -162,7 +163,7 @@ async function authSubmit(){
 $("authSubmit").onclick=authSubmit;
 $("authToggle").onclick=()=>{authMode=authMode==="login"?"register":"login";renderAuth();msg("");};
 $("pin").addEventListener("keydown",e=>{if(e.key==="Enter")authSubmit();});
-$("logout").onclick=async()=>{try{await api("logout");}catch{}token="";state=null;pending=[];localStorage.removeItem(KEY);render();msg("Αποσυνδέθηκες.");};
+$("logout").onclick=async()=>{try{await window.arrivalPushUI?.disableForLogout?.();}catch{}try{await api("logout");}catch{}token="";state=null;pending=[];localStorage.removeItem(KEY);render();msg("Αποσυνδέθηκες.");};
 $("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render();msg("");}});
 $("openEvent").onclick=()=>{
  const stake=Number($("eventStake").value);
