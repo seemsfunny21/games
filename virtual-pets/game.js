@@ -277,7 +277,29 @@ try{
   bird.scale.setScalar(ageScale);
   const t=idlePhase,active=now<anim.until?anim.type:'idle';
   let flying=false,position=home.clone(),facing=0;
-  if(pet.sleeping){position.set(0,2.48,0);roam.until=now+3000}
+  if(species!=='parrot'){
+   // Mammals stay on the floor: their paws are ~0.82 units below the model origin.
+   const ground=.82,elapsed=Math.max(0,now-anim.start),duration=Math.max(1,anim.until-anim.start);
+   const p=Math.min(1,elapsed/duration),go=smooth(p<.5?p*2:(1-p)*2);
+   position.set(0,ground,0);
+   if(pet.sleeping){position.y=ground-.18;facing=0}
+   else if(active==='eat'||active==='drink'){
+    position.set((active==='eat'?-1.35:1.35)*go,ground,1.1*go);facing=go>0?Math.atan2(position.x,position.z):0;
+   }else if(active==='play'||active==='train-fly'){
+    position.set(Math.sin(p*Math.PI*2)*1.15,ground,Math.cos(p*Math.PI*2)*.7-.7);
+    facing=p*Math.PI*2;
+   }else if(active==='train-come'){
+    position.z=1.75*go;
+   }else if(active==='train-perch'){
+    position.x=.8*go;
+   }else if(active==='pet'){
+    position.y=ground+Math.abs(Math.sin(t*6))*.035;
+   }else{
+    // Slow floor-level walking with occasional pauses; no flight or vertical hops.
+    position.x=Math.sin(t*.32)*.55;position.z=Math.cos(t*.26)*.38;
+    facing=Math.atan2(Math.cos(t*.32)*.176,-Math.sin(t*.26)*.099);
+   }
+  }else if(pet.sleeping){position.set(0,2.48,0);roam.until=now+3000}
   else if(active==='eat'||active==='drink'){
    const total=anim.until-anim.start,progress=Math.max(0,Math.min(1,(now-anim.start)/total));
    const bowlX=active==='eat'?-1.35:1.35;
@@ -320,8 +342,7 @@ try{
    if(Math.hypot(position.x,position.z)>2.5){roam.to.copy(home)}
    facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
   }
-  if(species!=='parrot')position.y-=1.65;
-  bird.position.copy(position);bird.position.y+=Math.sin(t*2.5)*.025;
+  bird.position.copy(position);if(species==='parrot')bird.position.y+=Math.sin(t*2.5)*.025;
   if(birdModels&&species!=='parrot'){const model=birdModels[species];model.userData.tail.rotation.z=Math.sin(t*(active==='play'?12:5))*.28;model.rotation.z=active==='pet'?Math.sin(t*7)*.06:0}
   for(let k=0;k<sleepSymbols.length;k++){
    const symbol=sleepSymbols[k];symbol.visible=pet.sleeping;
