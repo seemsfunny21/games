@@ -1,5 +1,19 @@
 (()=>{const {el,btn,grid,shuffle}=G;const symbols=["🐉","🎋","🌸","☯️","🀄","💠","🌿","🌙","☀️","🏮","🍀","🎴","⭐","🐼","🪷","🌀","🦊","🌈","🍎","🦉","🍇","🎲","🚲","🦋","🐠","🧩","🪁","🥝","🍉","🦄","🎯","🚀"];let s;const P=G.progress(start);
-function start(){const available=P.difficulty==="easy"?symbols.slice(0,8):P.difficulty==="normal"?symbols.slice(0,16):symbols;const pool=G.shuffleStage(available.flatMap(v=>Array(64/available.length).fill(symbols.indexOf(v))),"mahjong",P.stage,P.difficulty);s={tiles:pool,selected:-1,moves:0,shuffles:0};save();render();}
+function construct(stage=P.stage,difficulty=P.difficulty){
+ const available=difficulty==="easy"?symbols.slice(0,8):difficulty==="normal"?symbols.slice(0,16):symbols;
+ const ids=available.flatMap(v=>Array(32/available.length).fill(symbols.indexOf(v)));
+ const pairs=G.shuffleStage(ids,"mahjong-solvable",stage,difficulty);
+ const board=Array(64);
+ // Mirror each identical pair at opposite ends of a row.
+ // Clearing from the outside inward always leaves two free matching tiles.
+ for(let row=0;row<8;row++)for(let column=0;column<4;column++){
+  const color=pairs[row*4+column];
+  board[row*8+column]=color;board[row*8+7-column]=color;
+ }
+ return board;
+}
+window.MahjongLevels={create:construct};
+function start(){s={tiles:construct(),selected:-1,moves:0,shuffles:0};save();render();}
 function save(){G.store("round",s)}const free=i=>{if(s.tiles[i]===null)return false;const x=i%8;return x===0||x===7||s.tiles[i-1]===null||s.tiles[i+1]===null;};
 function tap(i){if(!free(i))return;if(s.selected===i){s.selected=-1;return render();}if(s.selected!==-1&&s.tiles[s.selected]===s.tiles[i]&&free(s.selected)){s.tiles[s.selected]=null;s.tiles[i]=null;s.selected=-1;s.moves++;save();render();if(s.tiles.every(v=>v===null))P.win();return;}s.selected=i;render();}
 function reshuffle(){const positions=s.tiles.map((v,i)=>v!==null?i:-1).filter(v=>v!==-1),values=shuffle(positions.map(i=>s.tiles[i]));positions.forEach((p,i)=>s.tiles[p]=values[i]);s.selected=-1;s.shuffles++;save();render();}
