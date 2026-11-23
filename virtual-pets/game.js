@@ -8,7 +8,7 @@ function restore(){try{const raw=localStorage.getItem(KEY);if(!raw)return null;c
 let pet=restore()||defaults(),ready=!!localStorage.getItem(KEY);
 let noticeTimer=0,anim={type:'idle',until:0},idlePhase=0,orbit=0.28,zoom=11.5,drag=null;
 const $=id=>document.getElementById(id), sceneEl=$('scene');
-$('needsToggle').addEventListener('click',()=>{const collapsed=$('needs').classList.toggle('collapsed');$('needsToggle').textContent=collapsed?'▾ Ανάγκες':'▴ Απόκρυψη';$('needsToggle').setAttribute('aria-expanded',String(!collapsed))});
+
 function save(){try{localStorage.setItem(KEY,JSON.stringify(pet))}catch(e){toast('Δεν ήταν δυνατή η αποθήκευση. Έλεγξε τον διαθέσιμο χώρο.')}}
 function advance(now=Date.now()){
  const elapsed=Math.max(0,Math.min(MAX_OFFLINE,now-pet.last));
@@ -29,8 +29,7 @@ function adoption(){const box=document.createElement('div'),p=document.createEle
 const labels=[['food','🌻 Τροφή','#e9b55d'],['water','💧 Νερό','#67c9ed'],['happy','💚 Ευτυχία','#8bd49e'],['energy','🌙 Ενέργεια','#d6b5f3'],['clean','✨ Καθαριότητα','#85d7c8'],['health','❤️ Υγεία','#ee9e9e']];
 function refresh(){
  $('petName').textContent=pet.name;$('age').textContent='Ημέρα '+ageDays()+' · Lv '+pet.level;
- $('meters').replaceChildren();
- for(const [key,label,color] of labels){const v=Math.round(pet[key]),wrap=document.createElement('div');wrap.className='meter'+(v<20?' critical':'');const line=document.createElement('div');line.className='line';const l=document.createElement('span'),r=document.createElement('span');l.textContent=label;r.textContent=v+'%';line.append(l,r);const track=document.createElement('div'),fill=document.createElement('div');track.className='track';fill.className='fill';fill.style.width=v+'%';fill.style.background=color;track.append(fill);wrap.append(line,track);$('meters').append(wrap)}
+ for(const [key] of labels){const el=document.querySelector('[data-meter="'+key+'"]');if(!el)continue;const value=Math.round(pet[key]);el.textContent=value+'%';el.classList.toggle('low',value<20);el.setAttribute('aria-label',key+' '+value+'%')}
  const critical=pet.water<20?'Χρειάζεται επειγόντως νερό!':pet.food<20?'Πεινάει πολύ!':pet.health<30?'Χρειάζεται ξεκούραση και φροντίδα.':null;
  $('status').textContent=critical|| (pet.sleeping?'💤 Κοιμάται και ανακτά ενέργεια.':'🪙 '+pet.coins+' νομίσματα · ✦ '+pet.xp+' XP · '+(pet.happy>65?'Είναι χαρούμενο!':'Θέλει λίγη παρέα.'));
 }
