@@ -46,7 +46,7 @@ function act(type){
  if(type!=='sleep'&&pet.sleeping)pet.sleeping=false;
  pet.actions++;pet.last=Date.now();save();refresh();
 }
-function animate(type){anim={type,until:performance.now()+1800}}
+function animate(type){const duration=type==='eat'||type==='drink'?5200:type==='play'?3300:type==='pet'?2300:1800;anim={type,start:performance.now(),until:performance.now()+duration}}
 function settings(){
  const p=document.createElement('div'),text=document.createElement('p');text.textContent='Η πρόοδος αποθηκεύεται μόνο σε αυτή τη συσκευή. Το κατοικίδιο συνεχίζει να έχει ανάγκες όσο λείπεις (έως 14 ημέρες υπολογισμού ανά επιστροφή).';p.append(text);
  const info=document.createElement('p');info.textContent='🪙 '+pet.coins+' νομίσματα · Επίπεδο '+pet.level+' · Ημέρα '+ageDays();p.append(info);
@@ -105,19 +105,61 @@ try{
  tail=new THREE.Group();bird.add(tail);tail.position.set(0,-.34,-.5);
  for(let i=-1;i<=1;i++){const f=sphere(.15,blue,i*.16,-.3,-.22,tail);f.scale.set(.55,2.7,.55);f.rotation.x=-.3}
  for(const x of [-.27,.27]){cylinder(.045,.045,.36,feet,x,-.62,.12,bird);for(let i=-1;i<=1;i++){const toe=cylinder(.035,.035,.25,feet,x+i*.075,-.78,.19,bird);toe.rotation.x=Math.PI/2}}
- // Scene loop
+ // Motion system: perched idle, occasional hops, short flights, and bowl visits.
+ // The bird is animated in world space; its original perch position is the home pose.
+ const home=new THREE.Vector3(0,2.55,0);
+ let roam={kind:'perch',start:performance.now(),until:performance.now()+2500,from:home.clone(),to:home.clone()};
+ const smooth=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v)};
+ const mix=(a,b,t)=>a+(b-a)*t;
+ function chooseRoam(now){
+  const roll=Math.random(),flight=roll>.7&&pet.energy>20;
+  const target=flight?new THREE.Vector3((Math.random()-.5)*3.6,2.5+Math.random()*1.5,(Math.random()-.5)*2.5):new THREE.Vector3((Math.random()-.5)*.9,2.55,(Math.random()-.5)*.22);
+  roam={kind:flight?'fly':'hop',start:now,until:now+(flight?3200:1700),from:bird.position.clone(),to:target};
+ }
  let previous=performance.now(),lastUI=0;
  function frame(now){
   requestAnimationFrame(frame);const dt=Math.min(.05,(now-previous)/1000);previous=now;idlePhase+=dt;
   const ageScale=ageDays()<=7?.82:ageDays()<=30?.9:1;
   bird.scale.setScalar(ageScale);
   const t=idlePhase,active=now<anim.until?anim.type:'idle';
-  bird.position.y=2.55+Math.sin(t*2.5)*.045+(active==='play'?Math.abs(Math.sin(t*9))*.32:0);
-  bird.rotation.y=Math.sin(t*.6)*.16+(active==='pet'?Math.sin(t*7)*.13:0);
-  head.rotation.z=Math.sin(t*1.9)*.055;head.rotation.x=active==='eat'?.3:active==='drink'?.4:pet.sleeping?.16:0;
-  wingL.rotation.z=active==='play'?Math.sin(t*15)*.8:Math.sin(t*2)*.035;
-  wingR.rotation.z=-wingL.rotation.z;tail.rotation.x=Math.sin(t*2)*.09;
-  if(pet.sleeping){head.rotation.x=.2;bird.position.y=2.48}
+  let flying=false,position=home.clone(),facing=0;
+  if(pet.sleeping){position.set(0,2.48,0);roam.until=now+3000}
+  else if(active==='eat'||active==='drink'){
+   const total=anim.until-anim.start,progress=Math.max(0,Math.min(1,(now-anim.start)/total));
+   const bowlX=active==='eat'?-1.35:1.35;
+   const destination=new THREE.Vector3(bowlX,.98,1.38);
+   // Take off, descend toward the bowl, eat/drink, then return to the perch.
+   const travel=progress<.29?smooth(progress/.29):progress>.75?smooth((1-progress)/.25):1;
+   position.lerpVectors(home,destination,travel);
+   position.y+=Math.sin(Math.PI*travel)*.38;
+   flying=progress<.29||progress>.75;
+   facing=progress<.75?Math.atan2(bowlX,1.38):0;
+   if(progress>.29&&progress<.75){position.y+=Math.sin(t*10)*.035;head.rotation.x=.35}
+   roam.until=now+2500;
+  }else if(active==='play'){
+   const progress=(now-anim.start)/(anim.until-anim.start);
+   position.set(Math.sin(progress*Math.PI*2)*1.15,2.7+Math.sin(progress*Math.PI*3)*.55,Math.cos(progress*Math.PI*2)*.65);
+   facing=progress*Math.PI*2;flying=true;roam.until=now+2000;
+  }else if(active==='pet'){
+   position.copy(home);position.y+=Math.sin(t*8)*.08;facing=Math.sin(t*8)*.2;roam.until=now+2000;
+  }else{
+   if(now>=roam.until)chooseRoam(now);
+   const progress=smooth((now-roam.start)/(roam.until-roam.start));
+   position.lerpVectors(roam.from,roam.to,progress);
+   if(roam.kind==='fly'){flying=true;position.y+=Math.sin(Math.PI*progress)*.5}
+   else position.y+=Math.sin(Math.PI*progress)*.17;
+   if(now>roam.until-150&&roam.kind==='fly'){roam.to.copy(home)}
+   // Periodically return to the perch, rather than drifting indefinitely.
+   if(Math.hypot(position.x,position.z)>2.5){roam.to.copy(home)}
+   facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
+  }
+  bird.position.copy(position);bird.position.y+=Math.sin(t*2.5)*.025;
+  bird.rotation.y=facing+Math.sin(t*.6)*.09;
+  head.rotation.z=active==='pet'?Math.sin(t*9)*.18:Math.sin(t*1.9)*.055;
+  head.rotation.x=active==='eat'||active==='drink'?.3:pet.sleeping?.2:Math.sin(t*1.4)*.05;
+  const flap=flying?Math.sin(t*20)*.85:Math.sin(t*2)*.04;
+  wingL.rotation.z=flap;wingR.rotation.z=-flap;
+  tail.rotation.x=Math.sin(t*(flying?12:2))*.13;
   camera.position.set(Math.sin(orbit)*zoom,4.4+(zoom-8.5)*.22,Math.cos(orbit)*zoom);
   camera.lookAt(0,1.45,0);renderer.render(scene,camera);
   if(now-lastUI>10000){lastUI=now;if(ready){advance();save();refresh()}}
