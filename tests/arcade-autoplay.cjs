@@ -58,13 +58,13 @@ function brickAutoplay(api){
    targets.sort((a,b)=>Math.abs(a.x-landing)-Math.abs(b.x-landing)||b.r-a.r);
    const target=targets[Math.min((Math.floor(t/400)%3),targets.length-1)];
    const travel=Math.max(15,(455-(38+target.r*27))/Math.max(1,Math.abs(ball.vy)));
-   const desiredVelocity=Math.max(-5,Math.min(5,(target.x-landing)/travel));
+   const steeringLimit=Math.max(.7,(s.pw/2-13)/15);const desiredVelocity=Math.max(-steeringLimit,Math.min(steeringLimit,(target.x-landing)/travel));
    const desiredPaddle=Math.max(s.pw/2,Math.min(400-s.pw/2,landing-desiredVelocity*15));
    s.paddle=desiredPaddle;
   }
   api.tick();
  }
- return {won:!api.get().playing&&api.get().lives>0&&api.get().bricks.every(row=>row.every(v=>!v)),ticks:t};
+ return {won:!api.get().playing&&api.get().lives>0&&api.get().bricks.every(row=>row.every(v=>!v)),ticks:t,lives:api.get().lives,remaining:api.get().bricks.flat().reduce((a,b)=>a+b,0)};
 }
 function predictEnemy(alive,s,enemy,frames){
  let d=s.dir,positions=alive.map(e=>({x:e.x,y:e.y})),index=alive.indexOf(enemy);
