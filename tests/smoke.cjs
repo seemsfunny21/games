@@ -113,6 +113,14 @@ const sleep=n=>new Promise(resolve=>setTimeout(resolve,n));
       await page.mouse.move(dst.x+dst.width/2,dst.y+dst.height/2,{steps:10});
       await page.mouse.up();
       assert.ok((await page.locator('#score').innerText()).includes('Κινήσεις: 1'),'Water Sort drag-to-pour works');
+      if(mode==='mobile'){
+        for(const [a,b] of initial.solution.slice(1)){
+          await page.locator('.water-bottle').nth(a).click();
+          await page.locator('.water-bottle').nth(b).click();
+        }
+        await page.waitForFunction(()=>G.activeProgress.stage===2,null,{timeout:4000});
+        assert.ok(await page.locator('#score').innerText().then(t=>t.includes('Πίστα 2')),'Water Sort truly advances after solving every bottle');
+      }
     }
     if(game==='pyramid-solitaire')await page.locator('#play button:not([disabled])').first().click();
     await page.waitForTimeout(60);
