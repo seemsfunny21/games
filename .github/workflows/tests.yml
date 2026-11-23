@@ -11,12 +11,14 @@ on:
       - '**/*.cjs'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
+  schedule:
+    - cron: '15 3 * * 1'
 permissions:
   contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +36,8 @@ jobs:
         run: node tests/migrated.cjs
       - name: Audit unique 20-level layouts across all difficulties
         run: node tests/levels.cjs
+      - name: Actually complete 600 stages through legal game UI actions
+        run: node tests/stage-playthrough.cjs
       - name: Verify Water Sort difficulty with independent optimal puzzle solver
         run: node tests/water-difficulty.cjs
       - name: Check Sudoku, Reversi and Quiz engines
