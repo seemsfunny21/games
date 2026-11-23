@@ -288,7 +288,7 @@ try{
    if(Math.hypot(position.x,position.z)>2.5){roam.to.copy(home)}
    facing=Math.atan2(roam.to.x-roam.from.x,roam.to.z-roam.from.z)*.5;
   }
-  if(species!=='parrot')position.y-=.85;
+  if(species!=='parrot')position.y-=1.65;
   bird.position.copy(position);bird.position.y+=Math.sin(t*2.5)*.025;
   if(birdModels&&species!=='parrot'){const model=birdModels[species];model.userData.tail.rotation.z=Math.sin(t*(active==='play'?12:5))*.28;model.rotation.z=active==='pet'?Math.sin(t*7)*.06:0}
   for(let k=0;k<sleepSymbols.length;k++){
