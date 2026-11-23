@@ -6,7 +6,7 @@ const mapped={
  'space-invaders':'Space','brick-breaker':'Brick','falling-blocks':'Falling',
  'memory-match':'Memory','hangman':'Hangman','word-search':'Word',
  'battleship':'Battleship','blackjack':'Blackjack','pyramid-solitaire':'Pyramid',
- 'mahjong':'Mahjong','puzzle-15':'Puzzle'
+ 'mahjong':'Mahjong','puzzle-15':'Puzzle','water-sort':'Water'
 };
 const server=http.createServer((req,res)=>{
  let name=decodeURIComponent(new URL(req.url,'http://localhost').pathname);
@@ -45,6 +45,7 @@ const server=http.createServer((req,res)=>{
     const difficulties=['easy','normal','hard'],result={};
     const hooks={
      Flow:(stage,d)=>FlowLevels.create(d,stage),
+     Water:(stage,d)=>WaterLevels.create(d,stage),
      Maze:(stage,d)=>MazeLayouts.create(d,stage),
      Frogger:(stage,d)=>FroggerLevels.create(d,stage),
      Space:(stage,d)=>SpaceLevels.formation(stage,d),
@@ -78,6 +79,26 @@ const server=http.createServer((req,res)=>{
    assert.deepEqual(errors,[],'No errors in '+folder);
    for(const [difficulty,info] of Object.entries(outcome)){
     assert.equal(info.unique,20,folder+' must have 20 unique layouts in '+difficulty);
+    if(name==='Water'){
+     assert.equal(new Set(info.details.map(level=>level.signature)).size,20,'Twenty genuinely distinct Water Sort boards');
+     for(const level of info.details){
+      const tubs=level.tubes.map(t=>t.slice());
+      assert.equal(tubs.length,level.colors+2,'Water Sort has two spare bottles');
+      const counts=Array(level.colors).fill(0);
+      for(const tube of tubs){
+       assert.ok(tube.length<=4,'Bottle holds at most four segments');
+       for(const color of tube){assert.ok(Number.isInteger(color)&&color>=0&&color<level.colors);counts[color]++;}
+      }
+      assert.ok(counts.every(n=>n===4),'Each Water Sort color has four segments');
+      for(const [from,to] of level.solution){
+       const a=tubs[from],b=tubs[to],color=a[a.length-1];
+       assert.ok(a.length&&b.length<4&&(!b.length||b[b.length-1]===color),'Solution move is legal');
+       let moved=0;while(a.length&&a[a.length-1]===color&&b.length<4){b.push(a.pop());moved++;}
+       assert.ok(moved>0,'Solution pours water');
+      }
+      assert.ok(tubs.every(t=>!t.length||(t.length===4&&t.every(v=>v===t[0]))),'Every Water Sort layout reaches solved state');
+     }
+    }
     if(name==='Flow'){
      for(const level of info.details){
       const used=level.solutions.flat();
