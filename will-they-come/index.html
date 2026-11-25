@@ -104,16 +104,17 @@ button:disabled{opacity:.45;cursor:not-allowed}
   <div class="field"><label for="eventWorker">Εργαζόμενος</label><select id="eventWorker"></select></div>
   <div class="field"><label for="eventDate">Αυριανή ημερομηνία</label><input id="eventDate" type="date" disabled></div>
   <div class="field"><label for="eventSide">Η πρόβλεψή σου</label><select id="eventSide"><option value="no">ΔΕΝ ΘΑ ΕΡΘΕΙ</option><option value="yes">ΘΑ ΕΡΘΕΙ</option></select></div>
-  <div class="field"><label for="eventStake">Μάρκες</label><input id="eventStake" type="number" min="10" step="1" value="10"></div>
+  <div class="field"><label for="eventStake">Μάρκες</label><input id="eventStake" type="number" min="10" max="1000" step="1" value="10"></div>
   <button class="action" id="openEvent" style="width:100%">Άνοιγμα γεγονότος & οριστικό ποντάρισμα</button>
   <h3>Ενεργά γεγονότα</h3>
   <div id="eventList"></div>
  </section>
  <section id="ticket" class="hidden">
   <h3>Το δελτίο μου</h3>
-  <p class="muted">Η συμμετοχή λήγει στις 09:00 της ημέρας του γεγονότος. Επίλεξε 1 πρόβλεψη για μονό ή 2–5 για συνδυαστικό. Κάθε παίκτης ποντάρει μόνο μία φορά ανά γεγονός.</p>
+  <p class="muted">Επίλεξε 1 πρόβλεψη για μονό ή 2–5 για συνδυαστικό. Οι αποδόσεις κλειδώνουν στην καταχώριση. Η Τράπεζα πληρώνει τα κερδισμένα δελτία. Κάθε παίκτης ποντάρει μόνο μία φορά ανά γεγονός.</p>
   <div id="picks"></div>
-  <div class="field"><label for="ticketStake">Συνολικό ποντάρισμα (μάρκες)</label><input id="ticketStake" type="number" min="10" step="1" value="10"></div>
+  <div class="field"><label for="ticketStake">Συνολικό ποντάρισμα (μάρκες)</label><input id="ticketStake" type="number" min="10" max="1000" step="1" value="10"></div>
+  <div class="notice" id="ticketReturn" aria-live="polite">Ποντάρισμα 10–1.000 μάρκες · Μέγιστη επιστροφή 10.000</div>
   <button class="action" id="placeTicket" style="width:100%">Καταχώριση οριστικού δελτίου</button>
   <h3>Τα δελτία μου</h3><div id="myTickets"></div>
  </section>
@@ -136,7 +137,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 <div id="message" class="msg" role="status" aria-live="polite"></div>
 <p class="foot"><a href="../">← Επιστροφή στα παιχνίδια</a> · Εικονικές μάρκες · 08:30 υπενθύμιση · 09:00 λήξη πονταρισμάτων · 10:00 επιβεβαίωση</p>
 </main>
-<script src="./game.js"></script>
+<script src="./game.js?v=fixed-odds-1"></script>
 <script src="./push.js"></script>
 </body>
 </html>
