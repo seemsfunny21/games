@@ -13,6 +13,14 @@ function localDate(){return new Intl.DateTimeFormat("sv-SE",{timeZone:"Europe/At
 function tomorrow(day){const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+1);return d.toISOString().slice(0,10);}
 function dateLabel(s){if(!s)return "";const [y,m,d]=s.split("-");return d+"/"+m+"/"+y;}
 function eventById(id){return state?.events.find(e=>e.id===id);}
+function pickOdds(e,side){return Number(side==="yes"?e?.odds_yes:e?.odds_no)||1.90;}
+function formatOdds(o){return Number(o).toFixed(2).replace(".",",");}
+function updateTicketReturn(){
+ const amount=Number($("ticketStake").value);
+ const odds=pending.reduce((v,p)=>v*pickOdds(eventById(p.id),p.side),1);
+ const output=$("ticketReturn");if(!output)return;
+ output.textContent=pending.length&&Number.isSafeInteger(amount)&&amount>=10&&amount<=1000?"Συνολική απόδοση "+formatOdds(odds)+" · Πιθανή επιστροφή "+Math.min(10000,Math.floor(amount*odds+1e-8)).toLocaleString("el-GR")+" μάρκες":"Ποντάρισμα 10–1.000 μάρκες · Μέγιστη επιστροφή 10.000";
+}
 function chosen(ids){return new Set(state?.tickets.flatMap(t=>t.picks.map(p=>p.event_id))||[]);}
 async function api(action,extra={}){
  const headers={"Content-Type":"application/json"};
@@ -107,7 +115,7 @@ function renderEvents(){
    const active=pending.some(p=>p.id===e.id);
    const r=node("div",undefined,"buttons");
    r.style.marginTop="9px";
-   r.append(button("✓ ΘΑ ΕΡΘΕΙ",()=>addPick(e.id,"yes"),active),button("✕ ΔΕΝ ΘΑ ΕΡΘΕΙ",()=>addPick(e.id,"no"),active));
+   r.append(button("✓ ΘΑ ΕΡΘΕΙ · "+formatOdds(pickOdds(e,"yes")),()=>addPick(e.id,"yes"),active),button("✕ ΔΕΝ ΘΑ ΕΡΘΕΙ · "+formatOdds(pickOdds(e,"no")),()=>addPick(e.id,"no"),active));
    c.append(r);
   }
   list.append(c);
@@ -124,16 +132,16 @@ function renderTicket(){
  for(const p of pending){
   const e=eventById(p.id);
   const r=node("div",undefined,"ticket-pick");
-  r.append(node("span",(e?.name||"Εργαζόμενος")+" · "+(p.side==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+" · "+dateLabel(e?.date)));
+  r.append(node("span",(e?.name||"Εργαζόμενος")+" · "+(p.side==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+" · "+formatOdds(pickOdds(e,p.side))+" · "+dateLabel(e?.date)));
   r.append(button("×",()=>{pending=pending.filter(x=>x.id!==p.id);render();}));
   box.append(r);
  }
- $("placeTicket").disabled=!pending.length||busy;
+ $("placeTicket").disabled=!pending.length||busy;updateTicketReturn();
  const my=$("myTickets");my.replaceChildren();
  if(!state.tickets.length)my.append(node("p","Δεν έχεις ακόμη δελτία.","muted"));
  for(const t of state.tickets.slice(0,50)){
-  const c=card((t.picks.length>1?"Συνδυαστικό":"Μονό")+" · "+t.stake+" μάρκες",t.settled?"Επιστροφή: "+t.paid+" μάρκες":"Αναμονή αποτελέσματος");
-  for(const p of t.picks){const e=eventById(p.event_id);c.append(node("div",(e?.name||"Εργαζόμενος")+" · "+(p.prediction==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+" · "+dateLabel(e?.date),"muted"));}
+  const c=card((t.picks.length>1?"Συνδυαστικό":"Μονό")+" · "+t.stake+" μάρκες",t.settled?"Επιστροφή: "+t.paid+" μάρκες":t.fixed?"Πιθανή επιστροφή έως "+Math.min(10000,Math.floor(t.stake*t.picks.reduce((v,p)=>v*Number(p.locked_odds||1),1)+1e-8))+" μάρκες":"Αναμονή αποτελέσματος · Κοινό ταμείο (παλιό δελτίο)");
+  for(const p of t.picks){const e=eventById(p.event_id);c.append(node("div",(e?.name||"Εργαζόμενος")+" · "+(p.prediction==="yes"?"ΘΑ ΕΡΘΕΙ":"ΔΕΝ ΘΑ ΕΡΘΕΙ")+(p.locked_odds?" · "+formatOdds(p.locked_odds):"")+" · "+dateLabel(e?.date),"muted"));}
   my.append(c);
  }
 }
@@ -183,12 +191,13 @@ $("logout").onclick=async()=>{try{await window.arrivalPushUI?.disableForLogout?.
 $("tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b){tab=b.dataset.tab;render();msg("");}});
 $("openEvent").onclick=()=>{
  const stake=Number($("eventStake").value);
- if(!Number.isSafeInteger(stake)||stake<10){msg("Ελάχιστο ποντάρισμα 10 μάρκες.",true);return;}
+ if(!Number.isSafeInteger(stake)||stake<10||stake>1000){msg("Ποντάρισμα 10–1.000 μάρκες.",true);return;}
  perform("open",{worker_id:$("eventWorker").value,date:$("eventDate").value,side:$("eventSide").value,stake},"Το γεγονός άνοιξε και το ποντάρισμα κλειδώθηκε.");
 };
+$("ticketStake").addEventListener("input",updateTicketReturn);
 $("placeTicket").onclick=()=>{
  const stake=Number($("ticketStake").value);
- if(!Number.isSafeInteger(stake)||stake<10||!pending.length){msg("Ελάχιστο ποντάρισμα 10 μάρκες και μία πρόβλεψη.",true);return;}
+ if(!Number.isSafeInteger(stake)||stake<10||stake>1000||!pending.length){msg("Ποντάρισμα 10–1.000 μάρκες και μία πρόβλεψη.",true);return;}
  const selections=[...pending];
  perform("ticket",{ids:selections.map(x=>x.id),sides:selections.map(x=>x.side),stake},"Το δελτίο καταχωρίστηκε οριστικά.").then(()=>{
    if(state&&selections.every(x=>state.tickets.some(t=>t.picks.some(p=>p.event_id===x.id)))){pending=[];render();}
